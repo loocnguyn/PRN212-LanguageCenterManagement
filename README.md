@@ -1,106 +1,46 @@
 # Language Center Management System
 
-Hệ thống quản lý trung tâm ngoại ngữ — môn PRN212, nhóm SE1919.
+A desktop application built with C# WPF to digitalize and streamline the daily operations of a foreign language center — replacing manual Excel sheets, paper receipts, and handwritten attendance logs with a centralized, role-based management system.
 
-## Thành viên
+## What the system can do
 
-| MSSV | Họ tên | Role | Branch |
-|------|--------|------|--------|
-| SE203692 | Nguyễn Thành Lộc | Leader | `feature/loc-auth` |
-| SE204969 | Vũ Nguyễn Trung Nguyên | Member | `feature/nguyen-student` |
-| SE204605 | Chiêm Minh Thức | Member | `feature/thuc-course-class` |
-| SE203237 | Bùi Phạm Chí Nhân | Member | `feature/nhan-teacher` |
-| SE193918 | Nguyễn Hồng Duy | Member | `feature/duy-tuition-grade` |
+**For Admins**
+- Manage user accounts (create, edit, lock/unlock accounts for Teachers, Staff, Students)
+- Manage courses, classes, and classrooms
+- Detect and prevent teacher/room scheduling conflicts
+- View revenue reports and payment statistics
+
+**For Staff**
+- Manage student profiles and enrollment
+- Register students into classes
+- Create invoices and record tuition payments (cash, transfer, card)
+- Track students with outstanding balances
+
+**For Teachers**
+- View personal teaching schedule
+- Take attendance per class session
+- Enter and edit student grades (attendance, midterm, final)
+- View class roster and academic results
+
+**For Students**
+- View personal class schedule
+- View attendance history
+- View grades and academic results
+- View invoices and payment status
 
 ## Tech Stack
 
-- **Ngôn ngữ:** C# / WPF (.NET 10)
-- **Database:** SQL Server — `LanguageCenterDB`
+- **Platform:** C# / WPF on .NET 10
+- **Database:** Microsoft SQL Server
 - **ORM:** Entity Framework Core 10
-- **IDE:** Visual Studio 2022
+- **Architecture:** 5-layer — BusinessObjects → DataAccessObjects → Repositories → Services → WpfApp
 
-## Cấu trúc Solution (5 projects)
+## Team
 
-```
-LanguageCenter.slnx
-├── BusinessObjects/        — Entity classes (EF Core scaffold)
-├── DataAccessObjects/      — DbContext + DAO classes
-├── Repositories/           — Interfaces + Repository classes
-├── Services/               — Interfaces + Service classes
-└── WpfApp/                 — WPF UI (Windows)
-```
-
-**Project references (một chiều):**
-```
-WpfApp → Services → Repositories → DataAccessObjects → BusinessObjects
-```
-
-## Hướng dẫn cài đặt
-
-### 1. Yêu cầu
-- Visual Studio 2022
-- SQL Server (bất kỳ edition)
-- .NET 10 SDK
-
-### 2. Clone repo
-
-```bash
-git clone https://github.com/loocnguyn/PRN212-LanguageCenterManagement.git
-cd PRN212-LanguageCenterManagement
-git checkout feature/<tên-branch-của-bạn>
-```
-
-### 3. Tạo database
-
-Chạy file SQL sau trong **SSMS**:
-
-> Tự chạy script SQL schema để tạo `LanguageCenterDB` với đầy đủ bảng và dữ liệu mẫu.
-
-### 4. Cấu hình connection string
-
-Mở `WpfApp/appsettings.json` và sửa thông tin kết nối:
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnectionString": "Server=<tên-server>;Database=LanguageCenterDB;uid=sa;pwd=<mật-khẩu>;TrustServerCertificate=True;"
-  }
-}
-```
-
-> `Server=.` nếu dùng SQL Server mặc định localhost. Kiểm tra tên server trong SSMS.
-
-### 5. Build & Run
-
-```bash
-dotnet build
-```
-
-Hoặc mở `LanguageCenter.slnx` trong Visual Studio → **F5**.
-
-## Quy trình làm việc với Git
-
-```
-main          ← chỉ merge từ develop khi hoàn chỉnh
-  └── develop ← tất cả PR merge vào đây
-        ├── feature/loc-auth
-        ├── feature/nguyen-student
-        ├── feature/nhan-teacher
-        ├── feature/thuc-course-class
-        └── feature/duy-tuition-grade
-```
-
-- **Không push thẳng vào `main` hoặc `develop`**
-- Làm việc trên branch của mình → tạo **Pull Request** vào `develop`
-- PR cần ít nhất **1 người approve** trước khi merge
-
-## Pattern template (theo đúng thứ tự)
-
-```
-XxxDAO.cs
-  → IXxxRepository + XxxRepository
-    → IXxxService + XxxService
-      → XxxWindow.xaml + XxxWindow.xaml.cs
-```
-
-Xem [`DataAccessObjects/UserDAO.cs`](DataAccessObjects/UserDAO.cs) làm template mẫu.
+| Student ID | Name | Responsibility |
+|------------|------|----------------|
+| SE203692 | Nguyễn Thành Lộc | Leader · Authentication · Account Management · Revenue Report |
+| SE204969 | Vũ Nguyễn Trung Nguyên | Student Management · Enrollment |
+| SE204605 | Chiêm Minh Thức | Course · Class · Classroom Management · Schedule Conflict Check |
+| SE203237 | Bùi Phạm Chí Nhân | Teacher Management · Attendance · Session |
+| SE193918 | Nguyễn Hồng Duy | Tuition Fee · Payment · Grades |
