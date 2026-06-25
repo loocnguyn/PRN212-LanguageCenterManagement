@@ -15,19 +15,19 @@ public partial class MainWindow : Window
     }
 
     private void MenuAccountManagement_Click(object sender, RoutedEventArgs e)
-        => MessageBox.Show("Quản lý tài khoản — đang phát triển", "Thông báo");
+        => MessageBox.Show("Account Management — coming soon", "Info");
 
     private void MenuStudents_Click(object sender, RoutedEventArgs e)
-        => MessageBox.Show("Quản lý học viên — đang phát triển", "Thông báo");
+        => MessageBox.Show("Student Management — coming soon", "Info");
 
     private void MenuTeachers_Click(object sender, RoutedEventArgs e)
-        => MessageBox.Show("Quản lý giáo viên — đang phát triển", "Thông báo");
+        => MessageBox.Show("Teacher Management — coming soon", "Info");
 
     private void MenuCourses_Click(object sender, RoutedEventArgs e)
-        => MessageBox.Show("Quản lý khóa học — đang phát triển", "Thông báo");
+        => MessageBox.Show("Course Management — coming soon", "Info");
 
     private void MenuClasses_Click(object sender, RoutedEventArgs e)
-        => MessageBox.Show("Quản lý lớp học — đang phát triển", "Thông báo");
+        => MessageBox.Show("Class Management — coming soon", "Info");
 
     private void MenuLogout_Click(object sender, RoutedEventArgs e)
     {

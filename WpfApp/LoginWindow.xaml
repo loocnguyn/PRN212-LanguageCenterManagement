@@ -1,36 +1,40 @@
 <Window x:Class="WpfApp.LoginWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Language Center — Đăng nhập"
-        Height="280" Width="400"
-        WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize">
+        Title="Language Center — Login"
+        Height="360" Width="420" MinHeight="360" MinWidth="380"
+        WindowStartupLocation="CenterScreen">
 
     <Grid Margin="40">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="24"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="20"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="24"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Text="Language Center Management"
                    FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
 
-        <TextBox Grid.Row="2" x:Name="txtUsername"
-                 Height="32" FontSize="14"
-                 VerticalContentAlignment="Center"
-                 Text=""/>
+        <TextBlock Grid.Row="2" Text="Username"
+                   FontSize="13" Margin="0,0,0,4"/>
+        <TextBox Grid.Row="3" x:Name="txtUsername"
+                 Height="34" FontSize="14"
+                 VerticalContentAlignment="Center" Padding="6,0"/>
 
-        <PasswordBox Grid.Row="4" x:Name="pwdPassword"
-                     Height="32" FontSize="14"
-                     VerticalContentAlignment="Center"/>
+        <TextBlock Grid.Row="5" Text="Password"
+                   FontSize="13" Margin="0,0,0,4"/>
+        <PasswordBox Grid.Row="6" x:Name="pwdPassword"
+                     Height="34" FontSize="14"
+                     VerticalContentAlignment="Center" Padding="6,0"/>
 
-        <Button Grid.Row="6" Content="Đăng nhập"
-                Height="36" FontSize="14"
+        <Button Grid.Row="8" Content="Login"
+                Height="38" FontSize="14"
                 Click="BtnLogin_Click"/>
     </Grid>
 </Window>

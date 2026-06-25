@@ -5,26 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp"
         mc:Ignorable="d"
-        Title="Language Center Management"
+        Title="Language Center Management System"
         Height="600" Width="900"
         WindowStartupLocation="CenterScreen">
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="Hệ thống">
-                <MenuItem Header="Quản lý tài khoản" Click="MenuAccountManagement_Click"/>
+            <MenuItem Header="System">
+                <MenuItem Header="Account Management" Click="MenuAccountManagement_Click"/>
                 <Separator/>
-                <MenuItem Header="Đăng xuất" Click="MenuLogout_Click"/>
+                <MenuItem Header="Logout" Click="MenuLogout_Click"/>
             </MenuItem>
-            <MenuItem Header="Học viên" Click="MenuStudents_Click"/>
-            <MenuItem Header="Giáo viên" Click="MenuTeachers_Click"/>
-            <MenuItem Header="Khóa học" Click="MenuCourses_Click"/>
-            <MenuItem Header="Lớp học" Click="MenuClasses_Click"/>
+            <MenuItem Header="Students" Click="MenuStudents_Click"/>
+            <MenuItem Header="Teachers" Click="MenuTeachers_Click"/>
+            <MenuItem Header="Courses" Click="MenuCourses_Click"/>
+            <MenuItem Header="Classes" Click="MenuClasses_Click"/>
         </Menu>
 
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
-                <TextBlock x:Name="txtStatus" Text="Sẵn sàng"/>
+                <TextBlock x:Name="txtStatus" Text="Ready"/>
             </StatusBarItem>
         </StatusBar>
 
