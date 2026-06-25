@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Read(//c/Users/mynam/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/2ec02ea2-468b-4e1a-b0f6-4b60a777f177/3dfed14e-0708-426b-b354-4c76eab1f513/skills/docx/**)",
-      "Bash(extract-text \"C:\\\\Users\\\\mynam\\\\Downloads\\\\PRN212 the project\\\\Context\\\\Note things.docx\")",
-      "Bash(pandoc \"C:\\\\Users\\\\mynam\\\\Downloads\\\\PRN212 the project\\\\Context\\\\Note things.docx\" -t markdown)"
-    ]
-  }
-}
