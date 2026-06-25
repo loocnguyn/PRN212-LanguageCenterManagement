@@ -1,13 +1,27 @@
 ﻿<Window x:Class="WpfApp.StudentGradeWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="My Grades" Height="600" Width="900"
+        Title="My Grades" Height="520" Width="760"
         WindowStartupLocation="CenterScreen">
-    <Grid>
-        <!-- TODO (Duy): implement My Grades UI here -->
-        <TextBlock Text="My Grades — Coming Soon"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   FontSize="20" Foreground="Gray"/>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="Student ID:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+            <TextBox x:Name="txtStudentId" Width="120" Height="28" VerticalContentAlignment="Center" Padding="4,0"/>
+            <Button Content="Load"  Width="80" Height="28" Margin="6,0,0,0" Click="BtnLoad_Click"/>
+            <Button Content="Reset" Width="80" Height="28" Margin="6,0,0,0" Click="BtnReset_Click"/>
+        </StackPanel>
+        <DataGrid Grid.Row="1" x:Name="dgGrades"
+                  AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Class"      Binding="{Binding ClassName}"   Width="150"/>
+                <DataGridTextColumn Header="Grade Type" Binding="{Binding GradeType}"   Width="130"/>
+                <DataGridTextColumn Header="Score"      Binding="{Binding Score}"       Width="80"/>
+                <DataGridTextColumn Header="Graded At"  Binding="{Binding GradedAt}"    Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Window>
