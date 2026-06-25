@@ -1,5 +1,4 @@
 ﻿using BusinessObjects;
-using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
@@ -27,8 +26,8 @@ public class InvoiceDAO
     public static void Update(Invoice entity)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.Invoices.Find(entity.InvoiceId)
-            ?? throw new Exception("Invoice not found.");
+        var existing = context.Invoices.Find(entity.InvoiceId);
+        if (existing == null) return;
         context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
@@ -36,8 +35,8 @@ public class InvoiceDAO
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.Invoices.Find(id)
-            ?? throw new Exception("Invoice not found.");
+        var existing = context.Invoices.Find(id);
+        if (existing == null) return;
         context.Invoices.Remove(existing);
         context.SaveChanges();
     }

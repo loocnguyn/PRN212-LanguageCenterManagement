@@ -1,5 +1,4 @@
 ﻿using BusinessObjects;
-using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
@@ -27,8 +26,8 @@ public class TeacherAttendanceDAO
     public static void Update(TeacherAttendance entity)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.TeacherAttendances.Find(entity.TeacherAttendanceId)
-            ?? throw new Exception("TeacherAttendance not found.");
+        var existing = context.TeacherAttendances.Find(entity.TeacherAttendanceId);
+        if (existing == null) return;
         context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
@@ -36,8 +35,8 @@ public class TeacherAttendanceDAO
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.TeacherAttendances.Find(id)
-            ?? throw new Exception("TeacherAttendance not found.");
+        var existing = context.TeacherAttendances.Find(id);
+        if (existing == null) return;
         context.TeacherAttendances.Remove(existing);
         context.SaveChanges();
     }

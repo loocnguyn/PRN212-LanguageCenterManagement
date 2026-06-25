@@ -1,5 +1,4 @@
 ﻿using BusinessObjects;
-using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
@@ -27,8 +26,8 @@ public class PaymentDAO
     public static void Update(Payment entity)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.Payments.Find(entity.PaymentId)
-            ?? throw new Exception("Payment not found.");
+        var existing = context.Payments.Find(entity.PaymentId);
+        if (existing == null) return;
         context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
@@ -36,8 +35,8 @@ public class PaymentDAO
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.Payments.Find(id)
-            ?? throw new Exception("Payment not found.");
+        var existing = context.Payments.Find(id);
+        if (existing == null) return;
         context.Payments.Remove(existing);
         context.SaveChanges();
     }

@@ -1,5 +1,4 @@
 ﻿using BusinessObjects;
-using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
@@ -27,8 +26,8 @@ public class GradeDAO
     public static void Update(Grade entity)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.Grades.Find(entity.GradeId)
-            ?? throw new Exception("Grade not found.");
+        var existing = context.Grades.Find(entity.GradeId);
+        if (existing == null) return;
         context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
@@ -36,8 +35,8 @@ public class GradeDAO
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.Grades.Find(id)
-            ?? throw new Exception("Grade not found.");
+        var existing = context.Grades.Find(id);
+        if (existing == null) return;
         context.Grades.Remove(existing);
         context.SaveChanges();
     }

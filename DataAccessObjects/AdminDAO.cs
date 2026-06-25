@@ -1,5 +1,4 @@
 ﻿using BusinessObjects;
-using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
@@ -27,8 +26,8 @@ public class AdminDAO
     public static void Update(Admin entity)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.Admins.Find(entity.AdminId)
-            ?? throw new Exception("Admin not found.");
+        var existing = context.Admins.Find(entity.AdminId);
+        if (existing == null) return;
         context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
@@ -36,8 +35,8 @@ public class AdminDAO
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.Admins.Find(id)
-            ?? throw new Exception("Admin not found.");
+        var existing = context.Admins.Find(id);
+        if (existing == null) return;
         context.Admins.Remove(existing);
         context.SaveChanges();
     }

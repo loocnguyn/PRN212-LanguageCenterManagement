@@ -1,5 +1,4 @@
 ﻿using BusinessObjects;
-using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
@@ -27,8 +26,8 @@ public class StaffDAO
     public static void Update(Staff entity)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.Staff.Find(entity.StaffId)
-            ?? throw new Exception("Staff not found.");
+        var existing = context.Staff.Find(entity.StaffId);
+        if (existing == null) return;
         context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
@@ -36,8 +35,8 @@ public class StaffDAO
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.Staff.Find(id)
-            ?? throw new Exception("Staff not found.");
+        var existing = context.Staff.Find(id);
+        if (existing == null) return;
         context.Staff.Remove(existing);
         context.SaveChanges();
     }

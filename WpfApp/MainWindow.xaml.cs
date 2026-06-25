@@ -15,19 +15,19 @@ public partial class MainWindow : Window
     }
 
     private void MenuAccountManagement_Click(object sender, RoutedEventArgs e)
-        => MessageBox.Show("Account Management — coming soon", "Info");
+        => new AccountManagementWindow().Show();
 
     private void MenuStudents_Click(object sender, RoutedEventArgs e)
-        => MessageBox.Show("Student Management — coming soon", "Info");
+        => new StudentManagementWindow().Show();
 
     private void MenuTeachers_Click(object sender, RoutedEventArgs e)
-        => MessageBox.Show("Teacher Management — coming soon", "Info");
+        => new TeacherManagementWindow().Show();
 
     private void MenuCourses_Click(object sender, RoutedEventArgs e)
-        => MessageBox.Show("Course Management — coming soon", "Info");
+        => new CourseManagementWindow().Show();
 
     private void MenuClasses_Click(object sender, RoutedEventArgs e)
-        => MessageBox.Show("Class Management — coming soon", "Info");
+        => new ClassManagementWindow().Show();
 
     private void MenuLogout_Click(object sender, RoutedEventArgs e)
     {

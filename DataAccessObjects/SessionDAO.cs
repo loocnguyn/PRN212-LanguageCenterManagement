@@ -1,5 +1,4 @@
 ﻿using BusinessObjects;
-using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
@@ -27,8 +26,8 @@ public class SessionDAO
     public static void Update(Session entity)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.Sessions.Find(entity.SessionId)
-            ?? throw new Exception("Session not found.");
+        var existing = context.Sessions.Find(entity.SessionId);
+        if (existing == null) return;
         context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
@@ -36,8 +35,8 @@ public class SessionDAO
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.Sessions.Find(id)
-            ?? throw new Exception("Session not found.");
+        var existing = context.Sessions.Find(id);
+        if (existing == null) return;
         context.Sessions.Remove(existing);
         context.SaveChanges();
     }

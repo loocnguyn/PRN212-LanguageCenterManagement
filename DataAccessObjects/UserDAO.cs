@@ -1,5 +1,4 @@
 ﻿using BusinessObjects;
-using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
@@ -22,7 +21,6 @@ public class UserDAO
         using var context = new LanguageCenterContext();
         return context.Users.FirstOrDefault(u => u.Username == username);
     }
-
     public static void Save(User entity)
     {
         using var context = new LanguageCenterContext();
@@ -33,8 +31,8 @@ public class UserDAO
     public static void Update(User entity)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.Users.Find(entity.Id)
-            ?? throw new Exception("User not found.");
+        var existing = context.Users.Find(entity.Id);
+        if (existing == null) return;
         context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
@@ -42,8 +40,8 @@ public class UserDAO
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.Users.Find(id)
-            ?? throw new Exception("User not found.");
+        var existing = context.Users.Find(id);
+        if (existing == null) return;
         context.Users.Remove(existing);
         context.SaveChanges();
     }
