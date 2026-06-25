@@ -1,0 +1,29 @@
+﻿<Window x:Class="WpfApp.DebtListWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Debt List" Height="580" Width="860"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+            <TextBox x:Name="txtSearch" Width="250" Height="28" VerticalContentAlignment="Center" Padding="4,0"/>
+            <Button Content="Search" Width="80" Height="28" Margin="6,0,0,0" Click="BtnSearch_Click"/>
+            <Button Content="Reset"  Width="80" Height="28" Margin="6,0,0,0" Click="BtnReset_Click"/>
+        </StackPanel>
+        <DataGrid Grid.Row="1" x:Name="dgDebts"
+                  AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Invoice ID"   Binding="{Binding InvoiceId}"    Width="90"/>
+                <DataGridTextColumn Header="Student ID"   Binding="{Binding StudentId}"    Width="90"/>
+                <DataGridTextColumn Header="Amount"       Binding="{Binding Amount}"        Width="110"/>
+                <DataGridTextColumn Header="Due Date"     Binding="{Binding DueDate}"       Width="120"/>
+                <DataGridTextColumn Header="Status"       Binding="{Binding Status}"        Width="110"/>
+                <DataGridTextColumn Header="Note"         Binding="{Binding Note}"          Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

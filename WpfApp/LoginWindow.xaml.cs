@@ -19,7 +19,7 @@ public partial class LoginWindow : Window
 
         if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
         {
-            MessageBox.Show("Vui lòng nhập tên đăng nhập và mật khẩu.", "Thông báo",
+            MessageBox.Show("Please enter your username and password.", "Warning",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
@@ -27,7 +27,7 @@ public partial class LoginWindow : Window
         var user = _userService.Login(username, password);
         if (user == null)
         {
-            MessageBox.Show("Tên đăng nhập hoặc mật khẩu không đúng.", "Đăng nhập thất bại",
+            MessageBox.Show("Invalid username or password.", "Login Failed",
                 MessageBoxButton.OK, MessageBoxImage.Error);
             return;
         }

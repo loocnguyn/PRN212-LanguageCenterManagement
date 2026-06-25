@@ -2,36 +2,31 @@
 
 namespace DataAccessObjects;
 
-public class UserDAO
+public class CourseDAO
 {
-    public static List<User> GetAll()
+    public static List<Course> GetAll()
     {
         using var context = new LanguageCenterContext();
-        return context.Users.ToList();
+        return context.Courses.ToList();
     }
 
-    public static User? GetById(int id)
+    public static Course? GetById(int id)
     {
         using var context = new LanguageCenterContext();
-        return context.Users.FirstOrDefault(x => x.Id == id);
+        return context.Courses.FirstOrDefault(x => x.CourseId == id);
     }
 
-    public static User? GetByUsername(string username)
+    public static void Save(Course entity)
     {
         using var context = new LanguageCenterContext();
-        return context.Users.FirstOrDefault(u => u.Username == username);
-    }
-    public static void Save(User entity)
-    {
-        using var context = new LanguageCenterContext();
-        context.Users.Add(entity);
+        context.Courses.Add(entity);
         context.SaveChanges();
     }
 
-    public static void Update(User entity)
+    public static void Update(Course entity)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.Users.Find(entity.Id);
+        var existing = context.Courses.Find(entity.CourseId);
         if (existing == null) return;
         context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
@@ -40,9 +35,9 @@ public class UserDAO
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var existing = context.Users.Find(id);
+        var existing = context.Courses.Find(id);
         if (existing == null) return;
-        context.Users.Remove(existing);
+        context.Courses.Remove(existing);
         context.SaveChanges();
     }
 }

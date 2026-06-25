@@ -1,0 +1,44 @@
+﻿<Window x:Class="WpfApp.InvoiceManagementWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Invoice Management" Height="620" Width="960"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+            <TextBox x:Name="txtSearch" Width="200" Height="28" VerticalContentAlignment="Center" Padding="4,0"/>
+            <TextBlock Text="Status:" VerticalAlignment="Center" Margin="12,0,6,0"/>
+            <ComboBox x:Name="cmbStatus" Width="110" Height="28">
+                <ComboBoxItem Content="All" IsSelected="True"/>
+                <ComboBoxItem Content="UNPAID"/>
+                <ComboBoxItem Content="PAID"/>
+                <ComboBoxItem Content="PARTIAL"/>
+            </ComboBox>
+            <Button Content="Search" Width="80" Height="28" Margin="8,0,0,0" Click="BtnSearch_Click"/>
+            <Button Content="Reset"  Width="80" Height="28" Margin="6,0,0,0" Click="BtnReset_Click"/>
+        </StackPanel>
+        <DataGrid Grid.Row="1" x:Name="dgInvoices"
+                  AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+                  SelectionChanged="DgInvoices_SelectionChanged">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID"          Binding="{Binding InvoiceId}"   Width="60"/>
+                <DataGridTextColumn Header="Student ID"  Binding="{Binding StudentId}"   Width="90"/>
+                <DataGridTextColumn Header="Amount"      Binding="{Binding Amount}"       Width="110"/>
+                <DataGridTextColumn Header="Paid"        Binding="{Binding PaidAmount}"   Width="110"/>
+                <DataGridTextColumn Header="Due Date"    Binding="{Binding DueDate}"      Width="110"/>
+                <DataGridTextColumn Header="Status"      Binding="{Binding Status}"       Width="100"/>
+                <DataGridTextColumn Header="Note"        Binding="{Binding Note}"         Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+            <Button Content="Add"    Width="90" Height="32" Margin="0,0,8,0" Click="BtnAdd_Click"/>
+            <Button Content="Edit"   Width="90" Height="32" Margin="0,0,8,0" Click="BtnEdit_Click"/>
+            <Button Content="Delete" Width="90" Height="32" Click="BtnDelete_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
