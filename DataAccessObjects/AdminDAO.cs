@@ -27,19 +27,18 @@ public class AdminDAO
     public static void Update(Admin entity)
     {
         using var context = new LanguageCenterContext();
-        context.Admins.Update(entity);
+        var existing = context.Admins.Find(entity.AdminId)
+            ?? throw new Exception("Admin not found.");
+        context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
 
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var entity = context.Admins.Find(id);
-        if (entity != null)
-        {
-            context.Admins.Remove(entity);
-            context.SaveChanges();
-        }
+        var existing = context.Admins.Find(id)
+            ?? throw new Exception("Admin not found.");
+        context.Admins.Remove(existing);
+        context.SaveChanges();
     }
 }
-

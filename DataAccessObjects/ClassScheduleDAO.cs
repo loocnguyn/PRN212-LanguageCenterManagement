@@ -27,19 +27,18 @@ public class ClassScheduleDAO
     public static void Update(ClassSchedule entity)
     {
         using var context = new LanguageCenterContext();
-        context.ClassSchedules.Update(entity);
+        var existing = context.ClassSchedules.Find(entity.ScheduleId)
+            ?? throw new Exception("ClassSchedule not found.");
+        context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
 
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var entity = context.ClassSchedules.Find(id);
-        if (entity != null)
-        {
-            context.ClassSchedules.Remove(entity);
-            context.SaveChanges();
-        }
+        var existing = context.ClassSchedules.Find(id)
+            ?? throw new Exception("ClassSchedule not found.");
+        context.ClassSchedules.Remove(existing);
+        context.SaveChanges();
     }
 }
-

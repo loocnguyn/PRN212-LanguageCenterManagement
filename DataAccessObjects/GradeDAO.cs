@@ -27,19 +27,18 @@ public class GradeDAO
     public static void Update(Grade entity)
     {
         using var context = new LanguageCenterContext();
-        context.Grades.Update(entity);
+        var existing = context.Grades.Find(entity.GradeId)
+            ?? throw new Exception("Grade not found.");
+        context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
 
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var entity = context.Grades.Find(id);
-        if (entity != null)
-        {
-            context.Grades.Remove(entity);
-            context.SaveChanges();
-        }
+        var existing = context.Grades.Find(id)
+            ?? throw new Exception("Grade not found.");
+        context.Grades.Remove(existing);
+        context.SaveChanges();
     }
 }
-

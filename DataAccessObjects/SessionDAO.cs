@@ -27,19 +27,18 @@ public class SessionDAO
     public static void Update(Session entity)
     {
         using var context = new LanguageCenterContext();
-        context.Sessions.Update(entity);
+        var existing = context.Sessions.Find(entity.SessionId)
+            ?? throw new Exception("Session not found.");
+        context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
 
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var entity = context.Sessions.Find(id);
-        if (entity != null)
-        {
-            context.Sessions.Remove(entity);
-            context.SaveChanges();
-        }
+        var existing = context.Sessions.Find(id)
+            ?? throw new Exception("Session not found.");
+        context.Sessions.Remove(existing);
+        context.SaveChanges();
     }
 }
-

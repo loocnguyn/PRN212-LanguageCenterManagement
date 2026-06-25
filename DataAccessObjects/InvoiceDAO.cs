@@ -27,19 +27,18 @@ public class InvoiceDAO
     public static void Update(Invoice entity)
     {
         using var context = new LanguageCenterContext();
-        context.Invoices.Update(entity);
+        var existing = context.Invoices.Find(entity.InvoiceId)
+            ?? throw new Exception("Invoice not found.");
+        context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
 
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var entity = context.Invoices.Find(id);
-        if (entity != null)
-        {
-            context.Invoices.Remove(entity);
-            context.SaveChanges();
-        }
+        var existing = context.Invoices.Find(id)
+            ?? throw new Exception("Invoice not found.");
+        context.Invoices.Remove(existing);
+        context.SaveChanges();
     }
 }
-

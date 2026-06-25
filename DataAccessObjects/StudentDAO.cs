@@ -27,19 +27,18 @@ public class StudentDAO
     public static void Update(Student entity)
     {
         using var context = new LanguageCenterContext();
-        context.Students.Update(entity);
+        var existing = context.Students.Find(entity.StudentId)
+            ?? throw new Exception("Student not found.");
+        context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
 
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var entity = context.Students.Find(id);
-        if (entity != null)
-        {
-            context.Students.Remove(entity);
-            context.SaveChanges();
-        }
+        var existing = context.Students.Find(id)
+            ?? throw new Exception("Student not found.");
+        context.Students.Remove(existing);
+        context.SaveChanges();
     }
 }
-

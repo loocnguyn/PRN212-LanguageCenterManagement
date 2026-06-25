@@ -27,19 +27,18 @@ public class PaymentDAO
     public static void Update(Payment entity)
     {
         using var context = new LanguageCenterContext();
-        context.Payments.Update(entity);
+        var existing = context.Payments.Find(entity.PaymentId)
+            ?? throw new Exception("Payment not found.");
+        context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
 
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var entity = context.Payments.Find(id);
-        if (entity != null)
-        {
-            context.Payments.Remove(entity);
-            context.SaveChanges();
-        }
+        var existing = context.Payments.Find(id)
+            ?? throw new Exception("Payment not found.");
+        context.Payments.Remove(existing);
+        context.SaveChanges();
     }
 }
-

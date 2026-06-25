@@ -27,20 +27,18 @@ public class StaffDAO
     public static void Update(Staff entity)
     {
         using var context = new LanguageCenterContext();
-        context.Staff.Update(entity);
+        var existing = context.Staff.Find(entity.StaffId)
+            ?? throw new Exception("Staff not found.");
+        context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
 
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var entity = context.Staff.Find(id);
-        if (entity != null)
-        {
-            context.Staff.Remove(entity);
-            context.SaveChanges();
-        }
+        var existing = context.Staff.Find(id)
+            ?? throw new Exception("Staff not found.");
+        context.Staff.Remove(existing);
+        context.SaveChanges();
     }
 }
-
-

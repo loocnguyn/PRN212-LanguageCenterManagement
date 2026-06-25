@@ -27,19 +27,18 @@ public class ClassroomDAO
     public static void Update(Classroom entity)
     {
         using var context = new LanguageCenterContext();
-        context.Classrooms.Update(entity);
+        var existing = context.Classrooms.Find(entity.ClassroomId)
+            ?? throw new Exception("Classroom not found.");
+        context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
 
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var entity = context.Classrooms.Find(id);
-        if (entity != null)
-        {
-            context.Classrooms.Remove(entity);
-            context.SaveChanges();
-        }
+        var existing = context.Classrooms.Find(id)
+            ?? throw new Exception("Classroom not found.");
+        context.Classrooms.Remove(existing);
+        context.SaveChanges();
     }
 }
-

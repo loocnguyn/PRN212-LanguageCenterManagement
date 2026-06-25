@@ -27,19 +27,18 @@ public class TeacherAttendanceDAO
     public static void Update(TeacherAttendance entity)
     {
         using var context = new LanguageCenterContext();
-        context.TeacherAttendances.Update(entity);
+        var existing = context.TeacherAttendances.Find(entity.TeacherAttendanceId)
+            ?? throw new Exception("TeacherAttendance not found.");
+        context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
 
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var entity = context.TeacherAttendances.Find(id);
-        if (entity != null)
-        {
-            context.TeacherAttendances.Remove(entity);
-            context.SaveChanges();
-        }
+        var existing = context.TeacherAttendances.Find(id)
+            ?? throw new Exception("TeacherAttendance not found.");
+        context.TeacherAttendances.Remove(existing);
+        context.SaveChanges();
     }
 }
-

@@ -27,19 +27,18 @@ public class CourseDAO
     public static void Update(Course entity)
     {
         using var context = new LanguageCenterContext();
-        context.Courses.Update(entity);
+        var existing = context.Courses.Find(entity.CourseId)
+            ?? throw new Exception("Course not found.");
+        context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
 
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var entity = context.Courses.Find(id);
-        if (entity != null)
-        {
-            context.Courses.Remove(entity);
-            context.SaveChanges();
-        }
+        var existing = context.Courses.Find(id)
+            ?? throw new Exception("Course not found.");
+        context.Courses.Remove(existing);
+        context.SaveChanges();
     }
 }
-

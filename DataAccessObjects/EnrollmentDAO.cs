@@ -27,19 +27,18 @@ public class EnrollmentDAO
     public static void Update(Enrollment entity)
     {
         using var context = new LanguageCenterContext();
-        context.Enrollments.Update(entity);
+        var existing = context.Enrollments.Find(entity.EnrollmentId)
+            ?? throw new Exception("Enrollment not found.");
+        context.Entry(existing).CurrentValues.SetValues(entity);
         context.SaveChanges();
     }
 
     public static void Delete(int id)
     {
         using var context = new LanguageCenterContext();
-        var entity = context.Enrollments.Find(id);
-        if (entity != null)
-        {
-            context.Enrollments.Remove(entity);
-            context.SaveChanges();
-        }
+        var existing = context.Enrollments.Find(id)
+            ?? throw new Exception("Enrollment not found.");
+        context.Enrollments.Remove(existing);
+        context.SaveChanges();
     }
 }
-
