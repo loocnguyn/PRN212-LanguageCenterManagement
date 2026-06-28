@@ -56,10 +56,16 @@ INSERT INTO Classrooms (name, capacity, location) VALUES
 ('Room 301', 15, 'Floor 3');
 GO
 
-INSERT INTO Classes (course_id, teacher_id, classroom_id, name, max_students, start_date, end_date, status) VALUES
-(1, 1, 1, 'A1-K01', 20, '2025-06-01', '2025-09-30', 'ONGOING'),
-(2, 1, 2, 'B1-K01', 18, '2025-06-15', '2025-12-15', 'ONGOING'),
-(3, 2, 3, 'N5-K01', 15, '2025-07-01', '2025-11-30', 'UPCOMING');
+INSERT INTO Semesters (name, start_date, end_date, is_active) VALUES
+(N'Summer 2025',   '2025-06-01', '2025-08-31', 0),
+(N'Fall 2025',     '2025-09-01', '2025-12-31', 1),
+(N'Spring 2026',   '2026-01-01', '2026-05-31', 0);
+GO
+
+INSERT INTO Classes (semester_id, course_id, teacher_id, classroom_id, name, max_students, start_date, end_date, status) VALUES
+(1, 1, 1, 1, 'A1-K01', 20, '2025-06-01', '2025-09-30', 'ONGOING'),
+(2, 2, 1, 2, 'B1-K01', 18, '2025-06-15', '2025-12-15', 'ONGOING'),
+(2, 3, 2, 3, 'N5-K01', 15, '2025-07-01', '2025-11-30', 'UPCOMING');
 GO
 
 -- day_of_week: 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat, 7=Sun
