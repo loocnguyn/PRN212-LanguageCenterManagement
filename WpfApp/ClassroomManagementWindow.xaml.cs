@@ -20,11 +20,26 @@ public partial class ClassroomManagementWindow : Window
     }
     private void BtnReset_Click(object sender, RoutedEventArgs e) { txtSearch.Text = ""; dgClassrooms.ItemsSource = _all; }
     private void DgClassrooms_SelectionChanged(object sender, SelectionChangedEventArgs e) { }
-    private void BtnAdd_Click(object sender, RoutedEventArgs e) => MessageBox.Show("Add classroom — TODO");
+    private void BtnAdd_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new ClassroomDialog();
+        dialog.Owner = this;
+        if (dialog.ShowDialog() == true && dialog.Result != null)
+        {
+            _service.Save(dialog.Result);
+            LoadData();
+        }
+    }
     private void BtnEdit_Click(object sender, RoutedEventArgs e)
     {
         if (dgClassrooms.SelectedItem is not Classroom r) { MessageBox.Show("Please select a classroom."); return; }
-        MessageBox.Show($"Edit: {r.Name} — TODO");
+        var dialog = new ClassroomDialog(r);
+        dialog.Owner = this;
+        if (dialog.ShowDialog() == true && dialog.Result != null)
+        {
+            _service.Update(dialog.Result);
+            LoadData();
+        }
     }
     private void BtnDelete_Click(object sender, RoutedEventArgs e)
     {

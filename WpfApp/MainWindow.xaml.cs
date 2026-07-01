@@ -40,6 +40,8 @@ public partial class MainWindow : Window
     }
 
     // ADMIN
+    private void MenuClassSchedules_Click(object sender, RoutedEventArgs e)
+        => new ClassScheduleManagementWindow().Show();
     private void MenuAccountManagement_Click(object sender, RoutedEventArgs e)
         => new AccountManagementWindow().Show();
     private void MenuCourses_Click(object sender, RoutedEventArgs e)

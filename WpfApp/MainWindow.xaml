@@ -24,6 +24,7 @@
 
             <MenuItem Header="Classes" x:Name="menuClasses" Visibility="Collapsed">
                 <MenuItem Header="Class Management" Click="MenuClasses_Click"/>
+                <MenuItem Header="Class Schedule Management" Click="MenuClassSchedules_Click"/>
             </MenuItem>
 
             <MenuItem Header="Reports" x:Name="menuReports" Visibility="Collapsed">

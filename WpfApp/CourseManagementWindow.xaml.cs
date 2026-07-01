@@ -21,11 +21,26 @@ public partial class CourseManagementWindow : Window
     }
     private void BtnReset_Click(object sender, RoutedEventArgs e) { txtSearch.Text = ""; dgCourses.ItemsSource = _all; }
     private void DgCourses_SelectionChanged(object sender, SelectionChangedEventArgs e) { }
-    private void BtnAdd_Click(object sender, RoutedEventArgs e) => MessageBox.Show("Add course — TODO");
+    private void BtnAdd_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new CourseDialog();
+        dialog.Owner = this;
+        if (dialog.ShowDialog() == true && dialog.Result != null)
+        {
+            _service.Save(dialog.Result);
+            LoadData();
+        }
+    }
     private void BtnEdit_Click(object sender, RoutedEventArgs e)
     {
         if (dgCourses.SelectedItem is not Course c) { MessageBox.Show("Please select a course."); return; }
-        MessageBox.Show($"Edit: {c.Name} — TODO");
+        var dialog = new CourseDialog(c);
+        dialog.Owner = this;
+        if (dialog.ShowDialog() == true && dialog.Result != null)
+        {
+            _service.Update(dialog.Result);
+            LoadData();
+        }
     }
     private void BtnDelete_Click(object sender, RoutedEventArgs e)
     {

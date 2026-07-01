@@ -20,11 +20,26 @@ public partial class ClassManagementWindow : Window
     }
     private void BtnReset_Click(object sender, RoutedEventArgs e) { txtSearch.Text = ""; dgClasses.ItemsSource = _all; }
     private void DgClasses_SelectionChanged(object sender, SelectionChangedEventArgs e) { }
-    private void BtnAdd_Click(object sender, RoutedEventArgs e) => MessageBox.Show("Add class — TODO");
+    private void BtnAdd_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new ClassDialog();
+        dialog.Owner = this;
+        if (dialog.ShowDialog() == true && dialog.Result != null)
+        {
+            _service.Save(dialog.Result);
+            LoadData();
+        }
+    }
     private void BtnEdit_Click(object sender, RoutedEventArgs e)
     {
         if (dgClasses.SelectedItem is not Class c) { MessageBox.Show("Please select a class."); return; }
-        MessageBox.Show($"Edit: {c.Name} — TODO");
+        var dialog = new ClassDialog(c);
+        dialog.Owner = this;
+        if (dialog.ShowDialog() == true && dialog.Result != null)
+        {
+            _service.Update(dialog.Result);
+            LoadData();
+        }
     }
     private void BtnDelete_Click(object sender, RoutedEventArgs e)
     {
