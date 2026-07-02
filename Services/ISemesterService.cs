@@ -10,4 +10,7 @@ public interface ISemesterService
     void Save(Semester semester);
     void Update(Semester semester);
     void Delete(int id);
+    void SetActive(int semesterId);
+    Phase GetPhase(Semester semester);
+    Phase? GetActivePhase();
 }
