@@ -1,0 +1,78 @@
+<Window x:Class="WpfApp.ClassDetailWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Add Class" Height="540" Width="480"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="120"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Name -->
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Class Name" VerticalAlignment="Center" Margin="0,0,0,10"/>
+        <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtName" Height="30" VerticalContentAlignment="Center" Padding="4,0" Margin="0,0,0,10"/>
+
+        <!-- Course -->
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Course" VerticalAlignment="Center" Margin="0,0,0,10"/>
+        <ComboBox Grid.Row="1" Grid.Column="1" x:Name="cmbCourse" Height="30" Margin="0,0,0,10"
+                  DisplayMemberPath="Name" SelectedValuePath="CourseId"
+                  HorizontalContentAlignment="Left" Padding="4,3" VerticalContentAlignment="Center"/>
+
+        <!-- Teacher -->
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Teacher" VerticalAlignment="Center" Margin="0,0,0,10"/>
+        <ComboBox Grid.Row="2" Grid.Column="1" x:Name="cmbTeacher" Height="30" Margin="0,0,0,10"
+                  DisplayMemberPath="FullName" SelectedValuePath="TeacherId"
+                  HorizontalContentAlignment="Left" Padding="4,3" VerticalContentAlignment="Center"/>
+
+        <!-- Classroom -->
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="Classroom" VerticalAlignment="Center" Margin="0,0,0,10"/>
+        <ComboBox Grid.Row="3" Grid.Column="1" x:Name="cmbClassroom" Height="30" Margin="0,0,0,10"
+                  DisplayMemberPath="Name" SelectedValuePath="ClassroomId"
+                  HorizontalContentAlignment="Left" Padding="4,3" VerticalContentAlignment="Center"/>
+
+        <!-- Max Students -->
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="Max Students" VerticalAlignment="Center" Margin="0,0,0,10"/>
+        <TextBox Grid.Row="4" Grid.Column="1" x:Name="txtMaxStudents" Height="30" VerticalContentAlignment="Center" Padding="4,0" Margin="0,0,0,10"/>
+
+        <!-- Start Date -->
+        <TextBlock Grid.Row="5" Grid.Column="0" Text="Start Date" VerticalAlignment="Center" Margin="0,0,0,10"/>
+        <DatePicker Grid.Row="5" Grid.Column="1" x:Name="dpStartDate" Height="30" Margin="0,0,0,10"/>
+
+        <!-- End Date -->
+        <TextBlock Grid.Row="6" Grid.Column="0" Text="End Date" VerticalAlignment="Center" Margin="0,0,0,10"/>
+        <DatePicker Grid.Row="6" Grid.Column="1" x:Name="dpEndDate" Height="30" Margin="0,0,0,10"/>
+
+        <!-- Status -->
+        <TextBlock Grid.Row="7" Grid.Column="0" Text="Status" VerticalAlignment="Center" Margin="0,0,0,10"/>
+        <ComboBox Grid.Row="7" Grid.Column="1" x:Name="cmbStatus" Height="30" Margin="0,0,0,10"
+                  HorizontalContentAlignment="Left" Padding="4,3" VerticalContentAlignment="Center">
+            <ComboBoxItem Content="UPCOMING"/>
+            <ComboBoxItem Content="ONGOING"/>
+            <ComboBoxItem Content="COMPLETED"/>
+            <ComboBoxItem Content="CANCELLED"/>
+        </ComboBox>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2"
+                    Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button Content="Save" Width="90" Height="32" Margin="0,0,8,0" Click="BtnSave_Click"/>
+            <Button Content="Cancel" Width="90" Height="32" Click="BtnCancel_Click"/>
+        </StackPanel>
+    </Grid>
+    </ScrollViewer>
+</Window>

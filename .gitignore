@@ -15,3 +15,5 @@ packages/
 
 # Env / secrets
 appsettings.Development.json
+
+.pi/

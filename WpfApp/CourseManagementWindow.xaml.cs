@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using BusinessObjects;
 using Services;
@@ -23,24 +23,14 @@ public partial class CourseManagementWindow : Window
     private void DgCourses_SelectionChanged(object sender, SelectionChangedEventArgs e) { }
     private void BtnAdd_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new CourseDialog();
-        dialog.Owner = this;
-        if (dialog.ShowDialog() == true && dialog.Result != null)
-        {
-            _service.Save(dialog.Result);
-            LoadData();
-        }
+        var dialog = new CourseDetailWindow { Owner = this };
+        if (dialog.ShowDialog() == true) LoadData();
     }
     private void BtnEdit_Click(object sender, RoutedEventArgs e)
     {
         if (dgCourses.SelectedItem is not Course c) { MessageBox.Show("Please select a course."); return; }
-        var dialog = new CourseDialog(c);
-        dialog.Owner = this;
-        if (dialog.ShowDialog() == true && dialog.Result != null)
-        {
-            _service.Update(dialog.Result);
-            LoadData();
-        }
+        var dialog = new CourseDetailWindow(c) { Owner = this };
+        if (dialog.ShowDialog() == true) LoadData();
     }
     private void BtnDelete_Click(object sender, RoutedEventArgs e)
     {
