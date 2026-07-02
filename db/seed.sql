@@ -2,27 +2,20 @@
 --  LANGUAGE CENTER MANAGEMENT SYSTEM — SEED DATA
 --  Run schema.sql first before running this file
 --
---  Default passwords (plain text, no hashing):
---    admin01   / 123456
---    staff01   / 123456
---    teacher01 / 123456
---    teacher02 / 123456
---    student01 / 123456
---    student02 / 123456
---    student03 / 123456
+--  Default passwords (BCrypt hashed, plain text: 123456 for all accounts)
 -- ============================================================
 
 USE LanguageCenterDB;
 GO
 
 INSERT INTO Users (username, password_hash, role) VALUES
-('admin01',   '123456', 'ADMIN'),
-('staff01',   '123456', 'STAFF'),
-('teacher01', '123456', 'TEACHER'),
-('teacher02', '123456', 'TEACHER'),
-('student01', '123456', 'STUDENT'),
-('student02', '123456', 'STUDENT'),
-('student03', '123456', 'STUDENT');
+('admin01',   '$2a$11$JnjyHIawMJ2m7mDk6C2UieiFo95NNTNnaTj.YbpNzGr250T4t7coW', 'ADMIN'),
+('staff01',   '$2a$11$U7t7m.JhCoIZBzC.edRuMeKLroLVwOrI05B.WnVSrJPbQT3qrLPiK', 'STAFF'),
+('teacher01', '$2a$11$lE49WxTCUi.IgfnEIYeVM.rGKjtWCptubi0UWfDfjrdyb74w2SB8S', 'TEACHER'),
+('teacher02', '$2a$11$Ch64HDBEOI5LIwsNXDmHmuaIXsOTGlkD/4KebX8YCIcgBwGHbVxqG', 'TEACHER'),
+('student01', '$2a$11$2Dh7pFYpvcXzZtGHqeUMROp16rAfcSwD2JiEDO81ybOheXiJcLV/S', 'STUDENT'),
+('student02', '$2a$11$dfaFHqam40lcpx73YB/YCOJKIlBH/1ggqWliBYOL726EbfZZVpZ4C', 'STUDENT'),
+('student03', '$2a$11$k9B8Pc/dafh16V0nvJ94ueFE3WA.HuldMSSGG3loLD.Akx2hbqWa.', 'STUDENT');
 GO
 
 INSERT INTO Admins (user_id, full_name, phone, email) VALUES

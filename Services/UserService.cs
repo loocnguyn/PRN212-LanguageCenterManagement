@@ -19,10 +19,24 @@ public class UserService : IUserService
 
     public void Delete(int id) => _repo.Delete(id);
 
+    public void Save(User user, string plainPassword)
+    {
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(plainPassword);
+        _repo.Save(user);
+    }
+
+    public void UpdatePassword(int id, string newPlainPassword)
+    {
+        var user = _repo.GetById(id);
+        if (user == null) return;
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPlainPassword);
+        _repo.Update(user);
+    }
+
     public User? Login(string username, string password)
     {
-        // TODO: thay bằng BCrypt.Verify khi team thống nhất hashing
-        string passwordHash = password;
-        return _repo.Login(username, passwordHash);
+        var user = _repo.GetByUsername(username);
+        if (user == null || !user.IsActive) return null;
+        return BCrypt.Net.BCrypt.Verify(password, user.PasswordHash) ? user : null;
     }
 }
