@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+using BusinessObjects;
 
 namespace Services;
 
@@ -9,6 +9,5 @@ public interface IPaymentService
     void Save(Payment entity);
     void Update(Payment entity);
     void Delete(int id);
+    void RecordPayment(Payment payment);
 }
-
-
