@@ -42,6 +42,8 @@ public partial class MainWindow : Window
     // ADMIN
     private void MenuAccountManagement_Click(object sender, RoutedEventArgs e)
         => new AccountManagementWindow(_currentUser).Show();
+    private void MenuDeactivatedAccounts_Click(object sender, RoutedEventArgs e)
+        => new DeactivatedAccountsWindow().Show();
     private void MenuCourses_Click(object sender, RoutedEventArgs e)
         => new CourseManagementWindow().Show();
     private void MenuClassrooms_Click(object sender, RoutedEventArgs e)

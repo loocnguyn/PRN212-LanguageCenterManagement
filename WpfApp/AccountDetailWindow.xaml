@@ -1,8 +1,9 @@
 <Window x:Class="WpfApp.AccountDetailWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Account Detail" Height="340" Width="400"
+        Title="Add Account" Height="520" Width="420"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -10,39 +11,100 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="110"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="Username" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <TextBox   Grid.Row="0" Grid.Column="1" x:Name="txtUsername" Height="30" VerticalContentAlignment="Center" Padding="4,0" Margin="0,0,0,10"/>
-
-        <TextBlock Grid.Row="1" Grid.Column="0" Text="Password" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <PasswordBox Grid.Row="1" Grid.Column="1" x:Name="pwdPassword" Height="30" Padding="4,0" Margin="0,0,0,10"/>
-
-        <TextBlock Grid.Row="2" Grid.Column="0" Text="(để trống = giữ nguyên)" Grid.ColumnSpan="2"
-                   FontSize="11" Foreground="Gray" Margin="0,0,0,10"
-                   x:Name="lblPasswordHint" Visibility="Collapsed"/>
-
-        <TextBlock Grid.Row="3" Grid.Column="0" Text="Role" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <ComboBox  Grid.Row="3" Grid.Column="1" x:Name="cmbRole" Height="30" Margin="0,0,0,10">
-            <ComboBoxItem Content="ADMIN"/>
+        <!-- Role (hiện trước) -->
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Role" VerticalAlignment="Center" Margin="0,0,0,10"/>
+        <ComboBox  Grid.Row="0" Grid.Column="1" x:Name="cmbRole" Height="30" Margin="0,0,0,10"
+                   SelectionChanged="CmbRole_SelectionChanged" HorizontalContentAlignment="Left" Padding="4,3" VerticalContentAlignment="Top">
             <ComboBoxItem Content="STAFF"/>
             <ComboBoxItem Content="TEACHER"/>
             <ComboBoxItem Content="STUDENT"/>
         </ComboBox>
 
-        <TextBlock Grid.Row="4" Grid.Column="0" Text="Active" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <CheckBox  Grid.Row="4" Grid.Column="1" x:Name="chkActive" VerticalAlignment="Center" Margin="0,0,0,10"/>
+        <!-- Username -->
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Username" VerticalAlignment="Center" Margin="0,0,0,10"/>
+        <TextBox   Grid.Row="1" Grid.Column="1" x:Name="txtUsername" Height="30" VerticalContentAlignment="Center" Padding="4,0" Margin="0,0,0,10"/>
 
-        <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2"
-                    Orientation="Horizontal" HorizontalAlignment="Right">
+        <!-- Password -->
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Password" VerticalAlignment="Center" Margin="0,0,0,10"/>
+        <PasswordBox Grid.Row="2" Grid.Column="1" x:Name="pwdPassword" Height="30" Padding="4,0" Margin="0,0,0,10"/>
+        <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="lblPasswordHint"
+                   Text="(leave blank to keep current password)" FontSize="11" Foreground="Gray"
+                   Margin="0,0,0,10" Visibility="Collapsed"/>
+
+        <!-- FullName (tất cả role) -->
+        <TextBlock Grid.Row="4" Grid.Column="0" x:Name="lblFullName" Text="Họ tên" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
+        <TextBox   Grid.Row="4" Grid.Column="1" x:Name="txtFullName" Height="30" VerticalContentAlignment="Center" Padding="4,0" Margin="0,0,0,10" Visibility="Collapsed"/>
+
+        <!-- Phone -->
+        <TextBlock Grid.Row="5" Grid.Column="0" x:Name="lblPhone" Text="Phone" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
+        <TextBox   Grid.Row="5" Grid.Column="1" x:Name="txtPhone" Height="30" VerticalContentAlignment="Center" Padding="4,0" Margin="0,0,0,10" Visibility="Collapsed"/>
+
+        <!-- Email -->
+        <TextBlock Grid.Row="6" Grid.Column="0" x:Name="lblEmail" Text="Email" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
+        <TextBox   Grid.Row="6" Grid.Column="1" x:Name="txtEmail" Height="30" VerticalContentAlignment="Center" Padding="4,0" Margin="0,0,0,10" Visibility="Collapsed"/>
+
+        <!-- Student: Date of Birth -->
+        <TextBlock Grid.Row="7" Grid.Column="0" x:Name="lblDob" Text="Ngày sinh" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
+        <DatePicker Grid.Row="7" Grid.Column="1" x:Name="dpDob" Height="30" Margin="0,0,0,10" Visibility="Collapsed"/>
+
+        <!-- Student/Teacher: Gender -->
+        <TextBlock Grid.Row="8" Grid.Column="0" x:Name="lblGender" Text="Giới tính" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
+        <ComboBox  Grid.Row="8" Grid.Column="1" x:Name="cmbGender" Height="30" Margin="0,0,0,10" Visibility="Collapsed">
+            <ComboBoxItem Content="Male"/>
+            <ComboBoxItem Content="Female"/>
+        </ComboBox>
+
+        <!-- Teacher: Specialization -->
+        <TextBlock Grid.Row="9" Grid.Column="0" x:Name="lblSpec" Text="Specialization" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
+        <ComboBox  Grid.Row="9" Grid.Column="1" x:Name="txtSpec" Height="30" Margin="0,0,0,10" Visibility="Collapsed" HorizontalContentAlignment="Left" Padding="4,4">
+            <ComboBoxItem Content="English"/>
+            <ComboBoxItem Content="Japanese"/>
+            <ComboBoxItem Content="Korean"/>
+            <ComboBoxItem Content="Chinese"/>
+            <ComboBoxItem Content="French"/>
+            <ComboBoxItem Content="German"/>
+        </ComboBox>
+
+        <!-- Teacher: Degree -->
+        <TextBlock Grid.Row="10" Grid.Column="0" x:Name="lblDegree" Text="Bằng cấp" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
+        <ComboBox  Grid.Row="10" Grid.Column="1" x:Name="cmbDegree" Height="30" Margin="0,0,0,10" Visibility="Collapsed">
+            <ComboBoxItem Content="Bachelor"/>
+            <ComboBoxItem Content="Master"/>
+            <ComboBoxItem Content="Doctor"/>
+        </ComboBox>
+
+        <!-- Staff: Department -->
+        <TextBlock Grid.Row="9" Grid.Column="0" x:Name="lblDept" Text="Department" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
+        <ComboBox  Grid.Row="9" Grid.Column="1" x:Name="txtDept" Height="30" Margin="0,0,0,10" Visibility="Collapsed" HorizontalContentAlignment="Left" Padding="4,0" VerticalContentAlignment="Center">
+            <ComboBoxItem Content="Academic Affairs"/>
+            <ComboBoxItem Content="Admissions"/>
+            <ComboBoxItem Content="Finance"/>
+            <ComboBoxItem Content="Human Resources"/>
+        </ComboBox>
+
+        <!-- Active (chỉ hiện khi edit) -->
+        <TextBlock Grid.Row="10" Grid.Column="0" x:Name="lblActive" Text="Active" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
+        <CheckBox  Grid.Row="10" Grid.Column="1" x:Name="chkActive" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2"
+                    Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
             <Button Content="Save"   Width="90" Height="32" Margin="0,0,8,0" Click="BtnSave_Click"/>
             <Button Content="Cancel" Width="90" Height="32" Click="BtnCancel_Click"/>
         </StackPanel>
     </Grid>
+    </ScrollViewer>
 </Window>

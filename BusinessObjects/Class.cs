@@ -7,6 +7,8 @@ public partial class Class
 {
     public int ClassId { get; set; }
 
+    public int SemesterId { get; set; }
+
     public int CourseId { get; set; }
 
     public int TeacherId { get; set; }
@@ -30,6 +32,8 @@ public partial class Class
     public virtual Classroom Classroom { get; set; } = null!;
 
     public virtual Course Course { get; set; } = null!;
+
+    public virtual Semester Semester { get; set; } = null!;
 
     public virtual ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
 
