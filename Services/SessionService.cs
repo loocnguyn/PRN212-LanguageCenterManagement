@@ -17,6 +17,8 @@ public class SessionService : ISessionService
     public void Delete(int id) => _sessionRepo.Delete(id);
 
     public List<Session> GetByClassId(int classId) => _sessionRepo.GetByClassId(classId);
+    public List<Session> GetByClassIds(List<int> classIds) => _sessionRepo.GetByClassIds(classIds);
+    public List<Session> GetByClassIdWithDetails(int classId) => _sessionRepo.GetByClassIdWithDetails(classId);
 
     public void GenerateSessionsForClass(int classId)
     {
@@ -53,7 +55,16 @@ public class SessionService : ISessionService
             }
         }
 
-        _sessionRepo.BulkSave(sessions);
+        try
+        {
+            _sessionRepo.BulkSave(sessions);
+        }
+        catch
+        {
+            // If BulkSave fails, the CountByClassId guard at the top of this method
+            // prevents re-generation on the next call — no explicit transaction needed.
+            throw;
+        }
     }
 
     public void EnsureSessionsForSemester(int semesterId)
@@ -78,8 +89,12 @@ public class SessionService : ISessionService
         }
     }
 
-    private static DayOfWeek MapDayOfWeek(byte dbDay) =>
-        dbDay == 7 ? DayOfWeek.Sunday : (DayOfWeek)dbDay;
+    private static DayOfWeek MapDayOfWeek(byte dbDay)
+    {
+        if (dbDay < 1 || dbDay > 7)
+            throw new InvalidOperationException($"Invalid DayOfWeek value: {dbDay}. Must be 1-7.");
+        return dbDay == 7 ? DayOfWeek.Sunday : (DayOfWeek)dbDay;
+    }
 
     private static DateOnly FindFirstMatchingDay(DateOnly startDate, DayOfWeek targetDay)
     {
