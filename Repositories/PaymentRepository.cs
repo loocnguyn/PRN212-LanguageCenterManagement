@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+using BusinessObjects;
 using DataAccessObjects;
 
 namespace Repositories;
@@ -10,6 +10,5 @@ public class PaymentRepository : IPaymentRepository
     public void Save(Payment entity) => PaymentDAO.Save(entity);
     public void Update(Payment entity) => PaymentDAO.Update(entity);
     public void Delete(int id) => PaymentDAO.Delete(id);
+    public void RecordPayment(Payment payment) => PaymentDAO.RecordPayment(payment);
 }
-
-

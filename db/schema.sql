@@ -111,8 +111,19 @@ CREATE TABLE Classrooms (
 );
 GO
 
+CREATE TABLE Semesters (
+    semester_id INT           IDENTITY(1,1) PRIMARY KEY,
+    name        NVARCHAR(100) NOT NULL UNIQUE,
+    start_date  DATE          NOT NULL,
+    end_date    DATE          NOT NULL,
+    is_active   BIT           NOT NULL DEFAULT 1,
+    CONSTRAINT chk_semester_dates CHECK (end_date > start_date)
+);
+GO
+
 CREATE TABLE Classes (
     class_id     INT           IDENTITY(1,1) PRIMARY KEY,
+    semester_id  INT           NOT NULL REFERENCES Semesters(semester_id),
     course_id    INT           NOT NULL REFERENCES Courses(course_id),
     teacher_id   INT           NOT NULL REFERENCES Teachers(teacher_id),
     classroom_id INT           NOT NULL REFERENCES Classrooms(classroom_id),
@@ -251,6 +262,7 @@ CREATE INDEX idx_students_user      ON Students(user_id);
 CREATE INDEX idx_teachers_user      ON Teachers(user_id);
 CREATE INDEX idx_staff_user         ON Staff(user_id);
 CREATE INDEX idx_admins_user        ON Admins(user_id);
+CREATE INDEX idx_classes_semester   ON Classes(semester_id);
 CREATE INDEX idx_classes_course     ON Classes(course_id);
 CREATE INDEX idx_classes_teacher    ON Classes(teacher_id);
 CREATE INDEX idx_classes_classroom  ON Classes(classroom_id);

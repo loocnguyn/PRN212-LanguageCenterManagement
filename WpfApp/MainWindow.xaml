@@ -14,7 +14,8 @@
 
             <!-- ADMIN only -->
             <MenuItem Header="Accounts" x:Name="menuAccounts" Visibility="Collapsed">
-                <MenuItem Header="Account Management" Click="MenuAccountManagement_Click"/>
+                <MenuItem Header="Account Management"  Click="MenuAccountManagement_Click"/>
+                <MenuItem Header="Deactivated Accounts" Click="MenuDeactivatedAccounts_Click"/>
             </MenuItem>
 
             <MenuItem Header="Courses" x:Name="menuCourses" Visibility="Collapsed">

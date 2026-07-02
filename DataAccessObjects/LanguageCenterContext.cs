@@ -40,6 +40,8 @@ public partial class LanguageCenterContext : DbContext
 
     public virtual DbSet<Payment> Payments { get; set; }
 
+    public virtual DbSet<Semester> Semesters { get; set; }
+
     public virtual DbSet<Session> Sessions { get; set; }
 
     public virtual DbSet<Staff> Staff { get; set; }
@@ -142,6 +144,7 @@ public partial class LanguageCenterContext : DbContext
             entity.HasIndex(e => e.TeacherId, "idx_classes_teacher");
 
             entity.Property(e => e.ClassId).HasColumnName("class_id");
+            entity.Property(e => e.SemesterId).HasColumnName("semester_id");
             entity.Property(e => e.ClassroomId).HasColumnName("classroom_id");
             entity.Property(e => e.CourseId).HasColumnName("course_id");
             entity.Property(e => e.CreatedAt)
@@ -160,6 +163,11 @@ public partial class LanguageCenterContext : DbContext
                 .HasDefaultValue("UPCOMING")
                 .HasColumnName("status");
             entity.Property(e => e.TeacherId).HasColumnName("teacher_id");
+
+            entity.HasOne(d => d.Semester).WithMany(p => p.Classes)
+                .HasForeignKey(d => d.SemesterId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Classes__semeste__37A5467C");
 
             entity.HasOne(d => d.Classroom).WithMany(p => p.Classes)
                 .HasForeignKey(d => d.ClassroomId)
@@ -597,6 +605,23 @@ public partial class LanguageCenterContext : DbContext
             entity.Property(e => e.Username)
                 .HasMaxLength(50)
                 .HasColumnName("username");
+        });
+
+        modelBuilder.Entity<Semester>(entity =>
+        {
+            entity.HasKey(e => e.SemesterId).HasName("PK__Semester__DF0A8A91");
+
+            entity.HasIndex(e => e.Name, "UQ__Semester__Name").IsUnique();
+
+            entity.Property(e => e.SemesterId).HasColumnName("semester_id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .HasColumnName("name");
+            entity.Property(e => e.StartDate).HasColumnName("start_date");
+            entity.Property(e => e.EndDate).HasColumnName("end_date");
+            entity.Property(e => e.IsActive)
+                .HasDefaultValue(true)
+                .HasColumnName("is_active");
         });
 
         OnModelCreatingPartial(modelBuilder);

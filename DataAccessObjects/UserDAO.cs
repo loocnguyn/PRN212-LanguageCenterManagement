@@ -42,7 +42,16 @@ public class UserDAO
         using var context = new LanguageCenterContext();
         var existing = context.Users.Find(id);
         if (existing == null) return;
-        context.Users.Remove(existing);
+        existing.IsActive = false;
         context.SaveChanges();
+    }
+
+    public static List<User> Search(string keyword)
+    {
+        using var context = new LanguageCenterContext();
+        var kw = keyword.ToLower();
+        return context.Users
+            .Where(u => u.Username.ToLower().Contains(kw) || u.Role.ToLower().Contains(kw))
+            .ToList();
     }
 }

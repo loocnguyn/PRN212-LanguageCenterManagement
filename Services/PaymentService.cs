@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+using BusinessObjects;
 using Repositories;
 
 namespace Services;
@@ -12,6 +12,5 @@ public class PaymentService : IPaymentService
     public void Save(Payment entity) => _repo.Save(entity);
     public void Update(Payment entity) => _repo.Update(entity);
     public void Delete(int id) => _repo.Delete(id);
+    public void RecordPayment(Payment payment) => _repo.RecordPayment(payment);
 }
-
-

@@ -14,7 +14,7 @@ public partial class LoginWindow : Window
 
     private void BtnLogin_Click(object sender, RoutedEventArgs e)
     {
-        string username = txtUsername.Text.Trim();
+        string username = txtUsername.Text.Trim().ToLower();
         string password = pwdPassword.Password;
 
         if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
