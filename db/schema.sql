@@ -112,12 +112,13 @@ CREATE TABLE Classrooms (
 GO
 
 CREATE TABLE Semesters (
-    semester_id INT           IDENTITY(1,1) PRIMARY KEY,
-    name        NVARCHAR(100) NOT NULL UNIQUE,
-    start_date  DATE          NOT NULL,
-    end_date    DATE          NOT NULL,
-    is_active   BIT           NOT NULL DEFAULT 1,
-    CONSTRAINT chk_semester_dates CHECK (end_date > start_date)
+    semester_id    INT           IDENTITY(1,1) PRIMARY KEY,
+    name           NVARCHAR(100) NOT NULL UNIQUE,
+    start_date     DATE          NOT NULL,   -- setup phase begins
+    setup_end_date DATE          NOT NULL,   -- boundary: setup ends, learning begins
+    end_date       DATE          NOT NULL,   -- learning phase ends
+    is_active      BIT           NOT NULL DEFAULT 1,
+    CONSTRAINT chk_semester_dates CHECK (start_date < setup_end_date AND setup_end_date < end_date)
 );
 GO
 
