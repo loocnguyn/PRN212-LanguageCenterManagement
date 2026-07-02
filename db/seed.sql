@@ -49,10 +49,11 @@ INSERT INTO Classrooms (name, capacity, location) VALUES
 ('Room 301', 15, 'Floor 3');
 GO
 
-INSERT INTO Semesters (name, start_date, end_date, is_active) VALUES
-(N'Summer 2025',   '2025-06-01', '2025-08-31', 0),
-(N'Fall 2025',     '2025-09-01', '2025-12-31', 1),
-(N'Spring 2026',   '2026-01-01', '2026-05-31', 0);
+-- start_date .. setup_end_date = 2-week setup phase; setup_end_date .. end_date = learning phase
+INSERT INTO Semesters (name, start_date, setup_end_date, end_date, is_active) VALUES
+(N'Summer 2025',   '2025-06-01', '2025-06-15', '2025-08-31', 0),
+(N'Fall 2025',     '2025-09-01', '2025-09-15', '2025-12-31', 1),
+(N'Spring 2026',   '2026-01-01', '2026-01-15', '2026-05-31', 0);
 GO
 
 INSERT INTO Classes (semester_id, course_id, teacher_id, classroom_id, name, max_students, start_date, end_date, status) VALUES
