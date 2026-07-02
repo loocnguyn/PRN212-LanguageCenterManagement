@@ -12,6 +12,11 @@ public class InvoiceService : IInvoiceService
     public void Save(Invoice entity) => _repo.Save(entity);
     public void Update(Invoice entity) => _repo.Update(entity);
     public void Delete(int id) => _repo.Delete(id);
+    public List<Invoice> Search(string? keyword, string? status) => _repo.Search(keyword, status);
+    public bool IsEnrollmentOwnedByStudent(int enrollmentId, int studentId) => _repo.IsEnrollmentOwnedByStudent(enrollmentId, studentId);
+    public bool HasOpenInvoiceForEnrollment(int enrollmentId, int? excludedInvoiceId = null) => _repo.HasOpenInvoiceForEnrollment(enrollmentId, excludedInvoiceId);
+    public decimal GetPaidAmount(int invoiceId) => _repo.GetPaidAmount(invoiceId);
+    public bool HasPayments(int invoiceId) => _repo.HasPayments(invoiceId);
 }
 
 
