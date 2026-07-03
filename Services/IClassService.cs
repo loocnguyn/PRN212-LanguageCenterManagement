@@ -9,6 +9,6 @@ public interface IClassService
     void Save(Class entity);
     void Update(Class entity);
     void Delete(int id);
+    List<Class> GetBySemesterId(int semesterId);
+    List<Class> GetClassesWithDetails(int semesterId);
 }
-
-

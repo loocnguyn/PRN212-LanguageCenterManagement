@@ -1,4 +1,5 @@
 using BusinessObjects;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
@@ -37,6 +38,7 @@ public class SemesterDAO
         existing.Name = semester.Name;
         existing.StartDate = semester.StartDate;
         existing.EndDate = semester.EndDate;
+        existing.SetupEndDate = semester.SetupEndDate;
         existing.IsActive = semester.IsActive;
         context.SaveChanges();
     }
@@ -48,5 +50,16 @@ public class SemesterDAO
         if (semester == null) return;
         context.Semesters.Remove(semester);
         context.SaveChanges();
+    }
+
+    public static void SetActive(int semesterId)
+    {
+        using var context = new LanguageCenterContext();
+        // Deactivate all semesters
+        context.Semesters.ExecuteUpdate(s => s.SetProperty(x => x.IsActive, false));
+        // Activate the target semester
+        context.Semesters
+            .Where(s => s.SemesterId == semesterId)
+            .ExecuteUpdate(s => s.SetProperty(x => x.IsActive, true));
     }
 }

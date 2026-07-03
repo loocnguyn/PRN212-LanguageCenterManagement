@@ -40,4 +40,10 @@ public class ClassScheduleDAO
         context.ClassSchedules.Remove(existing);
         context.SaveChanges();
     }
+
+    public static List<ClassSchedule> GetByClassId(int classId)
+    {
+        using var context = new LanguageCenterContext();
+        return context.ClassSchedules.Where(s => s.ClassId == classId).ToList();
+    }
 }

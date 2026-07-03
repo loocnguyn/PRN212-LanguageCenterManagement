@@ -17,6 +17,7 @@ public class InvoiceService : IInvoiceService
     public bool HasOpenInvoiceForEnrollment(int enrollmentId, int? excludedInvoiceId = null) => _repo.HasOpenInvoiceForEnrollment(enrollmentId, excludedInvoiceId);
     public decimal GetPaidAmount(int invoiceId) => _repo.GetPaidAmount(invoiceId);
     public bool HasPayments(int invoiceId) => _repo.HasPayments(invoiceId);
+    public void CancelOpenByEnrollmentId(int enrollmentId) => _repo.CancelOpenByEnrollmentId(enrollmentId);
 }
 
 

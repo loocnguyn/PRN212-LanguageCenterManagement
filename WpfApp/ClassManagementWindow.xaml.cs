@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using BusinessObjects;
 using Services;
@@ -20,11 +20,16 @@ public partial class ClassManagementWindow : Window
     }
     private void BtnReset_Click(object sender, RoutedEventArgs e) { txtSearch.Text = ""; dgClasses.ItemsSource = _all; }
     private void DgClasses_SelectionChanged(object sender, SelectionChangedEventArgs e) { }
-    private void BtnAdd_Click(object sender, RoutedEventArgs e) => MessageBox.Show("Add class — TODO");
+    private void BtnAdd_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new ClassDetailWindow { Owner = this };
+        if (dialog.ShowDialog() == true) LoadData();
+    }
     private void BtnEdit_Click(object sender, RoutedEventArgs e)
     {
         if (dgClasses.SelectedItem is not Class c) { MessageBox.Show("Please select a class."); return; }
-        MessageBox.Show($"Edit: {c.Name} — TODO");
+        var dialog = new ClassDetailWindow(c) { Owner = this };
+        if (dialog.ShowDialog() == true) LoadData();
     }
     private void BtnDelete_Click(object sender, RoutedEventArgs e)
     {

@@ -85,4 +85,20 @@ public class InvoiceDAO
     }
 
     public static bool HasPayments(int invoiceId) => GetPaidAmount(invoiceId) > 0;
+
+    public static void CancelOpenByEnrollmentId(int enrollmentId)
+    {
+        using var context = new LanguageCenterContext();
+        var openInvoices = context.Invoices
+            .Where(i => i.EnrollmentId == enrollmentId
+                && (i.Status == "UNPAID" || i.Status == "PARTIAL"))
+            .ToList();
+
+        foreach (var invoice in openInvoices)
+        {
+            invoice.Status = "CANCELLED";
+            invoice.Note = (invoice.Note ?? "") + " | Cancelled due to enrollment drop";
+        }
+        context.SaveChanges();
+    }
 }

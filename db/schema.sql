@@ -117,6 +117,7 @@ CREATE TABLE Semesters (
     start_date  DATE          NOT NULL,
     end_date    DATE          NOT NULL,
     is_active   BIT           NOT NULL DEFAULT 1,
+    setup_end_date DATE          NULL,
     CONSTRAINT chk_semester_dates CHECK (end_date > start_date)
 );
 GO

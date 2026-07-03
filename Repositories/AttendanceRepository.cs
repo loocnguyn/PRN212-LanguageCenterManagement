@@ -10,6 +10,8 @@ public class AttendanceRepository : IAttendanceRepository
     public void Save(Attendance entity) => AttendanceDAO.Save(entity);
     public void Update(Attendance entity) => AttendanceDAO.Update(entity);
     public void Delete(int id) => AttendanceDAO.Delete(id);
+    public List<Attendance> GetBySessionId(int sessionId) => AttendanceDAO.GetBySessionId(sessionId);
+    public void Upsert(Attendance entity) => AttendanceDAO.Upsert(entity);
 }
 
 

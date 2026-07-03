@@ -1,4 +1,4 @@
-﻿<Window x:Class="WpfApp.MainWindow"
+<Window x:Class="WpfApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -18,6 +18,10 @@
                 <MenuItem Header="Deactivated Accounts" Click="MenuDeactivatedAccounts_Click"/>
             </MenuItem>
 
+            <MenuItem Header="Semesters" x:Name="menuSemesters" Visibility="Collapsed">
+                <MenuItem Header="Semester Management" Click="MenuSemesters_Click"/>
+            </MenuItem>
+
             <MenuItem Header="Courses" x:Name="menuCourses" Visibility="Collapsed">
                 <MenuItem Header="Course Management"   Click="MenuCourses_Click"/>
                 <MenuItem Header="Classroom Management" Click="MenuClassrooms_Click"/>
@@ -25,6 +29,7 @@
 
             <MenuItem Header="Classes" x:Name="menuClasses" Visibility="Collapsed">
                 <MenuItem Header="Class Management" Click="MenuClasses_Click"/>
+                <MenuItem Header="Class Schedule Management" Click="MenuClassSchedules_Click"/>
             </MenuItem>
 
             <MenuItem Header="Reports" x:Name="menuReports" Visibility="Collapsed">

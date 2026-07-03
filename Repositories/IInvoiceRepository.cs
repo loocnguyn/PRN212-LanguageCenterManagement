@@ -14,6 +14,7 @@ public interface IInvoiceRepository
     bool HasOpenInvoiceForEnrollment(int enrollmentId, int? excludedInvoiceId = null);
     decimal GetPaidAmount(int invoiceId);
     bool HasPayments(int invoiceId);
+    void CancelOpenByEnrollmentId(int enrollmentId);
 }
 
 
