@@ -618,7 +618,6 @@ public partial class LanguageCenterContext : DbContext
                 .HasMaxLength(100)
                 .HasColumnName("name");
             entity.Property(e => e.StartDate).HasColumnName("start_date");
-            entity.Property(e => e.SetupEndDate).HasColumnName("setup_end_date");
             entity.Property(e => e.EndDate).HasColumnName("end_date");
             entity.Property(e => e.IsActive)
                 .HasDefaultValue(true)

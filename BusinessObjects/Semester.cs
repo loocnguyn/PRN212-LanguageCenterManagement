@@ -11,8 +11,6 @@ public partial class Semester
 
     public DateOnly StartDate { get; set; }
 
-    public DateOnly SetupEndDate { get; set; }
-
     public DateOnly EndDate { get; set; }
 
     public bool IsActive { get; set; }
