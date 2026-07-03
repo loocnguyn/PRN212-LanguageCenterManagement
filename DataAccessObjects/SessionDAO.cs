@@ -73,6 +73,8 @@ public class SessionDAO
             .Include(s => s.Class)
                 .ThenInclude(c => c.Classroom)
             .Include(s => s.Schedule)
+            .Include(s => s.Attendances)
+            .Include(s => s.TeacherAttendances)
             .OrderBy(s => s.SessionDate)
             .ToList();
     }

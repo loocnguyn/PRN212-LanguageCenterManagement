@@ -24,16 +24,24 @@ public partial class LoginWindow : Window
             return;
         }
 
-        var user = _userService.Login(username, password);
-        if (user == null)
+        try
         {
-            MessageBox.Show("Invalid username or password.", "Login Failed",
-                MessageBoxButton.OK, MessageBoxImage.Error);
-            return;
-        }
+            var user = _userService.Login(username, password);
+            if (user == null)
+            {
+                MessageBox.Show("Invalid username or password.", "Login Failed",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
-        var main = new MainWindow(user);
-        main.Show();
-        this.Close();
+            var main = new MainWindow(user);
+            main.Show();
+            this.Close();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Login failed: {ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 }
