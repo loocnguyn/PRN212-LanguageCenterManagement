@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using BusinessObjects;
@@ -8,31 +9,46 @@ namespace WpfApp;
 
 public partial class StudentScheduleWindow : Window
 {
+    private readonly User _currentUser;
     private readonly IStudentService _studentService = new StudentService();
     private readonly IEnrollmentService _enrollmentService = new EnrollmentService();
     private readonly ISemesterService _semesterService = new SemesterService();
     private readonly ISessionService _sessionService = new SessionService();
 
-    public StudentScheduleWindow() { InitializeComponent(); }
+    public StudentScheduleWindow(User currentUser)
+    {
+        InitializeComponent();
+        _currentUser = currentUser;
+        Loaded += (_, _) => LoadSchedule();
+    }
 
-    private void BtnLoad_Click(object sender, RoutedEventArgs e)
+    private void LoadSchedule()
     {
         try
         {
-            if (!int.TryParse(txtStudentId.Text.Trim(), out int studentId))
+            // Auto-resolve student from logged-in user
+            var student = _studentService.GetAll()
+                .FirstOrDefault(s => s.UserId == _currentUser.Id);
+
+            if (student == null)
             {
-                MessageBox.Show("Please enter a valid Student ID.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                tbStudentName.Text = "No student profile linked to this account.";
+                dgSchedule.ItemsSource = null;
                 return;
             }
 
-            var student = _studentService.GetById(studentId)
-                ?? throw new InvalidOperationException($"Student {studentId} not found.");
+            int studentId = student.StudentId;
 
             var semester = _semesterService.GetActive()
                 ?? throw new InvalidOperationException("No active semester.");
 
             tbStudentName.Text = $"Student: {student.FullName}";
             tbSemesterInfo.Text = $"Semester: {semester.Name}";
+
+            // Generate sessions if in LEARNING phase (same as TeacherSchedule)
+            var phase = _semesterService.GetPhase(semester);
+            if (phase == Phase.LEARNING)
+                _sessionService.EnsureSessionsForSemester(semester.SemesterId);
 
             // Get active enrollments for student in active semester
             var allEnrollments = _enrollmentService.GetByStudentId(studentId);
@@ -56,7 +72,7 @@ public partial class StudentScheduleWindow : Window
                 DayName = s.SessionDate.DayOfWeek.ToString(),
                 ClassName = s.Class?.Name ?? "",
                 TimeDisplay = s.Schedule != null
-                    ? $"{s.Schedule.StartTime:hh\\:mm} - {s.Schedule.EndTime:hh\\:mm}"
+                    ? $"{s.Schedule.StartTime:hh\:mm} - {s.Schedule.EndTime:hh\:mm}"
                     : "",
                 RoomName = s.Class?.Classroom?.Name ?? "",
                 TeacherName = s.Class?.Teacher?.FullName ?? "",

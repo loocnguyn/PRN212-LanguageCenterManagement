@@ -8,6 +8,7 @@ namespace WpfApp;
 public partial class SemesterWindow : Window
 {
     private readonly ISemesterService _service = new SemesterService();
+    private readonly IClassService _classService = new ClassService();
     private List<Semester> _all = new();
     private bool _isLoading;
     private bool _isEditing;
@@ -54,7 +55,6 @@ public partial class SemesterWindow : Window
                 MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (discard != MessageBoxResult.Yes)
             {
-                // Re-select previous item (revert selection)
                 _isEditing = false;
                 _isLoading = true;
                 dgSemesters.SelectedItem = null;
@@ -123,6 +123,17 @@ public partial class SemesterWindow : Window
             MessageBox.Show("Cannot delete the active semester.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
+
+        // Pre-check: prevent FK violation with a clear message
+        var classes = _classService.GetBySemesterId(s.SemesterId);
+        if (classes.Any())
+        {
+            MessageBox.Show(
+                $"Cannot delete semester '{s.Name}' because it has {classes.Count} class(es).\nRemove all classes and their enrollments first.",
+                "Cannot Delete", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
         var confirm = MessageBox.Show($"Delete semester '{s.Name}'?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning);
         if (confirm != MessageBoxResult.Yes) return;
         try

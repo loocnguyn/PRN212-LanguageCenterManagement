@@ -3,13 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="My Schedule" Height="620" Width="1000"
         WindowStartupLocation="CenterScreen">
-    <Window.Resources>
-        <CollectionViewSource x:Key="ScheduleViewSource">
-            <CollectionViewSource.GroupDescriptions>
-                <PropertyGroupDescription PropertyName="SessionDate"/>
-            </CollectionViewSource.GroupDescriptions>
-        </CollectionViewSource>
-    </Window.Resources>
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -17,47 +10,29 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
+        <!-- Header: auto-loaded, no manual ID input -->
         <Border Grid.Row="0" Background="#F0F4F8" CornerRadius="6" Padding="12" Margin="0,0,0,8">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Student ID:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="Bold"/>
-                <TextBox x:Name="txtStudentId" Width="100" Height="28" VerticalContentAlignment="Center" Padding="4,0"/>
-                <Button Content="Load" Width="80" Height="28" Margin="6,0,0,0" Click="BtnLoad_Click"/>
-                <TextBlock x:Name="tbStudentName" VerticalAlignment="Center" Margin="20,0,0,0" FontSize="13"/>
-                <TextBlock x:Name="tbSemesterInfo" VerticalAlignment="Center" Margin="20,0,0,0" FontSize="13"/>
+                <TextBlock x:Name="tbStudentName" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"/>
+                <TextBlock Text=" — " VerticalAlignment="Center" FontSize="14"/>
+                <TextBlock x:Name="tbSemesterInfo" VerticalAlignment="Center" FontSize="13"/>
             </StackPanel>
         </Border>
 
         <!-- Summary -->
         <TextBlock Grid.Row="1" x:Name="tbSummary" Margin="0,0,0,6" FontSize="12" Foreground="#555"/>
 
-        <!-- DataGrid -->
+        <!-- DataGrid grouped by date -->
         <DataGrid Grid.Row="2" x:Name="dgSchedule"
                   AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single">
             <DataGrid.GroupStyle>
                 <GroupStyle>
-                    <GroupStyle.ContainerStyle>
-                        <Style TargetType="{x:Type GroupItem}">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="{x:Type GroupItem}">
-                                        <Expander IsExpanded="True">
-                                            <Expander.Header>
-                                                <TextBlock FontWeight="Bold" FontSize="13">
-                                                    <TextBlock.Text>
-                                                        <MultiBinding StringFormat="{}{0:dd/MM/yyyy} ({0:dddd})">
-                                                            <Binding Path="Name"/>
-                                                        </MultiBinding>
-                                                    </TextBlock.Text>
-                                                </TextBlock>
-                                            </Expander.Header>
-                                            <ItemsPresenter/>
-                                        </Expander>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </GroupStyle.ContainerStyle>
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock FontWeight="Bold" FontSize="13" Margin="0,4"
+                                       Text="{Binding Name, StringFormat='{}{0:dd/MM/yyyy (dddd)}'}"/>
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
                 </GroupStyle>
             </DataGrid.GroupStyle>
             <DataGrid.Columns>
@@ -71,4 +46,11 @@
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
+    <Window.Resources>
+        <CollectionViewSource x:Key="ScheduleViewSource">
+            <CollectionViewSource.GroupDescriptions>
+                <PropertyGroupDescription PropertyName="SessionDate"/>
+            </CollectionViewSource.GroupDescriptions>
+        </CollectionViewSource>
+    </Window.Resources>
 </Window>

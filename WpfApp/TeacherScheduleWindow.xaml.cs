@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using BusinessObjects;
@@ -8,25 +9,35 @@ namespace WpfApp;
 
 public partial class TeacherScheduleWindow : Window
 {
+    private readonly User _currentUser;
     private readonly ITeacherService _teacherService = new TeacherService();
     private readonly IClassService _classService = new ClassService();
     private readonly ISemesterService _semesterService = new SemesterService();
     private readonly ISessionService _sessionService = new SessionService();
 
-    public TeacherScheduleWindow() { InitializeComponent(); }
+    public TeacherScheduleWindow(User currentUser)
+    {
+        InitializeComponent();
+        _currentUser = currentUser;
+        Loaded += (_, _) => LoadSchedule();
+    }
 
-    private void BtnLoad_Click(object sender, RoutedEventArgs e)
+    private void LoadSchedule()
     {
         try
         {
-            if (!int.TryParse(txtTeacherId.Text.Trim(), out int teacherId))
+            // Auto-resolve teacher from logged-in user
+            var teacher = _teacherService.GetAll()
+                .FirstOrDefault(t => t.UserId == _currentUser.Id);
+
+            if (teacher == null)
             {
-                MessageBox.Show("Please enter a valid Teacher ID.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                tbTeacherName.Text = "No teacher profile linked to this account.";
+                dgSchedule.ItemsSource = null;
                 return;
             }
 
-            var teacher = _teacherService.GetById(teacherId)
-                ?? throw new InvalidOperationException($"Teacher {teacherId} not found.");
+            int teacherId = teacher.TeacherId;
 
             var semester = _semesterService.GetActive()
                 ?? throw new InvalidOperationException("No active semester.");
@@ -60,7 +71,7 @@ public partial class TeacherScheduleWindow : Window
                 DayName = s.SessionDate.DayOfWeek.ToString(),
                 ClassName = s.Class?.Name ?? "",
                 TimeDisplay = s.Schedule != null
-                    ? $"{s.Schedule.StartTime:hh\\:mm} - {s.Schedule.EndTime:hh\\:mm}"
+                    ? $"{s.Schedule.StartTime:hh\:mm} - {s.Schedule.EndTime:hh\:mm}"
                     : "",
                 RoomName = s.Class?.Classroom?.Name ?? "",
                 CourseName = s.Class?.Course?.Name ?? "",
@@ -69,8 +80,6 @@ public partial class TeacherScheduleWindow : Window
             .OrderBy(d => d.SessionDate)
             .ThenBy(d => d.TimeDisplay)
             .ToList();
-
-            // Client-side time ordering since EF may not translate cross-navigation ternary
 
             var cvs = (CollectionViewSource)FindResource("ScheduleViewSource");
             cvs.Source = displayItems;
