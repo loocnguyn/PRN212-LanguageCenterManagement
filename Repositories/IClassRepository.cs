@@ -9,6 +9,7 @@ public interface IClassRepository
     void Save(Class entity);
     void Update(Class entity);
     void Delete(int id);
+    List<Class> GetBySemesterId(int semesterId);
+    void UpdateStatus(int classId, string status);
+    List<Class> GetBySemesterIdWithDetails(int semesterId);
 }
-
-

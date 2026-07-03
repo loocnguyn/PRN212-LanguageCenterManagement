@@ -13,6 +13,8 @@ public partial class Semester
 
     public DateOnly EndDate { get; set; }
 
+    public DateOnly? SetupEndDate { get; set; }
+
     public bool IsActive { get; set; }
 
     public virtual ICollection<Class> Classes { get; set; } = new List<Class>();

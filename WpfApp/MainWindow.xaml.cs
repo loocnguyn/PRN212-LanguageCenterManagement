@@ -1,6 +1,7 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using BusinessObjects;
+using Services;
 
 namespace WpfApp;
 
@@ -12,8 +13,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         _currentUser = currentUser;
-        txtWelcome.Text = $"Welcome, {currentUser.Username} ({currentUser.Role})";
         ApplyRoleVisibility(currentUser.Role);
+        LoadSemesterInfo();
     }
 
     private void ApplyRoleVisibility(string role)
@@ -22,6 +23,7 @@ public partial class MainWindow : Window
         {
             case "ADMIN":
                 menuAccounts.Visibility = Visibility.Visible;
+                menuSemesters.Visibility = Visibility.Visible;
                 menuCourses.Visibility  = Visibility.Visible;
                 menuClasses.Visibility  = Visibility.Visible;
                 menuReports.Visibility  = Visibility.Visible;
@@ -39,6 +41,33 @@ public partial class MainWindow : Window
         }
     }
 
+    private void LoadSemesterInfo()
+    {
+        try
+        {
+            var semesterService = new SemesterService();
+            var active = semesterService.GetActive();
+            if (active == null)
+            {
+                txtStatus.Text = "No active semester";
+                txtWelcome.Text = $"Welcome, {_currentUser.Username} ({_currentUser.Role})";
+                return;
+            }
+
+            Phase? phase = null;
+            try { phase = semesterService.GetPhase(active); } catch { }
+
+            var phaseText = phase.HasValue ? $" [{phase.Value}]" : "";
+            txtWelcome.Text = $"Welcome, {_currentUser.Username} ({_currentUser.Role}) — {active.Name}{phaseText}";
+            txtStatus.Text = $"Active Semester: {active.Name} | Phase: {phase}";
+        }
+        catch
+        {
+            txtWelcome.Text = $"Welcome, {_currentUser.Username} ({_currentUser.Role})";
+            txtStatus.Text = "Ready";
+        }
+    }
+
     // ADMIN
     private void MenuClassSchedules_Click(object sender, RoutedEventArgs e)
         => new ClassScheduleManagementWindow().Show();
@@ -46,6 +75,8 @@ public partial class MainWindow : Window
         => new AccountManagementWindow(_currentUser).Show();
     private void MenuDeactivatedAccounts_Click(object sender, RoutedEventArgs e)
         => new DeactivatedAccountsWindow().Show();
+    private void MenuSemesters_Click(object sender, RoutedEventArgs e)
+        => new SemesterWindow().Show();
     private void MenuCourses_Click(object sender, RoutedEventArgs e)
         => new CourseManagementWindow().Show();
     private void MenuClassrooms_Click(object sender, RoutedEventArgs e)

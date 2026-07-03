@@ -9,6 +9,8 @@ public interface IAttendanceRepository
     void Save(Attendance entity);
     void Update(Attendance entity);
     void Delete(int id);
+    List<Attendance> GetBySessionId(int sessionId);
+    void Upsert(Attendance entity);
 }
 
 

@@ -11,4 +11,5 @@ public class SemesterRepository : ISemesterRepository
     public void Save(Semester semester) => SemesterDAO.Save(semester);
     public void Update(Semester semester) => SemesterDAO.Update(semester);
     public void Delete(int id) => SemesterDAO.Delete(id);
+    public void SetActive(int semesterId) => SemesterDAO.SetActive(semesterId);
 }

@@ -15,6 +15,7 @@ public class InvoiceRepository : IInvoiceRepository
     public bool HasOpenInvoiceForEnrollment(int enrollmentId, int? excludedInvoiceId = null) => InvoiceDAO.HasOpenInvoiceForEnrollment(enrollmentId, excludedInvoiceId);
     public decimal GetPaidAmount(int invoiceId) => InvoiceDAO.GetPaidAmount(invoiceId);
     public bool HasPayments(int invoiceId) => InvoiceDAO.HasPayments(invoiceId);
+    public void CancelOpenByEnrollmentId(int enrollmentId) => InvoiceDAO.CancelOpenByEnrollmentId(enrollmentId);
 }
 
 
