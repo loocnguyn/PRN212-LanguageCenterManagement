@@ -72,7 +72,7 @@ public partial class StudentScheduleWindow : Window
                 DayName = s.SessionDate.DayOfWeek.ToString(),
                 ClassName = s.Class?.Name ?? "",
                 TimeDisplay = s.Schedule != null
-                    ? $"{s.Schedule.StartTime:hh\:mm} - {s.Schedule.EndTime:hh\:mm}"
+                    ? $"{s.Schedule.StartTime:hh\\:mm} - {s.Schedule.EndTime:hh\\:mm}"
                     : "",
                 RoomName = s.Class?.Classroom?.Name ?? "",
                 TeacherName = s.Class?.Teacher?.FullName ?? "",
