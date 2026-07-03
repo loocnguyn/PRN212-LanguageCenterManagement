@@ -12,6 +12,8 @@ public class AttendanceService : IAttendanceService
     public void Save(Attendance entity) => _repo.Save(entity);
     public void Update(Attendance entity) => _repo.Update(entity);
     public void Delete(int id) => _repo.Delete(id);
+    public List<Attendance> GetBySessionId(int sessionId) => _repo.GetBySessionId(sessionId);
+    public void Upsert(Attendance entity) => _repo.Upsert(entity);
 }
 
 

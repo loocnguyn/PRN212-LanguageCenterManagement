@@ -10,6 +10,7 @@ public class ClassScheduleRepository : IClassScheduleRepository
     public void Save(ClassSchedule entity) => ClassScheduleDAO.Save(entity);
     public void Update(ClassSchedule entity) => ClassScheduleDAO.Update(entity);
     public void Delete(int id) => ClassScheduleDAO.Delete(id);
+    public List<ClassSchedule> GetByClassId(int classId) => ClassScheduleDAO.GetByClassId(classId);
 }
 
 

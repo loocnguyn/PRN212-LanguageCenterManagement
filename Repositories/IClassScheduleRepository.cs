@@ -9,6 +9,7 @@ public interface IClassScheduleRepository
     void Save(ClassSchedule entity);
     void Update(ClassSchedule entity);
     void Delete(int id);
+    List<ClassSchedule> GetByClassId(int classId);
 }
 
 
