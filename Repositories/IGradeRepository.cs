@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+using BusinessObjects;
 
 namespace Repositories;
 
@@ -9,6 +9,6 @@ public interface IGradeRepository
     void Save(Grade entity);
     void Update(Grade entity);
     void Delete(int id);
+    List<Grade> GetByEnrollmentId(int enrollmentId);
+    void Upsert(Grade entity);
 }
-
-

@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+using BusinessObjects;
 using DataAccessObjects;
 
 namespace Repositories;
@@ -10,6 +10,6 @@ public class GradeRepository : IGradeRepository
     public void Save(Grade entity) => GradeDAO.Save(entity);
     public void Update(Grade entity) => GradeDAO.Update(entity);
     public void Delete(int id) => GradeDAO.Delete(id);
+    public List<Grade> GetByEnrollmentId(int enrollmentId) => GradeDAO.GetByEnrollmentId(enrollmentId);
+    public void Upsert(Grade entity) => GradeDAO.Upsert(entity);
 }
-
-

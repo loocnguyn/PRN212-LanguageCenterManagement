@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+using BusinessObjects;
 using Repositories;
 
 namespace Services;
@@ -12,6 +12,6 @@ public class GradeService : IGradeService
     public void Save(Grade entity) => _repo.Save(entity);
     public void Update(Grade entity) => _repo.Update(entity);
     public void Delete(int id) => _repo.Delete(id);
+    public List<Grade> GetByEnrollmentId(int enrollmentId) => _repo.GetByEnrollmentId(enrollmentId);
+    public void Upsert(Grade entity) => _repo.Upsert(entity);
 }
-
-

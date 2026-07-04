@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using Services;
@@ -8,6 +9,7 @@ namespace WpfApp;
 public partial class ClassRosterWindow : Window
 {
     private readonly IEnrollmentService _enrollmentService = new EnrollmentService();
+    private readonly IClassService _classService = new ClassService();
 
     public ClassRosterWindow()
     {
@@ -18,37 +20,47 @@ public partial class ClassRosterWindow : Window
     {
         try
         {
-            if (!int.TryParse(txtClassId.Text.Trim(), out int classId))
+            if (!int.TryParse(txtClassId.Text.Trim(), out var classId))
             {
                 MessageBox.Show("Please enter a valid Class ID.", "Validation",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            var enrollments = _enrollmentService.GetByClassId(classId);
+            var cls = _classService.GetById(classId);
+            if (cls == null)
+            {
+                MessageBox.Show($"Class {classId} not found.", "Not Found",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
-            var rows = enrollments
-                .Where(en => en.Status == "ACTIVE")
+            var enrollments = _enrollmentService.GetByClassId(classId);
+            if (!enrollments.Any())
+            {
+                MessageBox.Show($"No active enrollments for class '{cls.Name}'.", "Info",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                dgRoster.ItemsSource = null;
+                return;
+            }
+
+            var students = enrollments
+                .Where(en => en.Student != null)
                 .Select(en => new RosterRow
                 {
-                    StudentId = en.Student?.StudentId ?? 0,
-                    FullName = en.Student?.FullName ?? "",
-                    Gender = en.Student?.Gender ?? "",
-                    Phone = en.Student?.Phone ?? "",
-                    Email = en.Student?.Email ?? ""
-                }).ToList();
+                    StudentId = en.Student!.StudentId,
+                    FullName = en.Student.FullName,
+                    Gender = en.Student.Gender ?? "",
+                    Phone = en.Student.Phone ?? "",
+                    Email = en.Student.Email ?? ""
+                })
+                .ToList();
 
-            dgRoster.ItemsSource = rows;
-
-            if (!rows.Any())
-            {
-                MessageBox.Show("No active enrollments found for this class.", "Info",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-            }
+            dgRoster.ItemsSource = students;
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Error: {ex.Message}", "Error",
+            MessageBox.Show($"Error loading roster: {ex.Message}", "Error",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
