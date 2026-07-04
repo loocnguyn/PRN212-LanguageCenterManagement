@@ -12,11 +12,18 @@ namespace WpfApp;
 
 public partial class ClassResultWindow : Window
 {
+    private readonly User _currentUser;
     private readonly IGradeService _gradeService = new GradeService();
     private readonly IGradeTypeService _gradeTypeService = new GradeTypeService();
     private readonly IEnrollmentService _enrollmentService = new EnrollmentService();
+    private readonly IClassService _classService = new ClassService();
+    private readonly ITeacherService _teacherService = new TeacherService();
 
-    public ClassResultWindow() { InitializeComponent(); }
+    public ClassResultWindow(User currentUser)
+    {
+        InitializeComponent();
+        _currentUser = currentUser;
+    }
 
     private void BtnLoad_Click(object sender, RoutedEventArgs e)
     {
@@ -29,6 +36,18 @@ public partial class ClassResultWindow : Window
 
         try
         {
+            var cls = _classService.GetById(classId);
+            if (cls == null)
+            {
+                MessageBox.Show($"Class {classId} not found.", "Not Found",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // AUTHORIZATION: verify the logged-in teacher owns this class
+            if (!AuthorizationHelper.AuthorizeTeacherForClass(_currentUser, _teacherService, cls, "view results"))
+                return;
+
             var gradeTypes = _gradeTypeService.GetAll();
             if (gradeTypes.Count == 0)
             {
@@ -46,13 +65,9 @@ public partial class ClassResultWindow : Window
                 return;
             }
 
-            // Enrich: eagerly load grades for all enrollments
+            // BATCH-LOAD grades for all enrollments in one query (fixes N+1)
             var enrollmentIds = enrollments.Select(e => e.EnrollmentId).ToList();
-            var allGrades = new List<Grade>();
-            foreach (var eid in enrollmentIds)
-            {
-                allGrades.AddRange(_gradeService.GetByEnrollmentId(eid));
-            }
+            var allGrades = _gradeService.GetByEnrollmentIds(enrollmentIds);
             var gradesByEnrollment = allGrades
                 .GroupBy(g => g.EnrollmentId)
                 .ToDictionary(g => g.Key, g => g.ToList());
@@ -75,10 +90,12 @@ public partial class ClassResultWindow : Window
                 foreach (var gt in gradeTypes)
                 {
                     var grade = enrollmentGrades.FirstOrDefault(g => g.GradeTypeId == gt.GradeTypeId);
-                    if (grade != null)
+                    if (grade != null && grade.MaxScore > 0)
                     {
+                        // Show the raw score in the column
                         dict[gt.Name] = grade.Score;
-                        finalScore += grade.Score * (gt.WeightPercent / 100m);
+                        // Normalized contribution: (Score / MaxScore) * WeightPercent / 100
+                        finalScore += (grade.Score / grade.MaxScore) * (gt.WeightPercent / 100m);
                     }
                     else
                     {
@@ -86,7 +103,8 @@ public partial class ClassResultWindow : Window
                     }
                 }
 
-                row.FinalScore = Math.Round(finalScore, 2);
+                // FinalScore as a decimal (0.00 - 1.00). Multiply by 100 for percentage display.
+                row.FinalScore = Math.Round(finalScore, 4);
                 rows.Add(row);
             }
 
@@ -111,7 +129,7 @@ public partial class ClassResultWindow : Window
             {
                 dgResults.Columns.Add(new DataGridTextColumn
                 {
-                    Header = $"{gt.Name} ({gt.WeightPercent}%)",
+                    Header = $"{gt.Name}\n({gt.WeightPercent}%)",
                     Binding = new Binding($"[{gt.Name}]")
                     {
                         TargetNullValue = "-",
@@ -123,12 +141,12 @@ public partial class ClassResultWindow : Window
 
             dgResults.Columns.Add(new DataGridTextColumn
             {
-                Header = "Final Score",
+                Header = "Final Score\n(w/weight)",
                 Binding = new Binding("FinalScore")
                 {
-                    StringFormat = "N2"
+                    StringFormat = "P2"
                 },
-                Width = 100
+                Width = 110
             });
 
             dgResults.ItemsSource = rows;
@@ -139,6 +157,8 @@ public partial class ClassResultWindow : Window
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
+
+
 
     private void BtnReset_Click(object sender, RoutedEventArgs e)
     {

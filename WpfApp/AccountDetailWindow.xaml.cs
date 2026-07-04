@@ -48,7 +48,7 @@ public partial class AccountDetailWindow : Window
                 }
                 break;
             case "TEACHER":
-                var t = TeacherDAO.GetAll().FirstOrDefault(x => x.UserId == user.Id);
+                var t = TeacherDAO.GetByUserId(user.Id);
                 if (t != null)
                 {
                     txtFullName.Text = t.FullName;
@@ -269,7 +269,7 @@ public partial class AccountDetailWindow : Window
                 }
                 else
                 {
-                    var t = TeacherDAO.GetAll().FirstOrDefault(x => x.UserId == userId);
+                    var t = TeacherDAO.GetByUserId(userId);
                     if (t != null) { t.FullName = fullName; t.Gender = tGender; t.Phone = phone; t.Email = email; t.Specialization = (txtSpec.SelectedItem as ComboBoxItem)?.Content.ToString(); t.Degree = degree; TeacherDAO.Update(t); }
                 }
                 break;

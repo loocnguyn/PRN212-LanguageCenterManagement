@@ -1,19 +1,22 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using BusinessObjects;
 using Services;
 
 namespace WpfApp;
 
 public partial class ClassRosterWindow : Window
 {
+    private readonly User _currentUser;
     private readonly IEnrollmentService _enrollmentService = new EnrollmentService();
     private readonly IClassService _classService = new ClassService();
+    private readonly ITeacherService _teacherService = new TeacherService();
 
-    public ClassRosterWindow()
+    public ClassRosterWindow(User currentUser)
     {
         InitializeComponent();
+        _currentUser = currentUser;
     }
 
     private void BtnLoad_Click(object sender, RoutedEventArgs e)
@@ -34,6 +37,10 @@ public partial class ClassRosterWindow : Window
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+
+            // AUTHORIZATION: verify the logged-in teacher owns this class
+            if (!AuthorizationHelper.AuthorizeTeacherForClass(_currentUser, _teacherService, cls, "view roster"))
+                return;
 
             var enrollments = _enrollmentService.GetByClassId(classId);
             if (!enrollments.Any())
@@ -64,6 +71,8 @@ public partial class ClassRosterWindow : Window
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
+
+
 
     private void BtnReset_Click(object sender, RoutedEventArgs e)
     {

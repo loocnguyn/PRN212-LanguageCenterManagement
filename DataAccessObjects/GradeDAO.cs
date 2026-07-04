@@ -51,6 +51,19 @@ public class GradeDAO
             .ToList();
     }
 
+    /// <summary>Batch-load grades for multiple enrollment IDs (avoids N+1).</summary>
+    public static List<Grade> GetByEnrollmentIds(List<int> enrollmentIds)
+    {
+        if (enrollmentIds == null || enrollmentIds.Count == 0)
+            return new List<Grade>();
+
+        using var context = new LanguageCenterContext();
+        return context.Grades
+            .Where(g => enrollmentIds.Contains(g.EnrollmentId))
+            .Include(g => g.GradeType)
+            .ToList();
+    }
+
     public static void Upsert(Grade entity)
     {
         using var context = new LanguageCenterContext();
