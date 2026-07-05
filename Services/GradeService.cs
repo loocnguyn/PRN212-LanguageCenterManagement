@@ -15,4 +15,5 @@ public class GradeService : IGradeService
     public List<Grade> GetByEnrollmentId(int enrollmentId) => _repo.GetByEnrollmentId(enrollmentId);
     public List<Grade> GetByEnrollmentIds(List<int> enrollmentIds) => _repo.GetByEnrollmentIds(enrollmentIds);
     public void Upsert(Grade entity) => _repo.Upsert(entity);
+    public List<Grade> GetByStudentId(int studentId) => _repo.GetByStudentId(studentId);
 }

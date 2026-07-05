@@ -12,4 +12,5 @@ public interface IGradeRepository
     List<Grade> GetByEnrollmentId(int enrollmentId);
     List<Grade> GetByEnrollmentIds(List<int> enrollmentIds);
     void Upsert(Grade entity);
+    List<Grade> GetByStudentId(int studentId);
 }

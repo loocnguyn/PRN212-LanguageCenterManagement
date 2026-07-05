@@ -113,10 +113,12 @@ public partial class MainWindow : Window
     // STUDENT
     private void MenuStudentSchedule_Click(object sender, RoutedEventArgs e)
         => new StudentScheduleWindow(_currentUser).Show();
+    private void MenuMyClasses_Click(object sender, RoutedEventArgs e)
+        => new MyClassesWindow(_currentUser).Show();
     private void MenuAttendanceHistory_Click(object sender, RoutedEventArgs e)
         => new AttendanceHistoryWindow().Show();
     private void MenuMyGrades_Click(object sender, RoutedEventArgs e)
-        => new StudentGradeWindow().Show();
+        => new StudentGradeWindow(_currentUser).Show();
     private void MenuMyInvoices_Click(object sender, RoutedEventArgs e)
         => new StudentInvoiceWindow().Show();
 

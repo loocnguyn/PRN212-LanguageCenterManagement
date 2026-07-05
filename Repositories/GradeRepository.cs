@@ -13,4 +13,5 @@ public class GradeRepository : IGradeRepository
     public List<Grade> GetByEnrollmentId(int enrollmentId) => GradeDAO.GetByEnrollmentId(enrollmentId);
     public List<Grade> GetByEnrollmentIds(List<int> enrollmentIds) => GradeDAO.GetByEnrollmentIds(enrollmentIds);
     public void Upsert(Grade entity) => GradeDAO.Upsert(entity);
+    public List<Grade> GetByStudentId(int studentId) => GradeDAO.GetByStudentId(studentId);
 }

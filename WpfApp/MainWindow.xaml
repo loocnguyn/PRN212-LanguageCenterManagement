@@ -60,6 +60,7 @@
             <!-- STUDENT only -->
             <MenuItem Header="My Info" x:Name="menuMyInfo" Visibility="Collapsed">
                 <MenuItem Header="My Schedule"         Click="MenuStudentSchedule_Click"/>
+                <MenuItem Header="My Classes"          Click="MenuMyClasses_Click"/>
                 <MenuItem Header="Attendance History"  Click="MenuAttendanceHistory_Click"/>
                 <MenuItem Header="My Grades"           Click="MenuMyGrades_Click"/>
                 <MenuItem Header="My Invoices"         Click="MenuMyInvoices_Click"/>
