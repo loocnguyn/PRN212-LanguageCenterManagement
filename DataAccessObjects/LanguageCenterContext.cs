@@ -54,6 +54,8 @@ public partial class LanguageCenterContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<WalletTransaction> WalletTransactions { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer(GetConnectionString());
 
@@ -488,6 +490,9 @@ public partial class LanguageCenterContext : DbContext
             entity.Property(e => e.Address)
                 .HasMaxLength(255)
                 .HasColumnName("address");
+            entity.Property(e => e.Balance)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("balance");
             entity.Property(e => e.DateOfBirth).HasColumnName("date_of_birth");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
@@ -623,6 +628,44 @@ public partial class LanguageCenterContext : DbContext
             entity.Property(e => e.IsActive)
                 .HasDefaultValue(true)
                 .HasColumnName("is_active");
+        });
+
+        modelBuilder.Entity<WalletTransaction>(entity =>
+        {
+            entity.HasKey(e => e.TransactionId).HasName("PK__WalletTr__55F68FC0");
+
+            entity.HasIndex(e => e.MomoOrderId, "UQ__WalletTr__MomoOrderId").IsUnique();
+
+            entity.HasIndex(e => e.StudentId, "idx_wallet_student");
+
+            entity.HasIndex(e => e.Status, "idx_wallet_status");
+
+            entity.Property(e => e.TransactionId).HasColumnName("transaction_id");
+            entity.Property(e => e.StudentId).HasColumnName("student_id");
+            entity.Property(e => e.Amount)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("amount");
+            entity.Property(e => e.TransactionType)
+                .HasMaxLength(20)
+                .HasColumnName("transaction_type");
+            entity.Property(e => e.MomoOrderId)
+                .HasMaxLength(100)
+                .HasColumnName("momo_order_id");
+            entity.Property(e => e.Description)
+                .HasMaxLength(255)
+                .HasColumnName("description");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValue("PENDING")
+                .HasColumnName("status");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnName("created_at");
+
+            entity.HasOne(d => d.Student).WithMany(p => p.WalletTransactions)
+                .HasForeignKey(d => d.StudentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__WalletTra__stude__WalletStudent");
         });
 
         OnModelCreatingPartial(modelBuilder);
