@@ -9,6 +9,7 @@ public class TeacherService : ITeacherService
 
     public List<Teacher> GetAll() => _repo.GetAll();
     public Teacher? GetById(int id) => _repo.GetById(id);
+    public Teacher? GetByUserId(int userId) => _repo.GetByUserId(userId);
     public void Save(Teacher entity) => _repo.Save(entity);
     public void Update(Teacher entity) => _repo.Update(entity);
     public void Delete(int id) => _repo.Delete(id);

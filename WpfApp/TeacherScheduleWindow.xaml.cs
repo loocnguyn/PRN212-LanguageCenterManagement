@@ -32,7 +32,7 @@ public partial class TeacherScheduleWindow : Window
     {
         try
         {
-            var teacher = _teacherService.GetAll().FirstOrDefault(t => t.UserId == _currentUser.Id);
+            var teacher = _teacherService.GetByUserId(_currentUser.Id);
             if (teacher == null)
             {
                 tbTeacherName.Text = "No teacher profile linked to this account.";

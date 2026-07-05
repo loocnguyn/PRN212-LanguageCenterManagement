@@ -16,6 +16,12 @@ public class TeacherDAO
         return context.Teachers.FirstOrDefault(x => x.TeacherId == id);
     }
 
+    public static Teacher? GetByUserId(int userId)
+    {
+        using var context = new LanguageCenterContext();
+        return context.Teachers.FirstOrDefault(x => x.UserId == userId);
+    }
+
     public static void Save(Teacher entity)
     {
         using var context = new LanguageCenterContext();

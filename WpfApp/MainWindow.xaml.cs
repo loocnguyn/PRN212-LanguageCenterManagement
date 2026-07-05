@@ -98,17 +98,17 @@ public partial class MainWindow : Window
     private void MenuPayment_Click(object sender, RoutedEventArgs e)
         => new PaymentWindow().Show();
 
-    // TEACHER
+    // TEACHER — all 3 pass _currentUser for authorization
     private void MenuTeacherSchedule_Click(object sender, RoutedEventArgs e)
         => new TeacherScheduleWindow(_currentUser).Show();
     private void MenuAttendance_Click(object sender, RoutedEventArgs e)
         => new AttendanceWindow().Show();
     private void MenuGradeEntry_Click(object sender, RoutedEventArgs e)
-        => new GradeEntryWindow().Show();
+        => new GradeEntryWindow(_currentUser).Show();
     private void MenuClassRoster_Click(object sender, RoutedEventArgs e)
-        => new ClassRosterWindow().Show();
+        => new ClassRosterWindow(_currentUser).Show();
     private void MenuClassResults_Click(object sender, RoutedEventArgs e)
-        => new ClassResultWindow().Show();
+        => new ClassResultWindow(_currentUser).Show();
 
     // STUDENT
     private void MenuStudentSchedule_Click(object sender, RoutedEventArgs e)
