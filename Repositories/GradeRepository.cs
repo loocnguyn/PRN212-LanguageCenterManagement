@@ -10,6 +10,7 @@ public class GradeRepository : IGradeRepository
     public void Save(Grade entity) => GradeDAO.Save(entity);
     public void Update(Grade entity) => GradeDAO.Update(entity);
     public void Delete(int id) => GradeDAO.Delete(id);
+    public List<Grade> GetByStudentId(int studentId) => GradeDAO.GetByStudentId(studentId);
 }
 
 

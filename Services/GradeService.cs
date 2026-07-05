@@ -12,6 +12,7 @@ public class GradeService : IGradeService
     public void Save(Grade entity) => _repo.Save(entity);
     public void Update(Grade entity) => _repo.Update(entity);
     public void Delete(int id) => _repo.Delete(id);
+    public List<Grade> GetByStudentId(int studentId) => _repo.GetByStudentId(studentId);
 }
 
 

@@ -1,4 +1,5 @@
 ﻿using BusinessObjects;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
@@ -39,5 +40,20 @@ public class GradeDAO
         if (existing == null) return;
         context.Grades.Remove(existing);
         context.SaveChanges();
+    }
+
+    public static List<Grade> GetByStudentId(int studentId)
+    {
+        using var context = new LanguageCenterContext();
+        return context.Grades
+            .Where(g => g.Enrollment.StudentId == studentId)
+            .Include(g => g.GradeType)
+            .Include(g => g.Enrollment)
+            .ThenInclude(e => e.Class)
+            .ThenInclude(c => c.Course)
+            .Include(g => g.Enrollment)
+            .ThenInclude(e => e.Class)
+            .ThenInclude(c => c.Semester)
+            .ToList();
     }
 }

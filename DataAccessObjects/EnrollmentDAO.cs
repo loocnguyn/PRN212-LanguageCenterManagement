@@ -67,6 +67,8 @@ public class EnrollmentDAO
             .ThenInclude(c => c.Teacher)
             .Include(e => e.Class)
             .ThenInclude(c => c.Classroom)
+            .Include(e => e.Class)
+            .ThenInclude(c => c.Semester)
             .ToList();
     }
 
