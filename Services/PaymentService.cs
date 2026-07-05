@@ -13,4 +13,6 @@ public class PaymentService : IPaymentService
     public void Update(Payment entity) => _repo.Update(entity);
     public void Delete(int id) => _repo.Delete(id);
     public void RecordPayment(Payment payment) => _repo.RecordPayment(payment);
+    public List<Payment> GetPaymentsByDateRange(DateTime fromDate, DateTime toDate, string? method)
+        => _repo.GetPaymentsByDateRange(fromDate, toDate, method);
 }

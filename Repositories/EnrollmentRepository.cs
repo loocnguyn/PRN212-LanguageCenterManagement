@@ -5,6 +5,8 @@ namespace Repositories;
 
 public class EnrollmentRepository : IEnrollmentRepository
 {
+    public void EnrollWithInvoice(Enrollment enrollment, decimal tuitionFee, DateOnly dueDate, string note)
+        => EnrollmentDAO.EnrollWithInvoice(enrollment, tuitionFee, dueDate, note);
     public List<Enrollment> GetAll() => EnrollmentDAO.GetAll();
     public Enrollment? GetById(int id) => EnrollmentDAO.GetById(id);
     public void Save(Enrollment entity) => EnrollmentDAO.Save(entity);

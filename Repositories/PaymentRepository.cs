@@ -11,4 +11,6 @@ public class PaymentRepository : IPaymentRepository
     public void Update(Payment entity) => PaymentDAO.Update(entity);
     public void Delete(int id) => PaymentDAO.Delete(id);
     public void RecordPayment(Payment payment) => PaymentDAO.RecordPayment(payment);
+    public List<Payment> GetPaymentsByDateRange(DateTime fromDate, DateTime toDate, string? method)
+        => PaymentDAO.GetPaymentsByDateRange(fromDate, toDate, method);
 }

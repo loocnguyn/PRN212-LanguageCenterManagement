@@ -10,4 +10,5 @@ public interface IPaymentRepository
     void Update(Payment entity);
     void Delete(int id);
     void RecordPayment(Payment payment);
+    List<Payment> GetPaymentsByDateRange(DateTime fromDate, DateTime toDate, string? method);
 }

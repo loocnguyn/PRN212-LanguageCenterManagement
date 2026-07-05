@@ -9,6 +9,7 @@ public class EnrollmentService : IEnrollmentService
     private readonly IClassRepository _classRepo = new ClassRepository();
     private readonly IStudentRepository _studentRepo = new StudentRepository();
     private readonly IInvoiceRepository _invoiceRepo = new InvoiceRepository();
+    private readonly ICourseRepository _courseRepo = new CourseRepository();
 
     public List<Enrollment> GetAll() => _enrollmentRepo.GetAll();
     public Enrollment? GetById(int id) => _enrollmentRepo.GetById(id);
@@ -27,6 +28,12 @@ public class EnrollmentService : IEnrollmentService
         var cls = _classRepo.GetById(classId)
             ?? throw new InvalidOperationException($"Class {classId} not found.");
 
+        var course = _courseRepo.GetById(cls.CourseId)
+            ?? throw new InvalidOperationException($"Course {cls.CourseId} not found.");
+        if (course.TuitionFee <= 0)
+            throw new InvalidOperationException(
+                $"Course '{course.Name}' does not have a valid tuition fee.");
+
         if (cls.Status != "UPCOMING" && cls.Status != "ACTIVE")
             throw new InvalidOperationException($"Class '{cls.Name}' is not open for enrollment (status: {cls.Status}).");
 
@@ -44,7 +51,11 @@ public class EnrollmentService : IEnrollmentService
                 // Reactivate the dropped enrollment
                 existing.Status = "ACTIVE";
                 existing.EnrolledDate = DateOnly.FromDateTime(DateTime.Today);
-                _enrollmentRepo.Update(existing);
+                _enrollmentRepo.EnrollWithInvoice(
+                    existing,
+                    course.TuitionFee,
+                    DateOnly.FromDateTime(DateTime.Today).AddDays(7),
+                    $"Tuition fee for class {cls.Name}");
                 return;
             }
             throw new InvalidOperationException(
@@ -58,7 +69,11 @@ public class EnrollmentService : IEnrollmentService
             EnrolledDate = DateOnly.FromDateTime(DateTime.Today),
             Status = "ACTIVE"
         };
-        _enrollmentRepo.Save(enrollment);
+        _enrollmentRepo.EnrollWithInvoice(
+            enrollment,
+            course.TuitionFee,
+            DateOnly.FromDateTime(DateTime.Today).AddDays(7),
+            $"Tuition fee for class {cls.Name}");
     }
 
     public void Drop(int enrollmentId)

@@ -1,10 +1,65 @@
 ﻿using BusinessObjects;
 using Microsoft.EntityFrameworkCore;
 
+using System.Data;
+
 namespace DataAccessObjects;
 
 public class EnrollmentDAO
 {
+    public static void EnrollWithInvoice(
+        Enrollment enrollment,
+        decimal tuitionFee,
+        DateOnly dueDate,
+        string note)
+    {
+        using var context = new LanguageCenterContext();
+        using var transaction = context.Database.BeginTransaction(IsolationLevel.Serializable);
+        try
+        {
+            if (enrollment.EnrollmentId == 0)
+            {
+                context.Enrollments.Add(enrollment);
+                context.SaveChanges();
+            }
+            else
+            {
+                var existing = context.Enrollments.Find(enrollment.EnrollmentId)
+                    ?? throw new InvalidOperationException(
+                        $"Enrollment {enrollment.EnrollmentId} not found.");
+                existing.Status = enrollment.Status;
+                existing.EnrolledDate = enrollment.EnrolledDate;
+                context.SaveChanges();
+            }
+
+            var hasOpenInvoice = context.Invoices.Any(x =>
+                x.EnrollmentId == enrollment.EnrollmentId
+                && (x.Status == "UNPAID" || x.Status == "PARTIAL"));
+
+            if (!hasOpenInvoice)
+            {
+                context.Invoices.Add(new Invoice
+                {
+                    StudentId = enrollment.StudentId,
+                    EnrollmentId = enrollment.EnrollmentId,
+                    Amount = tuitionFee,
+                    Status = "UNPAID",
+                    DueDate = dueDate,
+                    CreatedAt = DateTime.Now,
+                    Note = note
+                });
+                context.SaveChanges();
+            }
+
+            transaction.Commit();
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
+    }
+
     public static List<Enrollment> GetAll()
     {
         using var context = new LanguageCenterContext();
