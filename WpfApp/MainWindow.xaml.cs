@@ -118,7 +118,7 @@ public partial class MainWindow : Window
     private void MenuMyGrades_Click(object sender, RoutedEventArgs e)
         => new StudentGradeWindow().Show();
     private void MenuMyInvoices_Click(object sender, RoutedEventArgs e)
-        => new StudentInvoiceWindow().Show();
+        => new StudentInvoiceWindow(_currentUser).Show();
 
     private void MenuLogout_Click(object sender, RoutedEventArgs e)
     {
