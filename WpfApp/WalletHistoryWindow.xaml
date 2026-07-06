@@ -23,7 +23,7 @@
                 <DataGridTextColumn Header="Số tiền" Binding="{Binding Amount}" Width="105"/>
                 <DataGridTextColumn Header="Trạng thái" Binding="{Binding Status}" Width="90"/>
                 <DataGridTextColumn Header="Thời gian" Binding="{Binding CreatedAt}" Width="140"/>
-                <DataGridTextColumn Header="MoMo Order" Binding="{Binding MomoOrderId}" Width="190"/>
+                <DataGridTextColumn Header="Provider Order" Binding="{Binding ProviderOrderId}" Width="190"/>
                 <DataGridTextColumn Header="Ghi chú" Binding="{Binding Description}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>

@@ -21,7 +21,7 @@
         </StackPanel>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,10">
-            <Button x:Name="btnTopUp" Content="Nạp qua MoMo" Width="140" Height="32" Click="BtnTopUp_Click"/>
+            <Button x:Name="btnTopUp" Content="Nạp qua ZaloPay" Width="140" Height="32" Click="BtnTopUp_Click"/>
             <Button Content="Hủy" Width="80" Height="32" Margin="10,0,0,0" Click="BtnCancel_Click"/>
         </StackPanel>
 

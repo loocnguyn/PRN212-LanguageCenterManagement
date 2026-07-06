@@ -22,6 +22,7 @@ public class ZaloPayQueryResult
     /// <summary>1 = paid successfully, 2 = failed/cancelled, 3 = pending (per ZaloPay convention).</summary>
     public int ReturnCode { get; set; }
     public string? Message { get; set; }
+    public long Amount { get; set; }
 
     public bool IsSuccess => ReturnCode == 1;
     public bool IsPending => ReturnCode == 3;

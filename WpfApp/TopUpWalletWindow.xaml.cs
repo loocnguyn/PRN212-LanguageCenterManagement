@@ -45,14 +45,14 @@ public partial class TopUpWalletWindow : Window
         try
         {
             btnTopUp.IsEnabled = false;
-            tbStatus.Text = "Đang tạo giao dịch MoMo...";
+            tbStatus.Text = "Đang tạo giao dịch ZaloPay...";
 
             var (orderId, payUrl) = await _walletService.StartTopUpAsync(_studentId, amount);
             Process.Start(new ProcessStartInfo(payUrl) { UseShellExecute = true });
 
             _pendingOrderId = orderId;
             _pollStartedAt = DateTime.Now;
-            tbStatus.Text = "Đang chờ xác nhận thanh toán từ MoMo...";
+            tbStatus.Text = "Đang chờ xác nhận thanh toán từ ZaloPay...";
 
             _pollTimer = new DispatcherTimer { Interval = PollInterval };
             _pollTimer.Tick += PollTimer_Tick;

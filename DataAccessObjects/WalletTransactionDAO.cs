@@ -15,7 +15,7 @@ public class WalletTransactionDAO
             .FirstOrDefault();
     }
 
-    public static WalletTransaction CreatePendingTopUp(int studentId, decimal amount, string momoOrderId)
+    public static WalletTransaction CreatePendingTopUp(int studentId, decimal amount, string providerOrderId)
     {
         using var context = new LanguageCenterContext();
         if (amount <= 0)
@@ -26,8 +26,8 @@ public class WalletTransactionDAO
             StudentId = studentId,
             Amount = amount,
             TransactionType = "TOP_UP",
-            MomoOrderId = momoOrderId,
-            Description = "Nạp tiền vào ví qua MoMo",
+            ProviderOrderId = providerOrderId,
+            Description = "Nạp tiền vào ví qua ZaloPay",
             Status = "PENDING",
             CreatedAt = DateTime.Now
         };
@@ -36,16 +36,16 @@ public class WalletTransactionDAO
         return transaction;
     }
 
-    public static bool CompleteTopUp(string momoOrderId)
+    public static bool CompleteTopUp(string providerOrderId)
     {
         using var context = new LanguageCenterContext();
         using var dbTransaction = context.Database.BeginTransaction(IsolationLevel.Serializable);
         try
         {
             var walletTransaction = context.WalletTransactions
-                .FirstOrDefault(x => x.MomoOrderId == momoOrderId);
+                .FirstOrDefault(x => x.ProviderOrderId == providerOrderId);
             if (walletTransaction == null)
-                throw new InvalidOperationException($"Không tìm thấy giao dịch nạp tiền '{momoOrderId}'.");
+                throw new InvalidOperationException($"Không tìm thấy giao dịch nạp tiền '{providerOrderId}'.");
 
             if (walletTransaction.Status == "COMPLETED")
             {
@@ -54,7 +54,7 @@ public class WalletTransactionDAO
             }
             if (walletTransaction.Status != "PENDING")
                 throw new InvalidOperationException(
-                    $"Giao dịch '{momoOrderId}' đã ở trạng thái {walletTransaction.Status}, không thể hoàn tất.");
+                    $"Giao dịch '{providerOrderId}' đã ở trạng thái {walletTransaction.Status}, không thể hoàn tất.");
 
             var student = context.Students.Find(walletTransaction.StudentId)
                 ?? throw new InvalidOperationException("Không tìm thấy học sinh.");
@@ -73,11 +73,11 @@ public class WalletTransactionDAO
         }
     }
 
-    public static void FailTopUp(string momoOrderId)
+    public static void FailTopUp(string providerOrderId)
     {
         using var context = new LanguageCenterContext();
         var walletTransaction = context.WalletTransactions
-            .FirstOrDefault(x => x.MomoOrderId == momoOrderId);
+            .FirstOrDefault(x => x.ProviderOrderId == providerOrderId);
         if (walletTransaction == null || walletTransaction.Status != "PENDING") return;
 
         walletTransaction.Status = "FAILED";
@@ -161,10 +161,10 @@ public class WalletTransactionDAO
             .ToList();
     }
 
-    public static WalletTransaction? GetByMomoOrderId(string momoOrderId)
+    public static WalletTransaction? GetByProviderOrderId(string providerOrderId)
     {
         using var context = new LanguageCenterContext();
-        return context.WalletTransactions.FirstOrDefault(x => x.MomoOrderId == momoOrderId);
+        return context.WalletTransactions.FirstOrDefault(x => x.ProviderOrderId == providerOrderId);
     }
 
     public static void Save(WalletTransaction entity)

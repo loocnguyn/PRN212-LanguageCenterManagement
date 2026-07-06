@@ -92,8 +92,9 @@ public class ZaloPayService : IZaloPayService
         var root = doc.RootElement;
         var returnCode = root.TryGetProperty("return_code", out var rc) ? rc.GetInt32() : -1;
         var message = root.TryGetProperty("return_message", out var msg) ? msg.GetString() : null;
+        var amount = root.TryGetProperty("amount", out var amt) ? amt.GetInt64() : 0;
 
-        return new ZaloPayQueryResult { ReturnCode = returnCode, Message = message };
+        return new ZaloPayQueryResult { ReturnCode = returnCode, Message = message, Amount = amount };
     }
 
     private static string ComputeHmacSha256(string message, string key)
