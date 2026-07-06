@@ -6,7 +6,7 @@ namespace Services;
 public class WalletService : IWalletService
 {
     private readonly IWalletRepository _repo = new WalletRepository();
-    private readonly IMoMoService _moMoService = new MoMoService();
+    private readonly IZaloPayService _zaloPayService = new ZaloPayService();
 
     public decimal GetBalance(int studentId) => _repo.GetBalance(studentId);
 
@@ -15,23 +15,24 @@ public class WalletService : IWalletService
     public async Task<(string orderId, string payUrl)> StartTopUpAsync(int studentId, decimal amount)
     {
         if (amount <= 0)
-            throw new InvalidOperationException("Số tiền nạp phải lớn hơn 0.");
+            throw new InvalidOperationException("Top-up amount must be greater than 0.");
         if (amount != decimal.Truncate(amount))
-            throw new InvalidOperationException("Số tiền nạp phải là số nguyên VND.");
+            throw new InvalidOperationException("Top-up amount must be a whole VND number.");
 
-        var orderId = $"TOPUP-{studentId}-{DateTime.Now:yyyyMMddHHmmssfff}";
-        var orderInfo = $"Nap tien vi hoc sinh #{studentId}";
+        // ZaloPay requires app_trans_id formatted as "yyMMdd_<unique>".
+        var orderId = $"{DateTime.Now:yyMMdd}_{studentId}{DateTime.Now:HHmmssfff}";
+        var description = $"Wallet top-up for student #{studentId}";
 
-        // Persist PENDING first so every MoMo order can be tracked even if the API call fails.
+        // Persist PENDING first so every order can be tracked even if the API call fails.
         _repo.CreatePendingTopUp(studentId, amount, orderId);
         try
         {
-            var result = await _moMoService.CreatePaymentAsync(orderId, amount, orderInfo);
-            if (!result.Success || string.IsNullOrEmpty(result.PayUrl))
+            var result = await _zaloPayService.CreateOrderAsync(orderId, amount, description);
+            if (!result.Success || string.IsNullOrEmpty(result.OrderUrl))
                 throw new InvalidOperationException(
-                    $"Không thể tạo giao dịch MoMo: {result.Message} (code {result.ResultCode})");
+                    $"Could not create ZaloPay transaction: {result.Message} (code {result.ReturnCode})");
 
-            return (orderId, result.PayUrl);
+            return (orderId, result.OrderUrl);
         }
         catch
         {
@@ -42,16 +43,16 @@ public class WalletService : IWalletService
 
     public async Task<bool> ConfirmTopUpAsync(string orderId)
     {
-        var status = await _moMoService.QueryTransactionStatusAsync(orderId);
+        var status = await _zaloPayService.QueryOrderStatusAsync(orderId);
 
         if (status.IsSuccess)
         {
-            var pending = _repo.GetByMomoOrderId(orderId)
-                ?? throw new InvalidOperationException($"Không tìm thấy giao dịch '{orderId}'.");
+            var pending = _repo.GetByProviderOrderId(orderId)
+                ?? throw new InvalidOperationException($"Transaction '{orderId}' not found.");
             if (status.Amount != (long)pending.Amount)
             {
                 _repo.FailTopUp(orderId);
-                throw new InvalidOperationException("Số tiền MoMo xác nhận không khớp giao dịch.");
+                throw new InvalidOperationException("ZaloPay confirmed amount does not match the transaction.");
             }
             return _repo.CompleteTopUp(orderId);
         }
@@ -60,7 +61,7 @@ public class WalletService : IWalletService
         {
             _repo.FailTopUp(orderId);
             throw new InvalidOperationException(
-                $"Giao dịch MoMo thất bại: {status.Message} (code {status.ResultCode})");
+                $"ZaloPay transaction failed: {status.Message} (code {status.ReturnCode})");
         }
 
         return false;

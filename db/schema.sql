@@ -261,7 +261,7 @@ CREATE TABLE WalletTransactions (
     amount            DECIMAL(18,2) NOT NULL CHECK (amount > 0),
     transaction_type NVARCHAR(20)  NOT NULL
                                    CHECK (transaction_type IN ('TOP_UP', 'PAYMENT', 'REFUND')),
-    momo_order_id    NVARCHAR(100) NULL UNIQUE,
+    provider_order_id NVARCHAR(100) NULL UNIQUE,
     description      NVARCHAR(255) NULL,
     status           NVARCHAR(20)  NOT NULL DEFAULT 'PENDING'
                                    CHECK (status IN ('PENDING', 'COMPLETED', 'FAILED')),

@@ -634,7 +634,7 @@ public partial class LanguageCenterContext : DbContext
         {
             entity.HasKey(e => e.TransactionId).HasName("PK__WalletTr__55F68FC0");
 
-            entity.HasIndex(e => e.MomoOrderId, "UQ__WalletTr__MomoOrderId").IsUnique();
+            entity.HasIndex(e => e.ProviderOrderId, "UQ__WalletTr__ProviderOrderId").IsUnique();
 
             entity.HasIndex(e => e.StudentId, "idx_wallet_student");
 
@@ -648,9 +648,9 @@ public partial class LanguageCenterContext : DbContext
             entity.Property(e => e.TransactionType)
                 .HasMaxLength(20)
                 .HasColumnName("transaction_type");
-            entity.Property(e => e.MomoOrderId)
+            entity.Property(e => e.ProviderOrderId)
                 .HasMaxLength(100)
-                .HasColumnName("momo_order_id");
+                .HasColumnName("provider_order_id");
             entity.Property(e => e.Description)
                 .HasMaxLength(255)
                 .HasColumnName("description");

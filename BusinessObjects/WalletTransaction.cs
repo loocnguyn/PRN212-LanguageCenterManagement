@@ -12,7 +12,7 @@ public partial class WalletTransaction
 
     public string TransactionType { get; set; } = null!;
 
-    public string? MomoOrderId { get; set; }
+    public string? ProviderOrderId { get; set; }
 
     public string? Description { get; set; }
 

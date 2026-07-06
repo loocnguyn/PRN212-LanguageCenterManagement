@@ -15,19 +15,19 @@ public class WalletTransactionDAO
             .FirstOrDefault();
     }
 
-    public static WalletTransaction CreatePendingTopUp(int studentId, decimal amount, string momoOrderId)
+    public static WalletTransaction CreatePendingTopUp(int studentId, decimal amount, string providerOrderId)
     {
         using var context = new LanguageCenterContext();
         if (amount <= 0)
-            throw new InvalidOperationException("Số tiền nạp phải lớn hơn 0.");
+            throw new InvalidOperationException("Top-up amount must be greater than 0.");
 
         var transaction = new WalletTransaction
         {
             StudentId = studentId,
             Amount = amount,
             TransactionType = "TOP_UP",
-            MomoOrderId = momoOrderId,
-            Description = "Nạp tiền vào ví qua MoMo",
+            ProviderOrderId = providerOrderId,
+            Description = "Wallet top-up via ZaloPay",
             Status = "PENDING",
             CreatedAt = DateTime.Now
         };
@@ -36,16 +36,16 @@ public class WalletTransactionDAO
         return transaction;
     }
 
-    public static bool CompleteTopUp(string momoOrderId)
+    public static bool CompleteTopUp(string providerOrderId)
     {
         using var context = new LanguageCenterContext();
         using var dbTransaction = context.Database.BeginTransaction(IsolationLevel.Serializable);
         try
         {
             var walletTransaction = context.WalletTransactions
-                .FirstOrDefault(x => x.MomoOrderId == momoOrderId);
+                .FirstOrDefault(x => x.ProviderOrderId == providerOrderId);
             if (walletTransaction == null)
-                throw new InvalidOperationException($"Không tìm thấy giao dịch nạp tiền '{momoOrderId}'.");
+                throw new InvalidOperationException($"Top-up transaction '{providerOrderId}' not found.");
 
             if (walletTransaction.Status == "COMPLETED")
             {
@@ -54,10 +54,10 @@ public class WalletTransactionDAO
             }
             if (walletTransaction.Status != "PENDING")
                 throw new InvalidOperationException(
-                    $"Giao dịch '{momoOrderId}' đã ở trạng thái {walletTransaction.Status}, không thể hoàn tất.");
+                    $"Transaction '{providerOrderId}' is already {walletTransaction.Status} and cannot be completed.");
 
             var student = context.Students.Find(walletTransaction.StudentId)
-                ?? throw new InvalidOperationException("Không tìm thấy học sinh.");
+                ?? throw new InvalidOperationException("Student not found.");
 
             student.Balance += walletTransaction.Amount;
             walletTransaction.Status = "COMPLETED";
@@ -73,11 +73,11 @@ public class WalletTransactionDAO
         }
     }
 
-    public static void FailTopUp(string momoOrderId)
+    public static void FailTopUp(string providerOrderId)
     {
         using var context = new LanguageCenterContext();
         var walletTransaction = context.WalletTransactions
-            .FirstOrDefault(x => x.MomoOrderId == momoOrderId);
+            .FirstOrDefault(x => x.ProviderOrderId == providerOrderId);
         if (walletTransaction == null || walletTransaction.Status != "PENDING") return;
 
         walletTransaction.Status = "FAILED";
@@ -91,20 +91,20 @@ public class WalletTransactionDAO
         try
         {
             var student = context.Students.Find(studentId)
-                ?? throw new InvalidOperationException("Không tìm thấy học sinh.");
+                ?? throw new InvalidOperationException("Student not found.");
 
             var invoice = context.Invoices
                 .Include(x => x.Payments)
                 .SingleOrDefault(x => x.InvoiceId == invoiceId && x.StudentId == studentId)
-                ?? throw new InvalidOperationException("Không tìm thấy hóa đơn của học sinh này.");
+                ?? throw new InvalidOperationException("Invoice not found for this student.");
 
             var paidAmount = invoice.Payments.Sum(x => x.AmountPaid);
             var remainingAmount = invoice.Amount - paidAmount;
 
             if (invoice.Status == "PAID" || remainingAmount <= 0)
-                throw new InvalidOperationException("Hóa đơn đã được thanh toán đủ.");
+                throw new InvalidOperationException("This invoice has already been paid in full.");
             if (student.Balance < remainingAmount)
-                throw new InvalidOperationException("Số dư ví không đủ để thanh toán hóa đơn này.");
+                throw new InvalidOperationException("Insufficient wallet balance to pay this invoice.");
 
             student.Balance -= remainingAmount;
 
@@ -115,7 +115,7 @@ public class WalletTransactionDAO
                 PaymentMethod = "Wallet",
                 PaidAt = DateTime.Now,
                 ReceiptCode = $"RCP-{Guid.NewGuid():N}",
-                Note = "Thanh toán học phí bằng ví"
+                Note = "Tuition payment via wallet"
             });
 
             invoice.Status = "PAID";
@@ -125,7 +125,7 @@ public class WalletTransactionDAO
                 StudentId = studentId,
                 Amount = remainingAmount,
                 TransactionType = "PAYMENT",
-                Description = $"Thanh toán hóa đơn #{invoiceId}",
+                Description = $"Payment for invoice #{invoiceId}",
                 Status = "COMPLETED",
                 CreatedAt = DateTime.Now
             });
@@ -161,10 +161,10 @@ public class WalletTransactionDAO
             .ToList();
     }
 
-    public static WalletTransaction? GetByMomoOrderId(string momoOrderId)
+    public static WalletTransaction? GetByProviderOrderId(string providerOrderId)
     {
         using var context = new LanguageCenterContext();
-        return context.WalletTransactions.FirstOrDefault(x => x.MomoOrderId == momoOrderId);
+        return context.WalletTransactions.FirstOrDefault(x => x.ProviderOrderId == providerOrderId);
     }
 
     public static void Save(WalletTransaction entity)

@@ -29,7 +29,7 @@ public partial class TopUpWalletWindow : Window
 
     private void RefreshBalance()
     {
-        tbBalance.Text = $"Số dư hiện tại: {_walletService.GetBalance(_studentId):N0} đ";
+        tbBalance.Text = $"Current balance: {_walletService.GetBalance(_studentId):N0} VND";
     }
 
     private async void BtnTopUp_Click(object sender, RoutedEventArgs e)
@@ -38,21 +38,21 @@ public partial class TopUpWalletWindow : Window
                 CultureInfo.InvariantCulture, out var amount)
             || amount <= 0 || amount != decimal.Truncate(amount))
         {
-            MessageBox.Show("Vui lòng nhập số tiền nguyên VND lớn hơn 0.", "Lỗi");
+            MessageBox.Show("Please enter a whole VND amount greater than 0.", "Error");
             return;
         }
 
         try
         {
             btnTopUp.IsEnabled = false;
-            tbStatus.Text = "Đang tạo giao dịch MoMo...";
+            tbStatus.Text = "Creating ZaloPay transaction...";
 
             var (orderId, payUrl) = await _walletService.StartTopUpAsync(_studentId, amount);
             Process.Start(new ProcessStartInfo(payUrl) { UseShellExecute = true });
 
             _pendingOrderId = orderId;
             _pollStartedAt = DateTime.Now;
-            tbStatus.Text = "Đang chờ xác nhận thanh toán từ MoMo...";
+            tbStatus.Text = "Waiting for payment confirmation from ZaloPay...";
 
             _pollTimer = new DispatcherTimer { Interval = PollInterval };
             _pollTimer.Tick += PollTimer_Tick;
@@ -61,7 +61,7 @@ public partial class TopUpWalletWindow : Window
         catch (Exception ex)
         {
             btnTopUp.IsEnabled = true;
-            MessageBox.Show($"Không thể tạo giao dịch nạp tiền: {ex.Message}", "Lỗi");
+            MessageBox.Show($"Could not create top-up transaction: {ex.Message}", "Error");
         }
     }
 
@@ -76,11 +76,11 @@ public partial class TopUpWalletWindow : Window
             try
             {
                 _walletService.FailTopUp(timedOutOrderId);
-                tbStatus.Text = "Hết thời gian chờ. Giao dịch đã được đánh dấu thất bại.";
+                tbStatus.Text = "Timed out. The transaction has been marked as failed.";
             }
             catch (Exception ex)
             {
-                tbStatus.Text = $"Hết thời gian chờ; không thể cập nhật trạng thái: {ex.Message}";
+                tbStatus.Text = $"Timed out; could not update status: {ex.Message}";
             }
             btnTopUp.IsEnabled = true;
             return;
@@ -95,7 +95,7 @@ public partial class TopUpWalletWindow : Window
                 StopPolling();
                 TopUpCompleted = true;
                 RefreshBalance();
-                tbStatus.Text = "Nạp tiền thành công!";
+                tbStatus.Text = "Top-up successful!";
                 btnTopUp.IsEnabled = true;
                 return;
             }
@@ -105,7 +105,7 @@ public partial class TopUpWalletWindow : Window
         {
             StopPolling();
             btnTopUp.IsEnabled = true;
-            tbStatus.Text = $"Lỗi khi kiểm tra giao dịch: {ex.Message}";
+            tbStatus.Text = $"Error checking transaction: {ex.Message}";
         }
     }
 
