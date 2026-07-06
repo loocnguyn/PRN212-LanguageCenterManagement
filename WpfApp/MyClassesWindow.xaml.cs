@@ -16,6 +16,7 @@ public class ClassDisplayItem
     public string DateRangeDisplay { get; set; } = "";
     public string ClassStatus { get; set; } = "";
     public string EnrollmentStatus { get; set; } = "";
+    public DateOnly? SemesterStartDate { get; set; }
 }
 
 public partial class MyClassesWindow : Window
@@ -96,15 +97,15 @@ public partial class MyClassesWindow : Window
                     ClassroomName = en.Class?.Classroom?.Name ?? "N/A",
                     DateRangeDisplay = FormatDateRange(en.Class?.StartDate, en.Class?.EndDate),
                     ClassStatus = en.Class?.Status ?? "N/A",
-                    EnrollmentStatus = en.Status ?? "N/A"
+                    EnrollmentStatus = en.Status ?? "N/A",
+                    SemesterStartDate = en.Class?.Semester?.StartDate
                 })
                 .ToList();
 
             // Sort: Semester descending by StartDate, then Class name ascending
+            // Handle null SemesterStartDate by placing those items at the end
             displayItems = displayItems
-                .OrderByDescending(item => _allEnrollments
-                    .First(en => en.Class?.Name == item.ClassName)
-                    .Class?.Semester?.StartDate)
+                .OrderByDescending(item => item.SemesterStartDate ?? DateOnly.MinValue)
                 .ThenBy(item => item.ClassName)
                 .ToList();
 

@@ -87,10 +87,14 @@ public partial class StudentGradeWindow : Window
 
                     foreach (var grade in sortedGrades)
                     {
-                        var normalizedScore = (grade.Score / grade.MaxScore) * 10; // Normalize to 10
-                        var weight = grade.GradeType.WeightPercent;
-                        totalWeightedScore += normalizedScore * weight;
-                        totalWeight += weight;
+                        // Guard against MaxScore <= 0 to prevent division by zero or NaN/Infinity
+                        if (grade.MaxScore > 0)
+                        {
+                            var normalizedScore = (grade.Score / grade.MaxScore) * 10; // Normalize to 10
+                            var weight = grade.GradeType.WeightPercent;
+                            totalWeightedScore += normalizedScore * weight;
+                            totalWeight += weight;
+                        }
 
                         var displayItem = new GradeDisplayItem
                         {
