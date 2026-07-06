@@ -15,13 +15,13 @@ public class WalletService : IWalletService
     public async Task<(string orderId, string payUrl)> StartTopUpAsync(int studentId, decimal amount)
     {
         if (amount <= 0)
-            throw new InvalidOperationException("Số tiền nạp phải lớn hơn 0.");
+            throw new InvalidOperationException("Top-up amount must be greater than 0.");
         if (amount != decimal.Truncate(amount))
-            throw new InvalidOperationException("Số tiền nạp phải là số nguyên VND.");
+            throw new InvalidOperationException("Top-up amount must be a whole VND number.");
 
         // ZaloPay requires app_trans_id formatted as "yyMMdd_<unique>".
         var orderId = $"{DateTime.Now:yyMMdd}_{studentId}{DateTime.Now:HHmmssfff}";
-        var description = $"Nap tien vi hoc sinh #{studentId}";
+        var description = $"Wallet top-up for student #{studentId}";
 
         // Persist PENDING first so every order can be tracked even if the API call fails.
         _repo.CreatePendingTopUp(studentId, amount, orderId);
@@ -30,7 +30,7 @@ public class WalletService : IWalletService
             var result = await _zaloPayService.CreateOrderAsync(orderId, amount, description);
             if (!result.Success || string.IsNullOrEmpty(result.OrderUrl))
                 throw new InvalidOperationException(
-                    $"Không thể tạo giao dịch ZaloPay: {result.Message} (code {result.ReturnCode})");
+                    $"Could not create ZaloPay transaction: {result.Message} (code {result.ReturnCode})");
 
             return (orderId, result.OrderUrl);
         }
@@ -48,11 +48,11 @@ public class WalletService : IWalletService
         if (status.IsSuccess)
         {
             var pending = _repo.GetByProviderOrderId(orderId)
-                ?? throw new InvalidOperationException($"Không tìm thấy giao dịch '{orderId}'.");
+                ?? throw new InvalidOperationException($"Transaction '{orderId}' not found.");
             if (status.Amount != (long)pending.Amount)
             {
                 _repo.FailTopUp(orderId);
-                throw new InvalidOperationException("Số tiền ZaloPay xác nhận không khớp giao dịch.");
+                throw new InvalidOperationException("ZaloPay confirmed amount does not match the transaction.");
             }
             return _repo.CompleteTopUp(orderId);
         }
@@ -61,7 +61,7 @@ public class WalletService : IWalletService
         {
             _repo.FailTopUp(orderId);
             throw new InvalidOperationException(
-                $"Giao dịch ZaloPay thất bại: {status.Message} (code {status.ReturnCode})");
+                $"ZaloPay transaction failed: {status.Message} (code {status.ReturnCode})");
         }
 
         return false;

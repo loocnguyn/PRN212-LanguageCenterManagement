@@ -19,12 +19,12 @@ public partial class WalletHistoryWindow : Window
     {
         try
         {
-            tbBalance.Text = $"Số dư hiện tại: {_walletService.GetBalance(_studentId):N0} đ";
+            tbBalance.Text = $"Current balance: {_walletService.GetBalance(_studentId):N0} VND";
             dgTransactions.ItemsSource = _walletService.GetHistory(_studentId);
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Không thể tải lịch sử ví: {ex.Message}", "Lỗi");
+            MessageBox.Show($"Could not load wallet history: {ex.Message}", "Error");
         }
     }
 
