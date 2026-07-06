@@ -21,6 +21,8 @@ public partial class Student
 
     public string? Address { get; set; }
 
+    public decimal Balance { get; set; }
+
     public string Status { get; set; } = null!;
 
     public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
@@ -28,6 +30,8 @@ public partial class Student
     public virtual ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
 
     public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
+
+    public virtual ICollection<WalletTransaction> WalletTransactions { get; set; } = new List<WalletTransaction>();
 
     public virtual User User { get; set; } = null!;
 }

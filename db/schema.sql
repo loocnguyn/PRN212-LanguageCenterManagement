@@ -43,6 +43,7 @@ CREATE TABLE Students (
     phone         NVARCHAR(20)  NULL,
     email         NVARCHAR(100) NULL,
     address       NVARCHAR(255) NULL,
+    balance       DECIMAL(18,2) NOT NULL DEFAULT 0 CHECK (balance >= 0),
     status        NVARCHAR(20)  NOT NULL DEFAULT 'ACTIVE'
                                 CHECK (status IN ('ACTIVE', 'SUSPENDED', 'GRADUATED', 'DROPPED'))
 );
@@ -247,10 +248,24 @@ CREATE TABLE Payments (
     staff_id       INT           NULL     REFERENCES Staff(staff_id),
     amount_paid    DECIMAL(18,2) NOT NULL CHECK (amount_paid > 0),
     payment_method NVARCHAR(50)  NOT NULL DEFAULT 'Cash'
-                                 CHECK (payment_method IN ('Cash', 'Transfer', 'Card')),
+                                 CHECK (payment_method IN ('Cash', 'Transfer', 'Card', 'Wallet')),
     paid_at        DATETIME2     NOT NULL DEFAULT GETDATE(),
     receipt_code   NVARCHAR(50)  NULL UNIQUE,
     note           NVARCHAR(255) NULL
+);
+GO
+
+CREATE TABLE WalletTransactions (
+    transaction_id   INT           IDENTITY(1,1) PRIMARY KEY,
+    student_id       INT           NOT NULL REFERENCES Students(student_id),
+    amount            DECIMAL(18,2) NOT NULL CHECK (amount > 0),
+    transaction_type NVARCHAR(20)  NOT NULL
+                                   CHECK (transaction_type IN ('TOP_UP', 'PAYMENT', 'REFUND')),
+    momo_order_id    NVARCHAR(100) NULL UNIQUE,
+    description      NVARCHAR(255) NULL,
+    status           NVARCHAR(20)  NOT NULL DEFAULT 'PENDING'
+                                   CHECK (status IN ('PENDING', 'COMPLETED', 'FAILED')),
+    created_at       DATETIME2     NOT NULL DEFAULT GETDATE()
 );
 GO
 
@@ -277,6 +292,8 @@ CREATE INDEX idx_attend_student     ON Attendances(student_id);
 CREATE INDEX idx_invoice_student    ON Invoices(student_id, status);
 CREATE INDEX idx_invoice_enrollment ON Invoices(enrollment_id);
 CREATE INDEX idx_payment_invoice    ON Payments(invoice_id);
+CREATE INDEX idx_wallet_student     ON WalletTransactions(student_id);
+CREATE INDEX idx_wallet_status      ON WalletTransactions(status);
 GO
 
 PRINT '==> LanguageCenterDB schema created successfully. Now run seed.sql.';

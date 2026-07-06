@@ -22,6 +22,7 @@
                 <ComboBoxItem Content="Cash"/>
                 <ComboBoxItem Content="Transfer"/>
                 <ComboBoxItem Content="Card"/>
+                <ComboBoxItem Content="Wallet"/>
             </ComboBox>
             <Button Content="Generate" Width="100" Height="30" Margin="10,0,0,0"
                     Click="BtnGenerate_Click"/>
@@ -40,7 +41,7 @@
         </StackPanel>
 
         <GroupBox Grid.Row="2" Header="Summary" Padding="10" Margin="0,0,0,10">
-            <UniformGrid Columns="5">
+            <UniformGrid Columns="6">
                 <StackPanel>
                     <TextBlock Text="Total Revenue" FontWeight="Bold"/>
                     <TextBlock x:Name="lblTotalRevenue" Foreground="Green" FontSize="16"/>
@@ -60,6 +61,10 @@
                 <StackPanel>
                     <TextBlock Text="Card" FontWeight="Bold"/>
                     <TextBlock x:Name="lblCardTotal" FontSize="16"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="Wallet" FontWeight="Bold"/>
+                    <TextBlock x:Name="lblWalletTotal" FontSize="16"/>
                 </StackPanel>
             </UniformGrid>
         </GroupBox>

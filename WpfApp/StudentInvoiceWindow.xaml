@@ -1,20 +1,28 @@
-﻿<Window x:Class="WpfApp.StudentInvoiceWindow"
+<Window x:Class="WpfApp.StudentInvoiceWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="My Invoices" Height="520" Width="760"
+        Title="My Invoices" Height="560" Width="800"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-            <TextBlock Text="Student ID:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-            <TextBox x:Name="txtStudentId" Width="120" Height="28" VerticalContentAlignment="Center" Padding="4,0"/>
-            <Button Content="Load"  Width="80" Height="28" Margin="6,0,0,0" Click="BtnLoad_Click"/>
+            <TextBlock x:Name="tbStudentName" Text="Student:" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,20,0"/>
+            <TextBlock x:Name="tbBalance" Text="Số dư ví: 0 đ" VerticalAlignment="Center" FontWeight="Bold" Foreground="DarkGreen"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+            <Button Content="Nạp tiền vào ví" Width="130" Height="28" Click="BtnTopUp_Click"/>
+            <Button Content="Lịch sử ví"      Width="110" Height="28" Margin="6,0,0,0" Click="BtnHistory_Click"/>
+            <Button Content="Đóng học phí từ ví" Width="150" Height="28" Margin="6,0,0,0" Click="BtnPayFromWallet_Click"/>
             <Button Content="Reset" Width="80" Height="28" Margin="6,0,0,0" Click="BtnReset_Click"/>
         </StackPanel>
-        <DataGrid Grid.Row="1" x:Name="dgInvoices"
+
+        <DataGrid Grid.Row="2" x:Name="dgInvoices"
                   AutoGenerateColumns="False" IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Invoice ID" Binding="{Binding InvoiceId}"  Width="90"/>
