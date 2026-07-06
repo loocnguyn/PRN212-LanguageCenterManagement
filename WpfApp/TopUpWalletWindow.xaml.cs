@@ -34,10 +34,11 @@ public partial class TopUpWalletWindow : Window
 
     private async void BtnTopUp_Click(object sender, RoutedEventArgs e)
     {
-        if (!decimal.TryParse(txtAmount.Text.Trim(), NumberStyles.Number, CultureInfo.InvariantCulture, out var amount)
-            || amount <= 0)
+        if (!decimal.TryParse(txtAmount.Text.Trim(), NumberStyles.Number,
+                CultureInfo.InvariantCulture, out var amount)
+            || amount <= 0 || amount != decimal.Truncate(amount))
         {
-            MessageBox.Show("Vui lòng nhập số tiền hợp lệ (> 0).", "Lỗi");
+            MessageBox.Show("Vui lòng nhập số tiền nguyên VND lớn hơn 0.", "Lỗi");
             return;
         }
 
@@ -47,7 +48,6 @@ public partial class TopUpWalletWindow : Window
             tbStatus.Text = "Đang tạo giao dịch MoMo...";
 
             var (orderId, payUrl) = await _walletService.StartTopUpAsync(_studentId, amount);
-
             Process.Start(new ProcessStartInfo(payUrl) { UseShellExecute = true });
 
             _pendingOrderId = orderId;
@@ -71,14 +71,24 @@ public partial class TopUpWalletWindow : Window
 
         if (DateTime.Now - _pollStartedAt > PollTimeout)
         {
+            var timedOutOrderId = _pendingOrderId;
             StopPolling();
-            tbStatus.Text = "Hết thời gian chờ. Vui lòng thử lại nếu bạn đã thanh toán.";
+            try
+            {
+                _walletService.FailTopUp(timedOutOrderId);
+                tbStatus.Text = "Hết thời gian chờ. Giao dịch đã được đánh dấu thất bại.";
+            }
+            catch (Exception ex)
+            {
+                tbStatus.Text = $"Hết thời gian chờ; không thể cập nhật trạng thái: {ex.Message}";
+            }
             btnTopUp.IsEnabled = true;
             return;
         }
 
         try
         {
+            _pollTimer?.Stop();
             var completed = await _walletService.ConfirmTopUpAsync(_pendingOrderId);
             if (completed)
             {
@@ -87,7 +97,9 @@ public partial class TopUpWalletWindow : Window
                 RefreshBalance();
                 tbStatus.Text = "Nạp tiền thành công!";
                 btnTopUp.IsEnabled = true;
+                return;
             }
+            _pollTimer?.Start();
         }
         catch (Exception ex)
         {

@@ -36,6 +36,7 @@ public partial class StudentInvoiceWindow : Window
 
         var invoices = _invoiceService.Search(_studentId.ToString(), null)
             .Where(x => x.StudentId == _studentId)
+            .Where(x => x.Status is "UNPAID" or "PARTIAL")
             .Select(x => new InvoiceDisplayItem
             {
                 InvoiceId = x.InvoiceId,

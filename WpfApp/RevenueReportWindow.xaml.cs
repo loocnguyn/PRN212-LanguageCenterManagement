@@ -45,6 +45,7 @@ public partial class RevenueReportWindow : Window
             lblCashTotal.Text = FormatMoney(SumByMethod(payments, "Cash"));
             lblTransferTotal.Text = FormatMoney(SumByMethod(payments, "Transfer"));
             lblCardTotal.Text = FormatMoney(SumByMethod(payments, "Card"));
+            lblWalletTotal.Text = FormatMoney(SumByMethod(payments, "Wallet"));
         }
         catch (Exception ex)
         {
@@ -87,6 +88,7 @@ public partial class RevenueReportWindow : Window
         lblCashTotal.Text = "";
         lblTransferTotal.Text = "";
         lblCardTotal.Text = "";
+        lblWalletTotal.Text = "";
     }
 
     private void SetThisMonth()
