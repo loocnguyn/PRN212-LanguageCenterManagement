@@ -1,0 +1,106 @@
+using System.Windows;
+using System.Windows.Controls;
+using BusinessObjects;
+using Services;
+
+namespace WpfApp;
+
+public partial class EnrollmentWindow : Window
+{
+    private readonly IEnrollmentService _enrollmentService = new EnrollmentService();
+    private readonly IClassService _classService = new ClassService();
+    private readonly ISemesterService _semesterService = new SemesterService();
+    private List<Enrollment> _all = new();
+    private Semester? _activeSemester;
+
+    public EnrollmentWindow() { InitializeComponent(); InitializeActiveSemester(); LoadData(); }
+
+    private void InitializeActiveSemester()
+    {
+        _activeSemester = _semesterService.GetActive();
+        if (_activeSemester == null)
+        {
+            tbActiveSemester.Text = "No active semester";
+            tbActivePhase.Text = "";
+            return;
+        }
+        tbActiveSemester.Text = _activeSemester.Name;
+        Phase? phase = _semesterService.GetActivePhase();
+        tbActivePhase.Text = phase.HasValue ? $"[{phase.Value}]" : "";
+
+        // Load classes for active semester that are UPCOMING or ACTIVE
+        var classes = _classService.GetBySemesterId(_activeSemester.SemesterId)
+            .Where(c => c.Status == "UPCOMING" || c.Status == "ACTIVE")
+            .ToList();
+        cboClass.ItemsSource = classes;
+        if (classes.Any()) cboClass.SelectedIndex = 0;
+    }
+
+    private void LoadData()
+    {
+        // Show all enrollments with student and class details
+        _all = _enrollmentService.GetAll();
+        dgEnrollments.ItemsSource = _all;
+    }
+
+    private void DgEnrollments_SelectionChanged(object sender, SelectionChangedEventArgs e) { }
+
+    private void BtnEnroll_Click(object sender, RoutedEventArgs e)
+    {
+        if (cboClass.SelectedItem is not Class cls)
+        {
+            MessageBox.Show("Please select a class.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+        if (!int.TryParse(txtStudentId.Text.Trim(), out int studentId))
+        {
+            MessageBox.Show("Please enter a valid Student ID.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+        try
+        {
+            _enrollmentService.Enroll(studentId, cls.ClassId);
+            MessageBox.Show($"Student {studentId} enrolled successfully in '{cls.Name}'.", "Success",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            LoadData();
+            txtStudentId.Text = "";
+        }
+        catch (InvalidOperationException ex)
+        {
+            MessageBox.Show(ex.Message, "Enrollment Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Unexpected error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void BtnRefresh_Click(object sender, RoutedEventArgs e)
+    {
+        InitializeActiveSemester();
+        LoadData();
+    }
+
+    private void BtnDrop_Click(object sender, RoutedEventArgs e)
+    {
+        if (dgEnrollments.SelectedItem is not Enrollment en)
+        {
+            MessageBox.Show("Please select an enrollment to drop.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+        var confirm = MessageBox.Show($"Drop enrollment #{en.EnrollmentId} for {en.Student?.FullName}?", "Confirm",
+            MessageBoxButton.YesNo, MessageBoxImage.Warning);
+        if (confirm == MessageBoxResult.Yes)
+        {
+            try
+            {
+                _enrollmentService.Drop(en.EnrollmentId);
+                LoadData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error dropping enrollment: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+}
