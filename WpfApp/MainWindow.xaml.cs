@@ -122,6 +122,10 @@ public partial class MainWindow : Window
     private void MenuMyInvoices_Click(object sender, RoutedEventArgs e)
         => new StudentInvoiceWindow(_currentUser).Show();
 
+    // ALL roles
+    private void MenuMyProfile_Click(object sender, RoutedEventArgs e)
+        => new MyProfileWindow(_currentUser).Show();
+
     private void MenuLogout_Click(object sender, RoutedEventArgs e)
     {
         new LoginWindow().Show();

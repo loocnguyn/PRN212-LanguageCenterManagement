@@ -134,6 +134,9 @@
             <!-- ALL roles -->
             <MenuItem Header="System">
                 <MenuItem.Icon><ui:SymbolIcon Symbol="SettingsChat24"/></MenuItem.Icon>
+                <MenuItem Header="My Profile" Click="MenuMyProfile_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="PersonCircle24"/></MenuItem.Icon>
+                </MenuItem>
                 <MenuItem Header="Logout" Click="MenuLogout_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="DoorArrowLeft24"/></MenuItem.Icon>
                 </MenuItem>
