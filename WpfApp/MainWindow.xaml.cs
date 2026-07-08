@@ -102,7 +102,7 @@ public partial class MainWindow : Window
     private void MenuTeacherSchedule_Click(object sender, RoutedEventArgs e)
         => new TeacherScheduleWindow(_currentUser).Show();
     private void MenuAttendance_Click(object sender, RoutedEventArgs e)
-        => new AttendanceWindow().Show();
+        => new AttendanceWindow(_currentUser).Show();
     private void MenuGradeEntry_Click(object sender, RoutedEventArgs e)
         => new GradeEntryWindow(_currentUser).Show();
     private void MenuClassRoster_Click(object sender, RoutedEventArgs e)

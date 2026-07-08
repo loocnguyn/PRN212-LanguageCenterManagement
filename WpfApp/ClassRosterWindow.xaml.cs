@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using BusinessObjects;
 using Services;
 
@@ -12,37 +13,62 @@ public partial class ClassRosterWindow : Window
     private readonly IEnrollmentService _enrollmentService = new EnrollmentService();
     private readonly IClassService _classService = new ClassService();
     private readonly ITeacherService _teacherService = new TeacherService();
+    private readonly ISemesterService _semesterService = new SemesterService();
+
+    private Teacher? _teacher;
+    private List<Class> _teacherClasses = new();
 
     public ClassRosterWindow(User currentUser)
     {
         InitializeComponent();
         _currentUser = currentUser;
+        Loaded += (_, _) => LoadTeacherClasses();
     }
 
-    private void BtnLoad_Click(object sender, RoutedEventArgs e)
+    private void LoadTeacherClasses()
     {
         try
         {
-            if (!int.TryParse(txtClassId.Text.Trim(), out var classId))
+            _teacher = _teacherService.GetByUserId(_currentUser.Id);
+            if (_teacher == null)
             {
-                MessageBox.Show("Please enter a valid Class ID.", "Validation",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                tbTeacherInfo.Text = "No teacher profile linked to this account.";
                 return;
             }
 
-            var cls = _classService.GetById(classId);
-            if (cls == null)
+            tbTeacherInfo.Text = $"Teacher: {_teacher.FullName}";
+
+            var semester = _semesterService.GetActive();
+            if (semester == null)
             {
-                MessageBox.Show($"Class {classId} not found.", "Not Found",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                tbTeacherInfo.Text += " — No active semester";
                 return;
             }
 
-            // AUTHORIZATION: verify the logged-in teacher owns this class
-            if (!AuthorizationHelper.AuthorizeTeacherForClass(_currentUser, _teacherService, cls, "view roster"))
-                return;
+            _teacherClasses = _classService.GetBySemesterId(semester.SemesterId)
+                .Where(c => c.TeacherId == _teacher.TeacherId)
+                .ToList();
 
-            var enrollments = _enrollmentService.GetByClassId(classId);
+            cboClass.ItemsSource = _teacherClasses;
+            cboClass.SelectedIndex = -1;
+
+            if (!_teacherClasses.Any())
+                tbTeacherInfo.Text += $" — No classes in {semester.Name}";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error loading teacher classes: {ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void CboClass_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (cboClass.SelectedItem is not Class cls) return;
+
+        try
+        {
+            var enrollments = _enrollmentService.GetByClassId(cls.ClassId);
             if (!enrollments.Any())
             {
                 MessageBox.Show($"No active enrollments for class '{cls.Name}'.", "Info",
@@ -72,11 +98,9 @@ public partial class ClassRosterWindow : Window
         }
     }
 
-
-
     private void BtnReset_Click(object sender, RoutedEventArgs e)
     {
-        txtClassId.Text = "";
+        cboClass.SelectedIndex = -1;
         dgRoster.ItemsSource = null;
     }
 }

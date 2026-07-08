@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using BusinessObjects;
 using Services;
 
@@ -15,40 +16,68 @@ public partial class GradeEntryWindow : Window
     private readonly IGradeTypeService _gradeTypeService = new GradeTypeService();
     private readonly IClassService _classService = new ClassService();
     private readonly ITeacherService _teacherService = new TeacherService();
+    private readonly ISemesterService _semesterService = new SemesterService();
 
     private List<GradeType> _gradeTypes = new();
     private List<Enrollment> _enrollments = new();
+    private Teacher? _teacher;
+    private List<Class> _teacherClasses = new();
 
     public GradeEntryWindow(User currentUser)
     {
         InitializeComponent();
         _currentUser = currentUser;
+        Loaded += (_, _) => LoadTeacherClasses();
     }
 
-    private void BtnLoad_Click(object sender, RoutedEventArgs e)
+    private void LoadTeacherClasses()
     {
         try
         {
-            if (!int.TryParse(txtClassId.Text.Trim(), out var classId))
+            _teacher = _teacherService.GetByUserId(_currentUser.Id);
+            if (_teacher == null)
             {
-                MessageBox.Show("Please enter a valid Class ID.", "Validation",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                tbTeacherInfo.Text = "No teacher profile linked to this account.";
                 return;
             }
 
-            var cls = _classService.GetById(classId);
-            if (cls == null)
+            tbTeacherInfo.Text = $"Teacher: {_teacher.FullName}";
+
+            var semester = _semesterService.GetActive();
+            if (semester == null)
             {
-                MessageBox.Show($"Class {classId} not found.", "Not Found",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                tbTeacherInfo.Text += " — No active semester";
                 return;
             }
 
+            _teacherClasses = _classService.GetBySemesterId(semester.SemesterId)
+                .Where(c => c.TeacherId == _teacher.TeacherId)
+                .ToList();
+
+            cboClass.ItemsSource = _teacherClasses;
+            cboClass.SelectedIndex = -1;
+
+            if (!_teacherClasses.Any())
+                tbTeacherInfo.Text += $" — No classes in {semester.Name}";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error loading teacher classes: {ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void CboClass_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (cboClass.SelectedItem is not Class cls) return;
+
+        try
+        {
             // AUTHORIZATION: verify the logged-in teacher owns this class
             if (!AuthorizationHelper.AuthorizeTeacherForClass(_currentUser, _teacherService, cls, "access grades"))
                 return;
 
-            // Load grade types on demand (not in constructor — avoids DB call at init)
+            // Load grade types on demand
             _gradeTypes = _gradeTypeService.GetAll();
             if (!_gradeTypes.Any())
             {
@@ -58,7 +87,7 @@ public partial class GradeEntryWindow : Window
                 return;
             }
 
-            _enrollments = _enrollmentService.GetByClassId(classId);
+            _enrollments = _enrollmentService.GetByClassId(cls.ClassId);
             if (!_enrollments.Any())
             {
                 MessageBox.Show($"No active enrollments for class '{cls.Name}'.", "Info",
@@ -67,14 +96,14 @@ public partial class GradeEntryWindow : Window
                 return;
             }
 
-            // BATCH-LOAD all grades for all enrollments in one query (fixes N+1)
+            // BATCH-LOAD all grades for all enrollments in one query
             var enrollmentIds = _enrollments.Select(e => e.EnrollmentId).ToList();
             var allGrades = _gradeService.GetByEnrollmentIds(enrollmentIds);
             var gradesByEnrollment = allGrades
                 .GroupBy(g => g.EnrollmentId)
                 .ToDictionary(g => g.Key, g => g.ToList());
 
-            // Build flat rows: one per enrollment × grade type
+            // Build flat rows: one per enrollment x grade type
             var rows = new List<GradeEntryRow>();
             foreach (var enrollment in _enrollments)
             {
@@ -109,11 +138,9 @@ public partial class GradeEntryWindow : Window
         }
     }
 
-
-
     private void BtnReset_Click(object sender, RoutedEventArgs e)
     {
-        txtClassId.Text = "";
+        cboClass.SelectedIndex = -1;
         dgGrades.ItemsSource = null;
         _enrollments.Clear();
     }
@@ -122,7 +149,7 @@ public partial class GradeEntryWindow : Window
     {
         if (dgGrades.ItemsSource is not List<GradeEntryRow> rows || !rows.Any())
         {
-            MessageBox.Show("No grade data to save. Load a class first.", "Info",
+            MessageBox.Show("No grade data to save. Select a class first.", "Info",
                 MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
@@ -134,11 +161,9 @@ public partial class GradeEntryWindow : Window
 
             foreach (var row in rows)
             {
-                // Skip rows with no score entered
                 if (row.Score is null)
                     continue;
 
-                // VALIDATION: score must be between 0 and MaxScore
                 var maxScore = row.MaxScore > 0 ? row.MaxScore : 10m;
                 if (row.Score < 0 || row.Score > maxScore)
                 {
