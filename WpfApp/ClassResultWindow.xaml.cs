@@ -18,36 +18,61 @@ public partial class ClassResultWindow : Window
     private readonly IEnrollmentService _enrollmentService = new EnrollmentService();
     private readonly IClassService _classService = new ClassService();
     private readonly ITeacherService _teacherService = new TeacherService();
+    private readonly ISemesterService _semesterService = new SemesterService();
+
+    private Teacher? _teacher;
+    private List<Class> _teacherClasses = new();
 
     public ClassResultWindow(User currentUser)
     {
         InitializeComponent();
         _currentUser = currentUser;
+        Loaded += (_, _) => LoadTeacherClasses();
     }
 
-    private void BtnLoad_Click(object sender, RoutedEventArgs e)
+    private void LoadTeacherClasses()
     {
-        if (!int.TryParse(txtClassId.Text.Trim(), out var classId))
-        {
-            MessageBox.Show("Please enter a valid numeric Class ID.", "Invalid Input",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
-
         try
         {
-            var cls = _classService.GetById(classId);
-            if (cls == null)
+            _teacher = _teacherService.GetByUserId(_currentUser.Id);
+            if (_teacher == null)
             {
-                MessageBox.Show($"Class {classId} not found.", "Not Found",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                tbTeacherInfo.Text = "No teacher profile linked to this account.";
                 return;
             }
 
-            // AUTHORIZATION: verify the logged-in teacher owns this class
-            if (!AuthorizationHelper.AuthorizeTeacherForClass(_currentUser, _teacherService, cls, "view results"))
-                return;
+            tbTeacherInfo.Text = $"Teacher: {_teacher.FullName}";
 
+            var semester = _semesterService.GetActive();
+            if (semester == null)
+            {
+                tbTeacherInfo.Text += " — No active semester";
+                return;
+            }
+
+            _teacherClasses = _classService.GetBySemesterId(semester.SemesterId)
+                .Where(c => c.TeacherId == _teacher.TeacherId)
+                .ToList();
+
+            cboClass.ItemsSource = _teacherClasses;
+            cboClass.SelectedIndex = -1;
+
+            if (!_teacherClasses.Any())
+                tbTeacherInfo.Text += $" — No classes in {semester.Name}";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error loading teacher classes: {ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void CboClass_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (cboClass.SelectedItem is not Class cls) return;
+
+        try
+        {
             var gradeTypes = _gradeTypeService.GetAll();
             if (gradeTypes.Count == 0)
             {
@@ -56,10 +81,10 @@ public partial class ClassResultWindow : Window
                 return;
             }
 
-            var enrollments = _enrollmentService.GetByClassId(classId);
+            var enrollments = _enrollmentService.GetByClassId(cls.ClassId);
             if (enrollments.Count == 0)
             {
-                MessageBox.Show($"No active enrollments found for Class ID {classId}.", "No Data",
+                MessageBox.Show($"No active enrollments found for class '{cls.Name}'.", "No Data",
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 dgResults.ItemsSource = null;
                 return;
@@ -92,9 +117,7 @@ public partial class ClassResultWindow : Window
                     var grade = enrollmentGrades.FirstOrDefault(g => g.GradeTypeId == gt.GradeTypeId);
                     if (grade != null && grade.MaxScore > 0)
                     {
-                        // Show the raw score in the column
                         dict[gt.Name] = grade.Score;
-                        // Normalized contribution: (Score / MaxScore) * WeightPercent / 100
                         finalScore += (grade.Score / grade.MaxScore) * (gt.WeightPercent / 100m);
                     }
                     else
@@ -103,7 +126,6 @@ public partial class ClassResultWindow : Window
                     }
                 }
 
-                // FinalScore as a decimal (0.00 - 1.00). Multiply by 100 for percentage display.
                 row.FinalScore = Math.Round(finalScore, 4);
                 rows.Add(row);
             }
@@ -158,11 +180,9 @@ public partial class ClassResultWindow : Window
         }
     }
 
-
-
     private void BtnReset_Click(object sender, RoutedEventArgs e)
     {
-        txtClassId.Text = "";
+        cboClass.SelectedIndex = -1;
         dgResults.Columns.Clear();
         dgResults.ItemsSource = null;
     }

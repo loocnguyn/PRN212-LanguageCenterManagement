@@ -12,14 +12,12 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Filter Panel -->
+        <!-- Teacher Info + Filter Panel -->
         <Border Grid.Row="0" Background="#F0F4F8" CornerRadius="6" Padding="12" Margin="0,0,0,8">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                    <TextBlock Text="Teacher ID:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="Bold"/>
-                    <TextBox x:Name="txtTeacherId" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4,0"/>
-                    <Button Content="Load Classes" Width="100" Height="28" Margin="6,0,0,0" Click="BtnLoadClasses_Click"/>
-                    <TextBlock x:Name="tbTeacherName" VerticalAlignment="Center" Margin="20,0,0,0" FontSize="13"/>
+                    <TextBlock x:Name="tbTeacherName" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"/>
+                    <TextBlock x:Name="tbSemesterInfo" VerticalAlignment="Center" Margin="20,0,0,0" FontSize="13"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Class:" VerticalAlignment="Center" Margin="0,0,6,0"/>
@@ -28,7 +26,6 @@
                     <TextBlock Text="Session Date:" VerticalAlignment="Center" Margin="16,0,6,0"/>
                     <ComboBox x:Name="cboSession" Width="160" Height="28" DisplayMemberPath="SessionDisplay"
                               SelectionChanged="CboSession_SelectionChanged" VerticalContentAlignment="Center"/>
-                    <TextBlock x:Name="tbSemesterInfo" VerticalAlignment="Center" Margin="20,0,0,0" FontSize="13"/>
                 </StackPanel>
             </StackPanel>
         </Border>

@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using BusinessObjects;
@@ -7,6 +9,7 @@ namespace WpfApp;
 
 public partial class AttendanceWindow : Window
 {
+    private readonly User _currentUser;
     private readonly ITeacherService _teacherService = new TeacherService();
     private readonly IClassService _classService = new ClassService();
     private readonly ISemesterService _semesterService = new SemesterService();
@@ -14,33 +17,41 @@ public partial class AttendanceWindow : Window
     private readonly IEnrollmentService _enrollmentService = new EnrollmentService();
     private readonly IAttendanceService _attendanceService = new AttendanceService();
 
+    private Teacher? _teacher;
     private List<Class> _teacherClasses = new();
     private List<Session> _classSessions = new();
     private Semester? _activeSemester;
 
-    public AttendanceWindow() { InitializeComponent(); }
+    public AttendanceWindow(User currentUser)
+    {
+        InitializeComponent();
+        _currentUser = currentUser;
+        Loaded += (_, _) => LoadTeacherData();
+    }
 
-    private void BtnLoadClasses_Click(object sender, RoutedEventArgs e)
+    private void LoadTeacherData()
     {
         try
         {
-            if (!int.TryParse(txtTeacherId.Text.Trim(), out int teacherId))
+            _teacher = _teacherService.GetByUserId(_currentUser.Id);
+            if (_teacher == null)
             {
-                MessageBox.Show("Please enter a valid Teacher ID.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                tbTeacherName.Text = "No teacher profile linked to this account.";
                 return;
             }
 
-            var teacher = _teacherService.GetById(teacherId)
-                ?? throw new InvalidOperationException($"Teacher {teacherId} not found.");
+            _activeSemester = _semesterService.GetActive();
+            if (_activeSemester == null)
+            {
+                tbTeacherName.Text = $"Teacher: {_teacher.FullName} — No active semester";
+                return;
+            }
 
-            _activeSemester = _semesterService.GetActive()
-                ?? throw new InvalidOperationException("No active semester.");
-
-            tbTeacherName.Text = $"Teacher: {teacher.FullName}";
+            tbTeacherName.Text = $"Teacher: {_teacher.FullName}";
             tbSemesterInfo.Text = $"Semester: {_activeSemester.Name}";
 
             _teacherClasses = _classService.GetBySemesterId(_activeSemester.SemesterId)
-                .Where(c => c.TeacherId == teacherId)
+                .Where(c => c.TeacherId == _teacher.TeacherId)
                 .ToList();
 
             cboClass.ItemsSource = _teacherClasses;
@@ -54,7 +65,7 @@ public partial class AttendanceWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"Error loading teacher data: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
