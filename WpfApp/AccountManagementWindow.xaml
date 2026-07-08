@@ -15,7 +15,7 @@
             <TextBox x:Name="txtSearch" Width="200" Height="30" VerticalContentAlignment="Center" Padding="4,0"/>
             <Button Content="Search" Width="70" Height="30" Margin="6,0,0,0" Click="BtnSearch_Click"/>
             <TextBlock Text="Role:" VerticalAlignment="Center" Margin="16,0,6,0"/>
-            <ComboBox x:Name="cmbFilterRole" Width="120" Height="30" SelectionChanged="CmbFilterRole_Changed" HorizontalContentAlignment="Left" Padding="4,2" VerticalContentAlignment="Center">
+            <ComboBox x:Name="cmbFilterRole" Width="140" Height="32" SelectionChanged="CmbFilterRole_Changed" HorizontalContentAlignment="Left" Padding="8,4" VerticalContentAlignment="Center">
                 <ComboBoxItem Content="All" IsSelected="True"/>
                 <ComboBoxItem Content="ADMIN"/>
                 <ComboBoxItem Content="STAFF"/>

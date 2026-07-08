@@ -14,7 +14,7 @@
             <TextBox x:Name="txtSearch" Width="200" Height="28"
                      VerticalContentAlignment="Center" Padding="4,0"/>
             <TextBlock Text="Status:" VerticalAlignment="Center" Margin="12,0,6,0"/>
-            <ComboBox x:Name="cmbStatus" Width="110" Height="28">
+            <ComboBox x:Name="cmbStatus" Width="130" Height="30">
                 <ComboBoxItem Content="All" IsSelected="True"/>
                 <ComboBoxItem Content="UNPAID"/>
                 <ComboBoxItem Content="PAID"/>

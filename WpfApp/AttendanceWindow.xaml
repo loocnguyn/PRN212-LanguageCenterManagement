@@ -21,10 +21,10 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Class:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <ComboBox x:Name="cboClass" Width="200" Height="28" DisplayMemberPath="Name"
+                    <ComboBox x:Name="cboClass" Width="220" Height="30" DisplayMemberPath="Name"
                               SelectionChanged="CboClass_SelectionChanged" VerticalContentAlignment="Center"/>
                     <TextBlock Text="Session Date:" VerticalAlignment="Center" Margin="16,0,6,0"/>
-                    <ComboBox x:Name="cboSession" Width="160" Height="28" DisplayMemberPath="SessionDisplay"
+                    <ComboBox x:Name="cboSession" Width="220" Height="30" DisplayMemberPath="SessionDisplay"
                               SelectionChanged="CboSession_SelectionChanged" VerticalContentAlignment="Center"/>
                 </StackPanel>
             </StackPanel>
