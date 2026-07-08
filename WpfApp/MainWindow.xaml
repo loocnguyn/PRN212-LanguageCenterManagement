@@ -155,7 +155,9 @@
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
                        FontSize="20" FontWeight="SemiBold"
-                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Visibility="Collapsed"/>
+            <ContentControl x:Name="dashboardHost"/>
         </Grid>
     </DockPanel>
 </Window>

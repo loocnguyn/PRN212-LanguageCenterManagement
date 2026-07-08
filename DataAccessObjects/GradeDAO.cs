@@ -8,7 +8,10 @@ public class GradeDAO
     public static List<Grade> GetAll()
     {
         using var context = new LanguageCenterContext();
-        return context.Grades.ToList();
+        return context.Grades
+            .Include(g => g.GradeType)
+            .Include(g => g.Enrollment)
+            .ToList();
     }
 
     public static Grade? GetById(int id)

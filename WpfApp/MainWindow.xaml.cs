@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using BusinessObjects;
 using Services;
 
@@ -8,6 +9,7 @@ namespace WpfApp;
 public partial class MainWindow : Window
 {
     private readonly User _currentUser;
+    private readonly DispatcherTimer _dashboardRefreshTimer = new() { Interval = TimeSpan.FromSeconds(15) };
 
     public MainWindow(User currentUser)
     {
@@ -15,6 +17,23 @@ public partial class MainWindow : Window
         _currentUser = currentUser;
         ApplyRoleVisibility(currentUser.Role);
         LoadSemesterInfo();
+        OpenRoleDashboard(currentUser.Role);
+
+        _dashboardRefreshTimer.Tick += (_, _) => (dashboardHost.Content as IDashboardControl)?.RefreshData();
+        _dashboardRefreshTimer.Start();
+        Closed += (_, _) => _dashboardRefreshTimer.Stop();
+    }
+
+    private void OpenRoleDashboard(string role)
+    {
+        dashboardHost.Content = role switch
+        {
+            "ADMIN" => new AdminDashboardControl(_currentUser),
+            "STAFF" => new StaffDashboardControl(_currentUser),
+            "TEACHER" => new TeacherDashboardControl(_currentUser),
+            "STUDENT" => new StudentDashboardControl(_currentUser),
+            _ => null
+        };
     }
 
     private void ApplyRoleVisibility(string role)
