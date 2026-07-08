@@ -2,8 +2,21 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:WpfApp"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              StartupUri="LoginWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- WPF-UI: Fluent Design theme + implicit control styles (primary, ~80%) -->
+                <ui:ThemesDictionary Theme="Light"/>
+                <ui:ControlsDictionary/>
+
+                <!-- App color palette -->
+                <ResourceDictionary Source="Resources/Colors.xaml"/>
+
+                <!-- Custom implicit styles (DataGrid, Menu, StatusBar) — merged last so they win -->
+                <ResourceDictionary Source="Resources/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
