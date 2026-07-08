@@ -4,71 +4,139 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"
         Title="Language Center Management System"
         Height="600" Width="900"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}">
 
     <DockPanel>
+        <Border DockPanel.Dock="Top" Background="{StaticResource PrimaryBrush}" Padding="16,10">
+            <StackPanel Orientation="Horizontal">
+                <ui:SymbolIcon Symbol="BookOpen24" Foreground="White" FontSize="20" Margin="0,0,10,0"/>
+                <TextBlock Text="Language Center Management System"
+                           Foreground="White" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
         <Menu DockPanel.Dock="Top">
 
             <!-- ADMIN only -->
             <MenuItem Header="Accounts" x:Name="menuAccounts" Visibility="Collapsed">
-                <MenuItem Header="Account Management"  Click="MenuAccountManagement_Click"/>
-                <MenuItem Header="Deactivated Accounts" Click="MenuDeactivatedAccounts_Click"/>
+                <MenuItem.Icon><ui:SymbolIcon Symbol="PersonAccounts24"/></MenuItem.Icon>
+                <MenuItem Header="Account Management"  Click="MenuAccountManagement_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="PersonEdit24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Deactivated Accounts" Click="MenuDeactivatedAccounts_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="PersonProhibited24"/></MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
 
             <MenuItem Header="Semesters" x:Name="menuSemesters" Visibility="Collapsed">
-                <MenuItem Header="Semester Management" Click="MenuSemesters_Click"/>
+                <MenuItem.Icon><ui:SymbolIcon Symbol="Calendar24"/></MenuItem.Icon>
+                <MenuItem Header="Semester Management" Click="MenuSemesters_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="Calendar24"/></MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
 
             <MenuItem Header="Courses" x:Name="menuCourses" Visibility="Collapsed">
-                <MenuItem Header="Course Management"   Click="MenuCourses_Click"/>
-                <MenuItem Header="Classroom Management" Click="MenuClassrooms_Click"/>
+                <MenuItem.Icon><ui:SymbolIcon Symbol="Book24"/></MenuItem.Icon>
+                <MenuItem Header="Course Management"   Click="MenuCourses_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="Book24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Classroom Management" Click="MenuClassrooms_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="Building24"/></MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
 
             <MenuItem Header="Classes" x:Name="menuClasses" Visibility="Collapsed">
-                <MenuItem Header="Class Management" Click="MenuClasses_Click"/>
-                <MenuItem Header="Class Schedule Management" Click="MenuClassSchedules_Click"/>
+                <MenuItem.Icon><ui:SymbolIcon Symbol="ClipboardTask24"/></MenuItem.Icon>
+                <MenuItem Header="Class Management" Click="MenuClasses_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="ClipboardTask24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Class Schedule Management" Click="MenuClassSchedules_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="CalendarLtr24"/></MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
 
             <MenuItem Header="Reports" x:Name="menuReports" Visibility="Collapsed">
-                <MenuItem Header="Revenue Report" Click="MenuRevenueReport_Click"/>
+                <MenuItem.Icon><ui:SymbolIcon Symbol="DocumentBulletList24"/></MenuItem.Icon>
+                <MenuItem Header="Revenue Report" Click="MenuRevenueReport_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="ReceiptMoney24"/></MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
 
             <!-- STAFF only -->
             <MenuItem Header="Students" x:Name="menuStudents" Visibility="Collapsed">
-                <MenuItem Header="Student Management" Click="MenuStudents_Click"/>
-                <MenuItem Header="Enrollment"         Click="MenuEnrollment_Click"/>
-                <MenuItem Header="Debt List"          Click="MenuDebtList_Click"/>
+                <MenuItem.Icon><ui:SymbolIcon Symbol="PeopleTeam24"/></MenuItem.Icon>
+                <MenuItem Header="Student Management" Click="MenuStudents_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="PeopleTeam24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Enrollment"         Click="MenuEnrollment_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="PersonAdd24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Debt List"          Click="MenuDebtList_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="MoneyDismiss24"/></MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
 
             <MenuItem Header="Finance" x:Name="menuFinance" Visibility="Collapsed">
-                <MenuItem Header="Invoice Management" Click="MenuInvoice_Click"/>
-                <MenuItem Header="Payment"            Click="MenuPayment_Click"/>
+                <MenuItem.Icon><ui:SymbolIcon Symbol="ReceiptMoney24"/></MenuItem.Icon>
+                <MenuItem Header="Invoice Management" Click="MenuInvoice_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="Receipt24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Payment"            Click="MenuPayment_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="Wallet24"/></MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
 
             <!-- TEACHER only -->
             <MenuItem Header="My Classes" x:Name="menuMyClasses" Visibility="Collapsed">
-                <MenuItem Header="My Schedule"   Click="MenuTeacherSchedule_Click"/>
-                <MenuItem Header="Attendance"    Click="MenuAttendance_Click"/>
-                <MenuItem Header="Grade Entry"   Click="MenuGradeEntry_Click"/>
-                <MenuItem Header="Class Roster"  Click="MenuClassRoster_Click"/>
-                <MenuItem Header="Class Results" Click="MenuClassResults_Click"/>
+                <MenuItem.Icon><ui:SymbolIcon Symbol="ClipboardTask24"/></MenuItem.Icon>
+                <MenuItem Header="My Schedule"   Click="MenuTeacherSchedule_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="Calendar24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Attendance"    Click="MenuAttendance_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="PeopleCheckmark24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Grade Entry"   Click="MenuGradeEntry_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="DocumentBulletList24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Class Roster"  Click="MenuClassRoster_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="PeopleTeam24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Class Results" Click="MenuClassResults_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="BookStar24"/></MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
 
             <!-- STUDENT only -->
             <MenuItem Header="My Info" x:Name="menuMyInfo" Visibility="Collapsed">
-                <MenuItem Header="My Schedule"         Click="MenuStudentSchedule_Click"/>
-                <MenuItem Header="My Classes"          Click="MenuMyClasses_Click"/>
-                <MenuItem Header="Attendance History"  Click="MenuAttendanceHistory_Click"/>
-                <MenuItem Header="My Grades"           Click="MenuMyGrades_Click"/>
-                <MenuItem Header="My Invoices"         Click="MenuMyInvoices_Click"/>
+                <MenuItem.Icon><ui:SymbolIcon Symbol="PersonCircle24"/></MenuItem.Icon>
+                <MenuItem Header="My Schedule"         Click="MenuStudentSchedule_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="Calendar24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="My Classes"          Click="MenuMyClasses_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="Book24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Attendance History"  Click="MenuAttendanceHistory_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="CalendarClock24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="My Grades"           Click="MenuMyGrades_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="DocumentBulletList24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="My Invoices"         Click="MenuMyInvoices_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="Receipt24"/></MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
 
             <!-- ALL roles -->
             <MenuItem Header="System">
-                <MenuItem Header="Logout" Click="MenuLogout_Click"/>
+                <MenuItem.Icon><ui:SymbolIcon Symbol="SettingsChat24"/></MenuItem.Icon>
+                <MenuItem Header="Logout" Click="MenuLogout_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="DoorArrowLeft24"/></MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
 
         </Menu>
@@ -79,11 +147,12 @@
             </StatusBarItem>
         </StatusBar>
 
-        <Grid>
+        <Grid Background="{StaticResource BackgroundBrush}">
             <TextBlock x:Name="txtWelcome"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
-                       FontSize="18" Foreground="Gray"/>
+                       FontSize="20" FontWeight="SemiBold"
+                       Foreground="{StaticResource TextSecondaryBrush}"/>
         </Grid>
     </DockPanel>
 </Window>
