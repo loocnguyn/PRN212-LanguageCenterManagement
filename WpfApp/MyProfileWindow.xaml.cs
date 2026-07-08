@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using BusinessObjects;
@@ -109,14 +108,14 @@ public partial class MyProfileWindow : Window
     private void BtnSave_Click(object sender, RoutedEventArgs e)
     {
         var phone = txtPhone.Text.Trim();
-        if (!string.IsNullOrEmpty(phone) && !Regex.IsMatch(phone, @"^0\d{9}$"))
+        if (!ValidationHelper.IsValidPhone(phone))
         {
             MessageBox.Show("Phone number must be 10 digits and start with 0.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
         var email = txtEmail.Text.Trim();
-        if (!string.IsNullOrEmpty(email) && !Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+        if (!ValidationHelper.IsValidEmail(email))
         {
             MessageBox.Show("Invalid email format.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
@@ -131,9 +130,9 @@ public partial class MyProfileWindow : Window
                 MessageBox.Show("Please fill in both old and new password to change it.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            if (newPassword.Length < 6)
+            if (!ValidationHelper.IsValidPassword(newPassword))
             {
-                MessageBox.Show("New password must be at least 6 characters.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show($"New password must be at least {ValidationHelper.MinPasswordLength} characters.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             if (_userService.Login(_currentUser.Username, oldPassword) == null)

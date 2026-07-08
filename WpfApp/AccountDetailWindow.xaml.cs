@@ -154,15 +154,9 @@ public partial class AccountDetailWindow : Window
                 return;
             }
 
-            if (username.Length < 5 || username.Length > 20)
+            if (!ValidationHelper.IsValidUsername(username))
             {
-                MessageBox.Show("Username must be 5–20 characters.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            if (!System.Text.RegularExpressions.Regex.IsMatch(username, @"^[a-z0-9]+$"))
-            {
-                MessageBox.Show("Username must contain only letters (a-z) and digits.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Username must be 5-20 characters, letters (a-z) and digits only.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
         }
@@ -174,7 +168,7 @@ public partial class AccountDetailWindow : Window
             return;
         }
 
-        if (!System.Text.RegularExpressions.Regex.IsMatch(fullName, @"^[\p{L}\s]+$"))
+        if (!ValidationHelper.IsValidFullName(fullName))
         {
             MessageBox.Show("Full name must contain only letters and spaces.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
@@ -187,14 +181,14 @@ public partial class AccountDetailWindow : Window
         }
 
         var phone = txtPhone.Text.Trim();
-        if (!string.IsNullOrEmpty(phone) && !System.Text.RegularExpressions.Regex.IsMatch(phone, @"^0\d{9}$"))
+        if (!ValidationHelper.IsValidPhone(phone))
         {
             MessageBox.Show("Phone number must be 10 digits and start with 0.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
         var email = txtEmail.Text.Trim();
-        if (!string.IsNullOrEmpty(email) && !System.Text.RegularExpressions.Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+        if (!ValidationHelper.IsValidEmail(email))
         {
             MessageBox.Show("Invalid email format.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
@@ -202,9 +196,9 @@ public partial class AccountDetailWindow : Window
 
         if (_editUser == null)
         {
-            if (password.Length < 6)
+            if (!ValidationHelper.IsValidPassword(password))
             {
-                MessageBox.Show("Password must be at least 6 characters.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show($"Password must be at least {ValidationHelper.MinPasswordLength} characters.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
