@@ -57,6 +57,7 @@ public partial class MyProfileWindow : Window
                     SelectComboItem(cmbGender, _teacher.Gender);
                     ShowField(lblSpec, cmbSpec);
                     SelectComboItem(cmbSpec, _teacher.Specialization);
+                    cmbSpec.IsEnabled = false;
                     break;
 
                 case "STAFF":
@@ -69,6 +70,7 @@ public partial class MyProfileWindow : Window
                     SelectComboItem(cmbGender, _staff.Gender);
                     ShowField(lblDept, cmbDept);
                     SelectComboItem(cmbDept, _staff.Department);
+                    cmbDept.IsEnabled = false;
                     break;
 
                 case "ADMIN":
@@ -158,7 +160,7 @@ public partial class MyProfileWindow : Window
                     _teacher.Phone = phone;
                     _teacher.Email = email;
                     _teacher.Gender = (cmbGender.SelectedItem as ComboBoxItem)?.Content.ToString();
-                    _teacher.Specialization = (cmbSpec.SelectedItem as ComboBoxItem)?.Content.ToString();
+                    // Specialization is fixed at account creation — only Admin can change it (Account Management).
                     _teacherService.Update(_teacher);
                     break;
 
@@ -166,7 +168,7 @@ public partial class MyProfileWindow : Window
                     _staff.Phone = phone;
                     _staff.Email = email;
                     _staff.Gender = (cmbGender.SelectedItem as ComboBoxItem)?.Content.ToString();
-                    _staff.Department = (cmbDept.SelectedItem as ComboBoxItem)?.Content.ToString();
+                    // Department is fixed at account creation — only Admin can change it (Account Management).
                     _staffService.Update(_staff);
                     break;
 

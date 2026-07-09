@@ -74,7 +74,9 @@ public partial class MainWindow : Window
         var showFinance = department is null or "Finance";
 
         menuStudents.Visibility = showAcademic ? Visibility.Visible : Visibility.Collapsed;
-        menuAcademicSetup.Visibility = showAcademic ? Visibility.Visible : Visibility.Collapsed;
+        menuSemesters.Visibility = showAcademic ? Visibility.Visible : Visibility.Collapsed;
+        menuCourses.Visibility = showAcademic ? Visibility.Visible : Visibility.Collapsed;
+        menuClasses.Visibility = showAcademic ? Visibility.Visible : Visibility.Collapsed;
         menuFinance.Visibility = showFinance ? Visibility.Visible : Visibility.Collapsed;
     }
 

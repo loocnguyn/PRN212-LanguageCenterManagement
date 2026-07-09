@@ -78,25 +78,6 @@
                 </MenuItem>
             </MenuItem>
 
-            <MenuItem Header="Academic Setup" x:Name="menuAcademicSetup" Visibility="Collapsed">
-                <MenuItem.Icon><ui:SymbolIcon Symbol="ClipboardTask24"/></MenuItem.Icon>
-                <MenuItem Header="Semester Management" Click="MenuSemesters_Click">
-                    <MenuItem.Icon><ui:SymbolIcon Symbol="Calendar24"/></MenuItem.Icon>
-                </MenuItem>
-                <MenuItem Header="Course Management" Click="MenuCourses_Click">
-                    <MenuItem.Icon><ui:SymbolIcon Symbol="Book24"/></MenuItem.Icon>
-                </MenuItem>
-                <MenuItem Header="Classroom Management" Click="MenuClassrooms_Click">
-                    <MenuItem.Icon><ui:SymbolIcon Symbol="Building24"/></MenuItem.Icon>
-                </MenuItem>
-                <MenuItem Header="Class Management" Click="MenuClasses_Click">
-                    <MenuItem.Icon><ui:SymbolIcon Symbol="ClipboardTask24"/></MenuItem.Icon>
-                </MenuItem>
-                <MenuItem Header="Class Schedule Management" Click="MenuClassSchedules_Click">
-                    <MenuItem.Icon><ui:SymbolIcon Symbol="CalendarLtr24"/></MenuItem.Icon>
-                </MenuItem>
-            </MenuItem>
-
             <!-- STAFF (Finance department) only -->
             <MenuItem Header="Finance" x:Name="menuFinance" Visibility="Collapsed">
                 <MenuItem.Icon><ui:SymbolIcon Symbol="ReceiptMoney24"/></MenuItem.Icon>
