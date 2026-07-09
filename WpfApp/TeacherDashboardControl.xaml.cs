@@ -25,7 +25,6 @@ public partial class TeacherDashboardControl : UserControl, IDashboardControl
 
     public void RefreshData()
     {
-        tbHeader.Text = $"Welcome, {_currentUser.Username}";
         tbSubHeader.Text = "Your classes and teaching overview";
 
         try
@@ -36,6 +35,7 @@ public partial class TeacherDashboardControl : UserControl, IDashboardControl
                 MessageBox.Show("Teacher profile not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+            tbHeader.Text = $"Teacher — {teacher.FullName}";
 
             var semester = _semesterService.GetActive();
             var myClasses = semester == null

@@ -9,6 +9,7 @@ namespace WpfApp;
 public partial class AdminDashboardControl : UserControl, IDashboardControl
 {
     private readonly User _currentUser;
+    private readonly IAdminService _adminService = new AdminService();
     private readonly IStudentService _studentService = new StudentService();
     private readonly ITeacherService _teacherService = new TeacherService();
     private readonly IClassService _classService = new ClassService();
@@ -25,10 +26,11 @@ public partial class AdminDashboardControl : UserControl, IDashboardControl
 
     public void RefreshData()
     {
-        tbHeader.Text = $"Welcome, {_currentUser.Username}";
-
         try
         {
+            var fullName = _adminService.GetAll().FirstOrDefault(a => a.UserId == _currentUser.Id)?.FullName ?? _currentUser.Username;
+            tbHeader.Text = $"Admin — {fullName}";
+
             var activeStudents = _studentService.GetAll().Count(s => s.Status == "ACTIVE");
             var activeTeachers = _teacherService.GetAll().Count(t => t.Status == "ACTIVE");
 

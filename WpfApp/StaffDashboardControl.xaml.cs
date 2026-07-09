@@ -25,11 +25,11 @@ public partial class StaffDashboardControl : UserControl, IDashboardControl
 
     public void RefreshData()
     {
-        tbHeader.Text = $"Welcome, {_currentUser.Username}";
-
         try
         {
-            var department = _staffService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id)?.Department;
+            var staff = _staffService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id);
+            var department = staff?.Department;
+            tbHeader.Text = $"Staff — {staff?.FullName ?? _currentUser.Username}";
 
             panelTiles.Children.Clear();
 

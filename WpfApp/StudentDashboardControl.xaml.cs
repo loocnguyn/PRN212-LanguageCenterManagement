@@ -25,7 +25,6 @@ public partial class StudentDashboardControl : UserControl, IDashboardControl
 
     public void RefreshData()
     {
-        tbHeader.Text = $"Welcome, {_currentUser.Username}";
         tbSubHeader.Text = "Your studies and finances at a glance";
 
         try
@@ -36,6 +35,7 @@ public partial class StudentDashboardControl : UserControl, IDashboardControl
                 MessageBox.Show("No student profile linked to this account.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+            tbHeader.Text = $"Student — {student.FullName}";
 
             var enrollments = _enrollmentService.GetByStudentId(student.StudentId);
             var classIds = enrollments.Select(e => e.ClassId).ToList();
