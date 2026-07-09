@@ -89,10 +89,8 @@
         <!-- Staff: Department -->
         <TextBlock Grid.Row="9" Grid.Column="0" x:Name="lblDept" Text="Department" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
         <ComboBox  Grid.Row="9" Grid.Column="1" x:Name="txtDept" Height="30" Margin="0,0,0,10" Visibility="Collapsed" HorizontalContentAlignment="Left" Padding="4,0" VerticalContentAlignment="Center">
-            <ComboBoxItem Content="Academic Affairs"/>
-            <ComboBoxItem Content="Admissions"/>
+            <ComboBoxItem Content="Academic Setup"/>
             <ComboBoxItem Content="Finance"/>
-            <ComboBoxItem Content="Human Resources"/>
         </ComboBox>
 
         <!-- Active (chỉ hiện khi edit) -->

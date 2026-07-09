@@ -33,7 +33,7 @@ public partial class StaffDashboardControl : UserControl, IDashboardControl
 
             panelTiles.Children.Clear();
 
-            if (department != "Academic Affairs")
+            if (department != "Academic Setup")
                 LoadFinanceTiles();
 
             if (department != "Finance")
@@ -42,7 +42,7 @@ public partial class StaffDashboardControl : UserControl, IDashboardControl
             tbSubHeader.Text = department switch
             {
                 "Finance" => "Tuition collection overview",
-                "Academic Affairs" => "Class and semester setup overview",
+                "Academic Setup" => "Class and semester setup overview",
                 _ => "Enrollment, finance, and class setup overview"
             };
         }

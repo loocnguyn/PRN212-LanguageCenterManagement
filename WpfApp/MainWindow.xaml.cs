@@ -70,7 +70,7 @@ public partial class MainWindow : Window
     {
         var department = _staffService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id)?.Department;
 
-        var showAcademic = department is null or "Academic Affairs";
+        var showAcademic = department is null or "Academic Setup";
         var showFinance = department is null or "Finance";
 
         menuStudents.Visibility = showAcademic ? Visibility.Visible : Visibility.Collapsed;

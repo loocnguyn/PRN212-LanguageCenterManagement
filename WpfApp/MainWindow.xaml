@@ -67,7 +67,7 @@
                 </MenuItem>
             </MenuItem>
 
-            <!-- STAFF (Academic Affairs department) only -->
+            <!-- STAFF (Academic Setup department) only -->
             <MenuItem Header="Students" x:Name="menuStudents" Visibility="Collapsed">
                 <MenuItem.Icon><ui:SymbolIcon Symbol="PeopleTeam24"/></MenuItem.Icon>
                 <MenuItem Header="Student Management" Click="MenuStudents_Click">
