@@ -67,7 +67,7 @@
                 </MenuItem>
             </MenuItem>
 
-            <!-- STAFF only -->
+            <!-- STAFF (Academic Affairs department) only -->
             <MenuItem Header="Students" x:Name="menuStudents" Visibility="Collapsed">
                 <MenuItem.Icon><ui:SymbolIcon Symbol="PeopleTeam24"/></MenuItem.Icon>
                 <MenuItem Header="Student Management" Click="MenuStudents_Click">
@@ -76,13 +76,33 @@
                 <MenuItem Header="Enrollment"         Click="MenuEnrollment_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="PersonAdd24"/></MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Debt List"          Click="MenuDebtList_Click">
-                    <MenuItem.Icon><ui:SymbolIcon Symbol="MoneyDismiss24"/></MenuItem.Icon>
+            </MenuItem>
+
+            <MenuItem Header="Academic Setup" x:Name="menuAcademicSetup" Visibility="Collapsed">
+                <MenuItem.Icon><ui:SymbolIcon Symbol="ClipboardTask24"/></MenuItem.Icon>
+                <MenuItem Header="Semester Management" Click="MenuSemesters_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="Calendar24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Course Management" Click="MenuCourses_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="Book24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Classroom Management" Click="MenuClassrooms_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="Building24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Class Management" Click="MenuClasses_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="ClipboardTask24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Class Schedule Management" Click="MenuClassSchedules_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="CalendarLtr24"/></MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
 
+            <!-- STAFF (Finance department) only -->
             <MenuItem Header="Finance" x:Name="menuFinance" Visibility="Collapsed">
                 <MenuItem.Icon><ui:SymbolIcon Symbol="ReceiptMoney24"/></MenuItem.Icon>
+                <MenuItem Header="Debt List"          Click="MenuDebtList_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="MoneyDismiss24"/></MenuItem.Icon>
+                </MenuItem>
                 <MenuItem Header="Invoice Management" Click="MenuInvoice_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="Receipt24"/></MenuItem.Icon>
                 </MenuItem>

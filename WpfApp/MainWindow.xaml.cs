@@ -9,6 +9,7 @@ namespace WpfApp;
 public partial class MainWindow : Window
 {
     private readonly User _currentUser;
+    private readonly IStaffService _staffService = new StaffService();
     private readonly DispatcherTimer _dashboardRefreshTimer = new() { Interval = TimeSpan.FromSeconds(15) };
 
     public MainWindow(User currentUser)
@@ -48,8 +49,7 @@ public partial class MainWindow : Window
                 menuReports.Visibility  = Visibility.Visible;
                 break;
             case "STAFF":
-                menuStudents.Visibility = Visibility.Visible;
-                menuFinance.Visibility  = Visibility.Visible;
+                ApplyStaffDepartmentVisibility();
                 break;
             case "TEACHER":
                 menuMyClasses.Visibility = Visibility.Visible;
@@ -58,6 +58,20 @@ public partial class MainWindow : Window
                 menuMyInfo.Visibility = Visibility.Visible;
                 break;
         }
+    }
+
+    /// <summary>Staff without a Department set (e.g. legacy seeded accounts) get both menus
+    /// so nobody is locked out; new accounts always require a Department (see AccountDetailWindow).</summary>
+    private void ApplyStaffDepartmentVisibility()
+    {
+        var department = _staffService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id)?.Department;
+
+        var showAcademic = department is null or "Academic Affairs";
+        var showFinance = department is null or "Finance";
+
+        menuStudents.Visibility = showAcademic ? Visibility.Visible : Visibility.Collapsed;
+        menuAcademicSetup.Visibility = showAcademic ? Visibility.Visible : Visibility.Collapsed;
+        menuFinance.Visibility = showFinance ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void LoadSemesterInfo()
