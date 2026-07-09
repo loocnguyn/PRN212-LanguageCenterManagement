@@ -15,15 +15,18 @@ INSERT INTO Users (username, password_hash, role) VALUES
 ('teacher02', '$2a$11$Ch64HDBEOI5LIwsNXDmHmuaIXsOTGlkD/4KebX8YCIcgBwGHbVxqG', 'TEACHER'),
 ('student01', '$2a$11$2Dh7pFYpvcXzZtGHqeUMROp16rAfcSwD2JiEDO81ybOheXiJcLV/S', 'STUDENT'),
 ('student02', '$2a$11$dfaFHqam40lcpx73YB/YCOJKIlBH/1ggqWliBYOL726EbfZZVpZ4C', 'STUDENT'),
-('student03', '$2a$11$k9B8Pc/dafh16V0nvJ94ueFE3WA.HuldMSSGG3loLD.Akx2hbqWa.', 'STUDENT');
+('student03', '$2a$11$k9B8Pc/dafh16V0nvJ94ueFE3WA.HuldMSSGG3loLD.Akx2hbqWa.', 'STUDENT'),
+('staff02',   '$2a$11$U7t7m.JhCoIZBzC.edRuMeKLroLVwOrI05B.WnVSrJPbQT3qrLPiK', 'STAFF');
 GO
 
 INSERT INTO Admins (user_id, full_name, phone, email) VALUES
 (1, N'System Admin', '0900000000', 'admin@center.edu.vn');
 GO
 
+-- staff01 = Academic Setup (class/semester setup), staff02 = Finance (tuition collection)
 INSERT INTO Staff (user_id, full_name, phone, email, department) VALUES
-(2, N'Nguyen Van A', '0901000001', 'a@center.edu.vn', N'Academic Affairs');
+(2, N'Nguyen Van A', '0901000001', 'a@center.edu.vn', N'Academic Setup'),
+(8, N'Tran Thi Kim', '0901000002', 'kim@center.edu.vn', N'Finance');
 GO
 
 INSERT INTO Teachers (user_id, full_name, phone, email, specialization, degree) VALUES
