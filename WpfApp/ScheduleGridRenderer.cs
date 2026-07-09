@@ -22,7 +22,7 @@ public static class ScheduleGridRenderer
 
         var today = DateOnly.FromDateTime(DateTime.Today);
 
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(90) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(64) });
         for (int i = 0; i < 7; i++)
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
@@ -66,17 +66,17 @@ public static class ScheduleGridRenderer
             Background = isToday ? Res("SecondaryBrush") : Res("PrimaryBrush"),
             CornerRadius = new CornerRadius(col == 7 ? 6 : 0, col == 7 ? 6 : 0, 0, 0),
             Margin = new Thickness(1),
-            Padding = new Thickness(4, 8, 4, 8)
+            Padding = new Thickness(4, 5, 4, 5)
         };
         var panel = new StackPanel();
         panel.Children.Add(new TextBlock
         {
-            Text = dayName, FontWeight = FontWeights.Bold, FontSize = 13,
+            Text = dayName, FontWeight = FontWeights.Bold, FontSize = 11,
             Foreground = Brushes.White, HorizontalAlignment = HorizontalAlignment.Center
         });
         panel.Children.Add(new TextBlock
         {
-            Text = date.ToString("dd/MM"), FontSize = 11,
+            Text = date.ToString("dd/MM"), FontSize = 10,
             Foreground = Brushes.White, Opacity = 0.9, HorizontalAlignment = HorizontalAlignment.Center
         });
         border.Child = panel;
@@ -92,17 +92,17 @@ public static class ScheduleGridRenderer
             Background = Res("BackgroundBrush"),
             BorderBrush = Res("BorderBrush2"),
             BorderThickness = new Thickness(0, 0, 1, 1),
-            Padding = new Thickness(6)
+            Padding = new Thickness(3)
         };
         var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
         panel.Children.Add(new TextBlock
         {
-            Text = $"Slot {slotNumber}", FontWeight = FontWeights.SemiBold, FontSize = 12,
+            Text = $"Slot {slotNumber}", FontWeight = FontWeights.SemiBold, FontSize = 10,
             Foreground = Res("TextPrimaryBrush"), HorizontalAlignment = HorizontalAlignment.Center
         });
         panel.Children.Add(new TextBlock
         {
-            Text = $"{start:hh\\:mm}-{end:hh\\:mm}", FontSize = 10,
+            Text = $"{start:hh\\:mm}-{end:hh\\:mm}", FontSize = 9,
             Foreground = Res("TextSecondaryBrush"), HorizontalAlignment = HorizontalAlignment.Center
         });
         border.Child = panel;
@@ -118,15 +118,15 @@ public static class ScheduleGridRenderer
             Background = isToday ? Res("PrimaryLightBrush") : Res("BackgroundBrush"),
             BorderBrush = Res("BorderBrush2"),
             BorderThickness = new Thickness(0, 0, 1, 1),
-            Padding = new Thickness(4),
-            MinHeight = 92
+            Padding = new Thickness(3),
+            MinHeight = 56
         };
 
         if (!cell.HasSession)
         {
             outer.Child = new TextBlock
             {
-                Text = "–", FontSize = 14, Foreground = Res("TextSecondaryBrush"),
+                Text = "–", FontSize = 12, Foreground = Res("TextSecondaryBrush"),
                 HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center
             };
             Grid.SetRow(outer, row);
@@ -140,29 +140,28 @@ public static class ScheduleGridRenderer
             Background = Res("SurfaceBrush"),
             BorderBrush = Res("PrimaryLightBrush"),
             BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(6),
-            Padding = new Thickness(8, 6, 8, 6)
+            CornerRadius = new CornerRadius(5),
+            Padding = new Thickness(6, 4, 6, 4)
         };
 
         var panel = new StackPanel();
         panel.Children.Add(new TextBlock
         {
-            Text = cell.ClassName, FontWeight = FontWeights.Bold, FontSize = 12,
-            Foreground = Res("PrimaryDarkBrush"), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 2)
+            Text = cell.ClassName, FontWeight = FontWeights.Bold, FontSize = 11,
+            Foreground = Res("PrimaryDarkBrush"), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 1)
         });
         panel.Children.Add(new TextBlock
         {
-            Text = cell.RoomName, FontSize = 11, Foreground = Res("TextSecondaryBrush"), TextWrapping = TextWrapping.Wrap
+            Text = $"{cell.RoomName} · {cell.CounterpartName}", FontSize = 9,
+            Foreground = Res("TextSecondaryBrush"), TextWrapping = TextWrapping.Wrap
         });
-        panel.Children.Add(new TextBlock
-        {
-            Text = cell.CounterpartName, FontSize = 11, Foreground = Res("TextSecondaryBrush"), TextWrapping = TextWrapping.Wrap
-        });
-        panel.Children.Add(StatusBadge(cell.Status));
-        panel.Children.Add(new TextBlock
-        {
-            Text = cell.TimeDisplay, FontSize = 10, Foreground = Res("TextSecondaryBrush"), Margin = new Thickness(0, 4, 0, 0)
-        });
+
+        var footer = new DockPanel { Margin = new Thickness(0, 3, 0, 0) };
+        var timeText = new TextBlock { Text = cell.TimeDisplay, FontSize = 9, Foreground = Res("TextSecondaryBrush"), VerticalAlignment = VerticalAlignment.Center };
+        DockPanel.SetDock(timeText, Dock.Right);
+        footer.Children.Add(timeText);
+        footer.Children.Add(StatusBadge(cell.Status));
+        panel.Children.Add(footer);
 
         card.Child = panel;
         outer.Child = card;
@@ -184,11 +183,11 @@ public static class ScheduleGridRenderer
         return new Border
         {
             Background = bg,
-            CornerRadius = new CornerRadius(8),
-            Padding = new Thickness(6, 1, 6, 1),
-            Margin = new Thickness(0, 4, 0, 0),
+            CornerRadius = new CornerRadius(7),
+            Padding = new Thickness(5, 0, 5, 0),
             HorizontalAlignment = HorizontalAlignment.Left,
-            Child = new TextBlock { Text = label, FontSize = 10, FontWeight = FontWeights.SemiBold, Foreground = fg }
+            VerticalAlignment = VerticalAlignment.Center,
+            Child = new TextBlock { Text = label, FontSize = 9, FontWeight = FontWeights.SemiBold, Foreground = fg }
         };
     }
 }
