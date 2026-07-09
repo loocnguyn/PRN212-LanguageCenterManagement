@@ -77,11 +77,11 @@ public partial class GradeEntryWindow : Window
             if (!AuthorizationHelper.AuthorizeTeacherForClass(_currentUser, _teacherService, cls, "access grades"))
                 return;
 
-            // Load grade types on demand
-            _gradeTypes = _gradeTypeService.GetAll();
+            // Load the grading structure configured for this class's course
+            _gradeTypes = _gradeTypeService.GetByCourseId(cls.CourseId);
             if (!_gradeTypes.Any())
             {
-                MessageBox.Show("No grade types defined. Please add grade types first.", "Info",
+                MessageBox.Show($"No grade types configured for course '{cls.Name}'. Please set up its grading structure first.", "Info",
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 dgGrades.ItemsSource = null;
                 return;

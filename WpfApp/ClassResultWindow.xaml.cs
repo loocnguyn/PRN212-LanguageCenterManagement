@@ -73,10 +73,10 @@ public partial class ClassResultWindow : Window
 
         try
         {
-            var gradeTypes = _gradeTypeService.GetAll();
+            var gradeTypes = _gradeTypeService.GetByCourseId(cls.CourseId);
             if (gradeTypes.Count == 0)
             {
-                MessageBox.Show("No grade types configured.", "Warning",
+                MessageBox.Show($"No grade types configured for course '{cls.Name}'.", "Warning",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }

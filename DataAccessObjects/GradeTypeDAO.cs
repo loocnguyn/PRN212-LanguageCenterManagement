@@ -16,6 +16,16 @@ public class GradeTypeDAO
         return context.GradeTypes.FirstOrDefault(x => x.GradeTypeId == id);
     }
 
+    /// <summary>Grade types (with their weights) configured for a specific course — the grading structure for that subject.</summary>
+    public static List<GradeType> GetByCourseId(int courseId)
+    {
+        using var context = new LanguageCenterContext();
+        return context.GradeTypes
+            .Where(x => x.CourseId == courseId)
+            .OrderBy(x => x.GradeTypeId)
+            .ToList();
+    }
+
     public static void Save(GradeType entity)
     {
         using var context = new LanguageCenterContext();

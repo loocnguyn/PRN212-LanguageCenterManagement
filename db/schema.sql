@@ -168,10 +168,15 @@ GO
 
 CREATE TABLE GradeTypes (
     grade_type_id  INT           IDENTITY(1,1) PRIMARY KEY,
+    course_id      INT           NOT NULL REFERENCES Courses(course_id),
     name           NVARCHAR(100) NOT NULL,
     weight_percent DECIMAL(5,2)  NOT NULL CHECK (weight_percent BETWEEN 0 AND 100),
-    description    NVARCHAR(255) NULL
+    description    NVARCHAR(255) NULL,
+    CONSTRAINT uq_grade_type_course_name UNIQUE (course_id, name)
 );
+GO
+
+CREATE INDEX idx_grade_types_course ON GradeTypes(course_id);
 GO
 
 CREATE TABLE Grades (

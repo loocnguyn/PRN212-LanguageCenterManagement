@@ -331,7 +331,12 @@ public partial class LanguageCenterContext : DbContext
         {
             entity.HasKey(e => e.GradeTypeId).HasName("PK__GradeTyp__31F4E60DAE71DD85");
 
+            entity.HasIndex(e => e.CourseId, "idx_grade_types_course");
+
+            entity.HasIndex(e => new { e.CourseId, e.Name }, "uq_grade_type_course_name").IsUnique();
+
             entity.Property(e => e.GradeTypeId).HasColumnName("grade_type_id");
+            entity.Property(e => e.CourseId).HasColumnName("course_id");
             entity.Property(e => e.Description)
                 .HasMaxLength(255)
                 .HasColumnName("description");
@@ -341,6 +346,11 @@ public partial class LanguageCenterContext : DbContext
             entity.Property(e => e.WeightPercent)
                 .HasColumnType("decimal(5, 2)")
                 .HasColumnName("weight_percent");
+
+            entity.HasOne(d => d.Course).WithMany(p => p.GradeTypes)
+                .HasForeignKey(d => d.CourseId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__GradeType__cours__GradeTypeCourse");
         });
 
         modelBuilder.Entity<Invoice>(entity =>

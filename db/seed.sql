@@ -75,10 +75,19 @@ INSERT INTO ClassSchedules (class_id, day_of_week, start_time, end_time) VALUES
 (3, 6, '15:00', '17:15');   -- Slot 4, Sat
 GO
 
-INSERT INTO GradeTypes (name, weight_percent, description) VALUES
-('Attendance', 10, 'Attendance and participation score'),
-('Midterm',    30, 'Midterm exam score'),
-('Final',      60, 'Final exam score');
+-- Each course gets its own grading structure (course_id order matches Courses insert above:
+-- 1=ENG-A1, 2=ENG-B1, 3=JPN-N5). Every course starts with the same default weights;
+-- they can be customized per-course later via GradeType Management.
+INSERT INTO GradeTypes (course_id, name, weight_percent, description) VALUES
+(1, 'Attendance', 10, 'Attendance and participation score'),
+(1, 'Midterm',    30, 'Midterm exam score'),
+(1, 'Final',      60, 'Final exam score'),
+(2, 'Attendance', 10, 'Attendance and participation score'),
+(2, 'Midterm',    30, 'Midterm exam score'),
+(2, 'Final',      60, 'Final exam score'),
+(3, 'Attendance', 10, 'Attendance and participation score'),
+(3, 'Midterm',    30, 'Midterm exam score'),
+(3, 'Final',      60, 'Final exam score');
 GO
 
 INSERT INTO Enrollments (student_id, class_id, enrolled_date, status) VALUES

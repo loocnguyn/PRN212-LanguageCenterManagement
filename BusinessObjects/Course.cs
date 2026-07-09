@@ -26,4 +26,6 @@ public partial class Course
     public DateTime CreatedAt { get; set; }
 
     public virtual ICollection<Class> Classes { get; set; } = new List<Class>();
+
+    public virtual ICollection<GradeType> GradeTypes { get; set; } = new List<GradeType>();
 }
