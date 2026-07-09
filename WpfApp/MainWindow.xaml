@@ -112,19 +112,27 @@
             </MenuItem>
 
             <!-- TEACHER only -->
-            <MenuItem Header="My Classes" x:Name="menuMyClasses" Visibility="Collapsed">
-                <MenuItem.Icon><ui:SymbolIcon Symbol="ClipboardTask24"/></MenuItem.Icon>
-                <MenuItem Header="My Schedule"   Click="MenuTeacherSchedule_Click">
+            <MenuItem Header="Schedule" x:Name="menuTeacherSchedule" Visibility="Collapsed">
+                <MenuItem.Icon><ui:SymbolIcon Symbol="Calendar24"/></MenuItem.Icon>
+                <MenuItem Header="My Schedule" Click="MenuTeacherSchedule_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="Calendar24"/></MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Attendance"    Click="MenuAttendance_Click">
+            </MenuItem>
+
+            <MenuItem Header="Attendance" x:Name="menuTeacherAttendance" Visibility="Collapsed">
+                <MenuItem.Icon><ui:SymbolIcon Symbol="PeopleCheckmark24"/></MenuItem.Icon>
+                <MenuItem Header="Mark Attendance" Click="MenuAttendance_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="PeopleCheckmark24"/></MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+
+            <MenuItem Header="Classes" x:Name="menuTeacherClasses" Visibility="Collapsed">
+                <MenuItem.Icon><ui:SymbolIcon Symbol="ClipboardTask24"/></MenuItem.Icon>
+                <MenuItem Header="Class Roster"  Click="MenuClassRoster_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="PeopleTeam24"/></MenuItem.Icon>
                 </MenuItem>
                 <MenuItem Header="Grade Entry"   Click="MenuGradeEntry_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="DocumentBulletList24"/></MenuItem.Icon>
-                </MenuItem>
-                <MenuItem Header="Class Roster"  Click="MenuClassRoster_Click">
-                    <MenuItem.Icon><ui:SymbolIcon Symbol="PeopleTeam24"/></MenuItem.Icon>
                 </MenuItem>
                 <MenuItem Header="Class Results" Click="MenuClassResults_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="BookStar24"/></MenuItem.Icon>
@@ -132,21 +140,29 @@
             </MenuItem>
 
             <!-- STUDENT only -->
-            <MenuItem Header="My Info" x:Name="menuMyInfo" Visibility="Collapsed">
-                <MenuItem.Icon><ui:SymbolIcon Symbol="PersonCircle24"/></MenuItem.Icon>
-                <MenuItem Header="My Schedule"         Click="MenuStudentSchedule_Click">
+            <MenuItem Header="Schedule" x:Name="menuStudentSchedule" Visibility="Collapsed">
+                <MenuItem.Icon><ui:SymbolIcon Symbol="Calendar24"/></MenuItem.Icon>
+                <MenuItem Header="My Schedule" Click="MenuStudentSchedule_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="Calendar24"/></MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="My Classes"          Click="MenuMyClasses_Click">
-                    <MenuItem.Icon><ui:SymbolIcon Symbol="Book24"/></MenuItem.Icon>
-                </MenuItem>
-                <MenuItem Header="Attendance History"  Click="MenuAttendanceHistory_Click">
+                <MenuItem Header="Attendance History" Click="MenuAttendanceHistory_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="CalendarClock24"/></MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="My Grades"           Click="MenuMyGrades_Click">
+            </MenuItem>
+
+            <MenuItem Header="Academics" x:Name="menuStudentAcademics" Visibility="Collapsed">
+                <MenuItem.Icon><ui:SymbolIcon Symbol="Book24"/></MenuItem.Icon>
+                <MenuItem Header="My Classes" Click="MenuMyClasses_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="Book24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="My Grades" Click="MenuMyGrades_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="DocumentBulletList24"/></MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="My Invoices"         Click="MenuMyInvoices_Click">
+            </MenuItem>
+
+            <MenuItem Header="Finance" x:Name="menuStudentFinance" Visibility="Collapsed">
+                <MenuItem.Icon><ui:SymbolIcon Symbol="ReceiptMoney24"/></MenuItem.Icon>
+                <MenuItem Header="My Invoices" Click="MenuMyInvoices_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="Receipt24"/></MenuItem.Icon>
                 </MenuItem>
             </MenuItem>

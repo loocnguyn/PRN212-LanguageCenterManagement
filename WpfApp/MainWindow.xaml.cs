@@ -52,10 +52,14 @@ public partial class MainWindow : Window
                 ApplyStaffDepartmentVisibility();
                 break;
             case "TEACHER":
-                menuMyClasses.Visibility = Visibility.Visible;
+                menuTeacherSchedule.Visibility = Visibility.Visible;
+                menuTeacherAttendance.Visibility = Visibility.Visible;
+                menuTeacherClasses.Visibility = Visibility.Visible;
                 break;
             case "STUDENT":
-                menuMyInfo.Visibility = Visibility.Visible;
+                menuStudentSchedule.Visibility = Visibility.Visible;
+                menuStudentAcademics.Visibility = Visibility.Visible;
+                menuStudentFinance.Visibility = Visibility.Visible;
                 break;
         }
     }
