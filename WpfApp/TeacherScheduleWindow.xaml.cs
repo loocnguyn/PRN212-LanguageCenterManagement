@@ -1,7 +1,6 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using BusinessObjects;
 using Services;
 
@@ -9,8 +8,6 @@ namespace WpfApp;
 
 public partial class TeacherScheduleWindow : Window
 {
-    private static readonly string[] DayHeaders = { "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN" };
-
     private readonly User _currentUser;
     private readonly ITeacherService _teacherService = new TeacherService();
     private readonly IClassService _classService = new ClassService();
@@ -98,36 +95,7 @@ public partial class TeacherScheduleWindow : Window
             counterpartNameSelector: s => s.Class?.Course?.Name ?? "",
             statusTextSelector: s => ResolveStatusText(s));
 
-        scheduleGrid.RowDefinitions.Clear();
-        scheduleGrid.ColumnDefinitions.Clear();
-        scheduleGrid.Children.Clear();
-
-        scheduleGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) });
-        for (int i = 0; i < 7; i++)
-            scheduleGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-
-        // Header row: day names + dates
-        scheduleGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        AddCell(0, 0, "", isHeader: true);
-        for (int d = 0; d < 7; d++)
-        {
-            var date = _weekStart.AddDays(d);
-            AddCell(0, d + 1, $"{DayHeaders[d]}\n{date:dd/MM}", isHeader: true);
-        }
-
-        // Slot rows
-        for (int r = 0; r < rows.Count; r++)
-        {
-            scheduleGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            var row = rows[r];
-            AddCell(r + 1, 0, $"Slot {row.SlotNumber}", isHeader: true);
-
-            for (int d = 0; d < 7; d++)
-            {
-                var cell = row.Days[d];
-                AddSessionCell(r + 1, d + 1, cell);
-            }
-        }
+        ScheduleGridRenderer.Render(scheduleGrid, rows, _weekStart);
     }
 
     private string ResolveStatusText(Session s)
@@ -143,67 +111,4 @@ public partial class TeacherScheduleWindow : Window
         };
     }
 
-    private void AddCell(int row, int col, string text, bool isHeader)
-    {
-        var border = new Border
-        {
-            BorderBrush = Brushes.LightGray,
-            BorderThickness = new Thickness(0.5),
-            Background = isHeader ? new SolidColorBrush(Color.FromRgb(0x6E, 0x8E, 0xC7)) : Brushes.White,
-            Padding = new Thickness(4)
-        };
-        var textBlock = new TextBlock
-        {
-            Text = text,
-            TextAlignment = TextAlignment.Center,
-            TextWrapping = TextWrapping.Wrap,
-            FontWeight = isHeader ? FontWeights.Bold : FontWeights.Normal,
-            Foreground = isHeader ? Brushes.White : Brushes.Black
-        };
-        border.Child = textBlock;
-        Grid.SetRow(border, row);
-        Grid.SetColumn(border, col);
-        scheduleGrid.Children.Add(border);
-    }
-
-    private void AddSessionCell(int row, int col, ScheduleCell cell)
-    {
-        var border = new Border
-        {
-            BorderBrush = Brushes.LightGray,
-            BorderThickness = new Thickness(0.5),
-            MinHeight = 90,
-            Padding = new Thickness(4)
-        };
-
-        if (!cell.HasSession)
-        {
-            border.Child = new TextBlock { Text = "-", TextAlignment = TextAlignment.Center, Foreground = Brushes.Gray };
-        }
-        else
-        {
-            var panel = new StackPanel();
-            panel.Children.Add(new TextBlock { Text = cell.ClassName, FontWeight = FontWeights.Bold, TextWrapping = TextWrapping.Wrap });
-            panel.Children.Add(new TextBlock { Text = $"at {cell.RoomName}", FontSize = 11 });
-            panel.Children.Add(new TextBlock { Text = cell.CounterpartName, FontSize = 11, TextWrapping = TextWrapping.Wrap });
-            panel.Children.Add(new TextBlock
-            {
-                Text = $"({cell.Status})",
-                FontSize = 11,
-                Foreground = cell.Status switch
-                {
-                    "attended" => Brushes.Green,
-                    "absent" => Brushes.Red,
-                    "late" => Brushes.Orange,
-                    _ => Brushes.Gray
-                }
-            });
-            panel.Children.Add(new TextBlock { Text = $"({cell.TimeDisplay})", FontSize = 11, Foreground = Brushes.DarkSlateGray });
-            border.Child = panel;
-        }
-
-        Grid.SetRow(border, row);
-        Grid.SetColumn(border, col);
-        scheduleGrid.Children.Add(border);
-    }
 }
