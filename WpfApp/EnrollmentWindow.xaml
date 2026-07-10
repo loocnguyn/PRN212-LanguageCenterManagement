@@ -27,6 +27,7 @@
             <TextBlock Text="Student ID:" VerticalAlignment="Center" Margin="12,0,6,0"/>
             <TextBox x:Name="txtStudentId" Width="100" Height="28" VerticalContentAlignment="Center" Padding="4,0"/>
             <Button Content="Enroll" Width="80" Height="28" Margin="8,0,0,0" Click="BtnEnroll_Click"/>
+            <Button Content="Change Class" Width="110" Height="28" Margin="6,0,0,0" Click="BtnChangeClass_Click"/>
             <Button Content="Refresh" Width="80" Height="28" Margin="6,0,0,0" Click="BtnRefresh_Click"/>
         </StackPanel>
 

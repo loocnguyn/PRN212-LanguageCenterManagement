@@ -64,13 +64,6 @@ public partial class InvoiceManagementWindow : Window
         ShowCurrentPage();
     }
 
-    private void BtnAdd_Click(object sender, RoutedEventArgs e)
-    {
-        var window = new InvoiceAddWindow { Owner = this };
-        if (window.ShowDialog() == true)
-            LoadData();
-    }
-
     private void BtnEdit_Click(object sender, RoutedEventArgs e)
     {
         if (dgInvoices.SelectedItem is not InvoiceDisplayItem item)
@@ -82,33 +75,6 @@ public partial class InvoiceManagementWindow : Window
         var window = new InvoiceEditWindow(item.InvoiceId) { Owner = this };
         if (window.ShowDialog() == true)
             LoadData();
-    }
-
-    private void BtnDelete_Click(object sender, RoutedEventArgs e)
-    {
-        if (dgInvoices.SelectedItem is not InvoiceDisplayItem item)
-        {
-            MessageBox.Show("Vui lòng chọn hóa đơn.");
-            return;
-        }
-        try
-        {
-            if (_service.HasPayments(item.InvoiceId))
-            {
-                MessageBox.Show("Không thể xóa hóa đơn đã có thanh toán.");
-                return;
-            }
-            var confirm = MessageBox.Show($"Xóa hóa đơn #{item.InvoiceId}?", "Xác nhận",
-                MessageBoxButton.YesNo);
-            if (confirm != MessageBoxResult.Yes) return;
-            _service.Delete(item.InvoiceId);
-            MessageBox.Show("Xóa hóa đơn thành công.");
-            LoadData();
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Không thể xóa hóa đơn: {ex.Message}", "Lỗi");
-        }
     }
 
     private static InvoiceDisplayItem ToDisplayItem(Invoice invoice)

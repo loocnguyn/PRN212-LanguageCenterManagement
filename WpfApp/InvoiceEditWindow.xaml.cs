@@ -21,7 +21,8 @@ public partial class InvoiceEditWindow : Window
     {
         txtStudentId.Text = _invoice.StudentId.ToString();
         txtEnrollmentId.Text = _invoice.EnrollmentId?.ToString() ?? "";
-        txtAmount.Text = _invoice.Amount.ToString();
+        txtAmount.Text = _invoice.Amount.ToString("0.##");
+        dpDueDate.DisplayDateStart = DateTime.Today;
         dpDueDate.SelectedDate = _invoice.DueDate?.ToDateTime(TimeOnly.MinValue);
         txtNote.Text = _invoice.Note ?? "";
         txtStatus.Text = _invoice.Status;
@@ -32,9 +33,20 @@ public partial class InvoiceEditWindow : Window
         try
         {
             if (!decimal.TryParse(txtAmount.Text, out var amount) || amount <= 0)
-            { MessageBox.Show("Số tiền phải lớn hơn 0."); return; }
+            {
+                MessageBox.Show("Số tiền phải lớn hơn 0.");
+                return;
+            }
             if (dpDueDate.SelectedDate == null)
-            { MessageBox.Show("Vui lòng chọn ngày đến hạn."); return; }
+            {
+                MessageBox.Show("Vui lòng chọn ngày đến hạn.");
+                return;
+            }
+            if (dpDueDate.SelectedDate.Value.Date < DateTime.Today)
+            {
+                MessageBox.Show("Due date không được là ngày trong quá khứ.");
+                return;
+            }
 
             var paid = _service.GetPaidAmount(_invoice.InvoiceId);
             if (amount < paid)

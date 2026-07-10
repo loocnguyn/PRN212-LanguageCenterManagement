@@ -12,6 +12,7 @@ public interface IEnrollmentService
     List<Enrollment> GetByClassId(int classId);
     List<Enrollment> GetByStudentId(int studentId);
     void Enroll(int studentId, int classId);
+    void TransferClass(int oldEnrollmentId, int newClassId);
     void Drop(int enrollmentId);
     void LockEnrollmentsForSemester(int semesterId);
 }

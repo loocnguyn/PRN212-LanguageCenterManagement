@@ -11,35 +11,40 @@ public partial class PaymentWindow : Window
     private readonly IPaymentService _payService = new PaymentService();
     private readonly IInvoiceService _invService = new InvoiceService();
     private readonly IStaffService _staffService = new StaffService();
+    private readonly User _currentUser;
     private const int PageSize = 10;
     private List<OutstandingInvoiceItem> _items = new();
     private int _currentPage = 1;
+    private int? _currentStaffId;
 
-    public PaymentWindow()
+    public PaymentWindow(User currentUser)
     {
         InitializeComponent();
-        LoadStaff();
+        _currentUser = currentUser;
+        LoadCurrentStaff();
         LoadInvoices();
     }
 
-    private void LoadStaff()
+    private void LoadCurrentStaff()
     {
         try
         {
-            cmbStaff.ItemsSource = _staffService.GetAll()
-                .OrderBy(x => x.StaffId)
-                .Select(x => new StaffOption
-                {
-                    StaffId = x.StaffId,
-                    DisplayText = $"{x.StaffId} - {x.FullName}"
-                })
-                .ToList();
-            if (cmbStaff.Items.Count > 0)
-                cmbStaff.SelectedIndex = 0;
+            var staff = _staffService.GetAll()
+                .FirstOrDefault(x => x.UserId == _currentUser.Id);
+
+            if (staff == null)
+            {
+                _currentStaffId = null;
+                txtStaff.Text = "No staff profile found for current user";
+                return;
+            }
+
+            _currentStaffId = staff.StaffId;
+            txtStaff.Text = $"{staff.StaffId} - {staff.FullName}";
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Không thể tải danh sách nhân viên:\n{GetExceptionMessages(ex)}", "Lỗi");
+            MessageBox.Show($"Không thể tải thông tin nhân viên đang đăng nhập:\n{GetExceptionMessages(ex)}", "Lỗi");
         }
     }
 
@@ -118,9 +123,9 @@ public partial class PaymentWindow : Window
                 MessageBox.Show("Số tiền thanh toán không được lớn hơn số tiền còn lại.");
                 return;
             }
-            if (cmbStaff.SelectedValue is not int staffId)
+            if (_currentStaffId is not int staffId)
             {
-                MessageBox.Show("Vui lòng chọn nhân viên ghi nhận thanh toán.");
+                MessageBox.Show("Không tìm thấy nhân viên đang đăng nhập để ghi nhận thanh toán.");
                 return;
             }
 
@@ -185,12 +190,6 @@ public partial class PaymentWindow : Window
             Status = invoice.Status,
             DueDate = invoice.DueDate
         };
-    }
-
-    private sealed class StaffOption
-    {
-        public int StaffId { get; init; }
-        public string DisplayText { get; init; } = "";
     }
 
     private sealed class OutstandingInvoiceItem

@@ -15,6 +15,8 @@ public class EnrollmentRepository : IEnrollmentRepository
     public List<Enrollment> GetByClassId(int classId) => EnrollmentDAO.GetByClassId(classId);
     public List<Enrollment> GetByStudentId(int studentId) => EnrollmentDAO.GetByStudentId(studentId);
     public Enrollment? GetByStudentAndClass(int studentId, int classId) => EnrollmentDAO.GetByStudentAndClass(studentId, classId);
+    public void TransferClass(int oldEnrollmentId, int newClassId, decimal newTuitionFee, DateOnly dueDate, string note)
+        => EnrollmentDAO.TransferClass(oldEnrollmentId, newClassId, newTuitionFee, dueDate, note);
     public void LockEnrollmentsByClass(int classId) => EnrollmentDAO.LockEnrollmentsByClass(classId);
     public int CountByClassId(int classId) => EnrollmentDAO.CountByClassId(classId);
 }

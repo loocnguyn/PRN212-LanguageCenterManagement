@@ -81,6 +81,46 @@ public partial class EnrollmentWindow : Window
         LoadData();
     }
 
+    private void BtnChangeClass_Click(object sender, RoutedEventArgs e)
+    {
+        if (dgEnrollments.SelectedItem is not Enrollment en)
+        {
+            MessageBox.Show("Please select the current enrollment to transfer.", "Info",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+        if (cboClass.SelectedItem is not Class newClass)
+        {
+            MessageBox.Show("Please select the target class.", "Info",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var confirm = MessageBox.Show(
+            $"Transfer {en.Student?.FullName ?? $"student #{en.StudentId}"} from '{en.Class?.Name}' to '{newClass.Name}'?\n\n" +
+            "If the new class is cheaper, the difference will be refunded to the student's wallet.",
+            "Confirm Class Transfer",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+        if (confirm != MessageBoxResult.Yes) return;
+
+        try
+        {
+            _enrollmentService.TransferClass(en.EnrollmentId, newClass.ClassId);
+            MessageBox.Show("Class transferred successfully.", "Success",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            LoadData();
+        }
+        catch (InvalidOperationException ex)
+        {
+            MessageBox.Show(ex.Message, "Transfer Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Unexpected error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
     private void BtnDrop_Click(object sender, RoutedEventArgs e)
     {
         if (dgEnrollments.SelectedItem is not Enrollment en)

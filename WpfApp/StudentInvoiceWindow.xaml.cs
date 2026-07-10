@@ -39,15 +39,21 @@ public partial class StudentInvoiceWindow : Window
             var invoices = _invoiceService.Search(_studentId.ToString(), null)
                 .Where(x => x.StudentId == _studentId)
                 .Where(x => x.Status is "UNPAID" or "PARTIAL")
-                .Select(x => new InvoiceDisplayItem
+                .Select(x =>
                 {
-                    InvoiceId = x.InvoiceId,
-                    Amount = x.Amount,
-                    PaidAmount = _invoiceService.GetPaidAmount(x.InvoiceId),
-                    DueDate = x.DueDate,
-                    Status = x.Status,
-                    Note = x.Note
+                    var paidAmount = _invoiceService.GetPaidAmount(x.InvoiceId);
+                    return new InvoiceDisplayItem
+                    {
+                        InvoiceId = x.InvoiceId,
+                        Amount = x.Amount,
+                        PaidAmount = paidAmount,
+                        RemainingAmount = Math.Max(0, x.Amount - paidAmount),
+                        DueDate = x.DueDate,
+                        Status = x.Status,
+                        Note = x.Note
+                    };
                 })
+                .Where(x => x.RemainingAmount > 0)
                 .ToList();
 
             dgInvoices.ItemsSource = invoices;
@@ -68,7 +74,10 @@ public partial class StudentInvoiceWindow : Window
         var topUpWindow = new TopUpWalletWindow(_studentId);
         topUpWindow.ShowDialog();
         if (topUpWindow.TopUpCompleted)
+        {
             RefreshBalance();
+            LoadInvoices();
+        }
     }
 
     private void BtnHistory_Click(object sender, RoutedEventArgs e)
@@ -86,9 +95,18 @@ public partial class StudentInvoiceWindow : Window
             MessageBox.Show("Please select an invoice to pay.", "Info");
             return;
         }
-        if (selected.Status == "PAID")
+        if (selected.Status == "PAID" || selected.RemainingAmount <= 0)
         {
             MessageBox.Show("This invoice has already been paid.", "Info");
+            return;
+        }
+
+        var balance = _walletService.GetBalance(_studentId);
+        if (balance < selected.RemainingAmount)
+        {
+            MessageBox.Show(
+                $"Insufficient wallet balance. Remaining amount is {selected.RemainingAmount:N0} VND, but wallet balance is {balance:N0} VND.",
+                "Info");
             return;
         }
 
@@ -111,6 +129,7 @@ public partial class StudentInvoiceWindow : Window
         public int InvoiceId { get; init; }
         public decimal Amount { get; init; }
         public decimal PaidAmount { get; init; }
+        public decimal RemainingAmount { get; init; }
         public DateOnly? DueDate { get; init; }
         public string Status { get; init; } = "";
         public string? Note { get; init; }

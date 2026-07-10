@@ -99,7 +99,7 @@ public class WalletTransactionDAO
                 ?? throw new InvalidOperationException("Invoice not found for this student.");
 
             var paidAmount = invoice.Payments.Sum(x => x.AmountPaid);
-            var remainingAmount = invoice.Amount - paidAmount;
+            var remainingAmount = Math.Max(0, invoice.Amount - paidAmount);
 
             if (invoice.Status == "PAID" || remainingAmount <= 0)
                 throw new InvalidOperationException("This invoice has already been paid in full.");
