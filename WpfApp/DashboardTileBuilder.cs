@@ -28,8 +28,9 @@ public static class DashboardTileBuilder
         var valueText = new System.Windows.Controls.TextBlock
         {
             Text = value,
-            FontSize = 26,
+            FontSize = 24,
             FontWeight = FontWeights.Bold,
+            TextWrapping = TextWrapping.Wrap,
             Margin = new Thickness(0, 10, 0, 2)
         };
 
@@ -37,6 +38,7 @@ public static class DashboardTileBuilder
         {
             Text = title,
             FontSize = 13,
+            TextWrapping = TextWrapping.Wrap,
             Foreground = (Brush)Application.Current.Resources["TextSecondaryBrush"]
         };
 
@@ -65,8 +67,8 @@ public static class DashboardTileBuilder
             CornerRadius = new CornerRadius(8),
             Padding = new Thickness(16),
             Margin = new Thickness(0, 0, 12, 12),
-            Width = 190,
-            MinHeight = 130,
+            Width = 240,
+            MinHeight = 140,
             Child = content
         };
     }

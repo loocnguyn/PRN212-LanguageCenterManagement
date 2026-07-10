@@ -41,30 +41,30 @@
         </StackPanel>
 
         <GroupBox Grid.Row="2" Header="Summary" Padding="10" Margin="0,0,0,10">
-            <UniformGrid Columns="6">
-                <StackPanel>
+            <UniformGrid Columns="3" Rows="2">
+                <StackPanel Margin="0,0,10,10">
                     <TextBlock Text="Total Revenue" FontWeight="Bold"/>
-                    <TextBlock x:Name="lblTotalRevenue" Foreground="Green" FontSize="16"/>
+                    <TextBlock x:Name="lblTotalRevenue" Foreground="Green" FontSize="16" TextWrapping="Wrap"/>
                 </StackPanel>
-                <StackPanel>
+                <StackPanel Margin="0,0,10,10">
                     <TextBlock Text="Total Payments" FontWeight="Bold"/>
-                    <TextBlock x:Name="lblTotalPayments" FontSize="16"/>
+                    <TextBlock x:Name="lblTotalPayments" FontSize="16" TextWrapping="Wrap"/>
                 </StackPanel>
-                <StackPanel>
+                <StackPanel Margin="0,0,10,10">
                     <TextBlock Text="Cash" FontWeight="Bold"/>
-                    <TextBlock x:Name="lblCashTotal" FontSize="16"/>
+                    <TextBlock x:Name="lblCashTotal" FontSize="16" TextWrapping="Wrap"/>
                 </StackPanel>
-                <StackPanel>
+                <StackPanel Margin="0,0,10,10">
                     <TextBlock Text="Transfer" FontWeight="Bold"/>
-                    <TextBlock x:Name="lblTransferTotal" FontSize="16"/>
+                    <TextBlock x:Name="lblTransferTotal" FontSize="16" TextWrapping="Wrap"/>
                 </StackPanel>
-                <StackPanel>
+                <StackPanel Margin="0,0,10,10">
                     <TextBlock Text="Card" FontWeight="Bold"/>
-                    <TextBlock x:Name="lblCardTotal" FontSize="16"/>
+                    <TextBlock x:Name="lblCardTotal" FontSize="16" TextWrapping="Wrap"/>
                 </StackPanel>
-                <StackPanel>
+                <StackPanel Margin="0,0,10,10">
                     <TextBlock Text="Wallet" FontWeight="Bold"/>
-                    <TextBlock x:Name="lblWalletTotal" FontSize="16"/>
+                    <TextBlock x:Name="lblWalletTotal" FontSize="16" TextWrapping="Wrap"/>
                 </StackPanel>
             </UniformGrid>
         </GroupBox>

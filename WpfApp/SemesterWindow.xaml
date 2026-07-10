@@ -16,7 +16,7 @@
             <StackPanel Orientation="Horizontal">
                 <StackPanel Margin="0,0,16,0">
                     <TextBlock Text="Name:" Margin="0,0,0,2"/>
-                    <TextBox x:Name="txtName" Width="180" Height="28" VerticalContentAlignment="Center" Padding="4,0"/>
+                    <TextBox x:Name="txtName" Width="230" Height="28" VerticalContentAlignment="Center" Padding="4,0"/>
                 </StackPanel>
                 <StackPanel Margin="0,0,16,0">
                     <TextBlock Text="Start Date:" Margin="0,0,0,2"/>
