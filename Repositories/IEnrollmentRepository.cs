@@ -13,6 +13,7 @@ public interface IEnrollmentRepository
     List<Enrollment> GetByClassId(int classId);
     List<Enrollment> GetByStudentId(int studentId);
     Enrollment? GetByStudentAndClass(int studentId, int classId);
+    void TransferClass(int oldEnrollmentId, int newClassId, decimal newTuitionFee, DateOnly dueDate, string note);
     void LockEnrollmentsByClass(int classId);
     int CountByClassId(int classId);
 }

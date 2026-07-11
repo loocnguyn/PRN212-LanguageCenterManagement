@@ -135,7 +135,7 @@ public partial class MainWindow : Window
     private void MenuInvoice_Click(object sender, RoutedEventArgs e)
         => new InvoiceManagementWindow().Show();
     private void MenuPayment_Click(object sender, RoutedEventArgs e)
-        => new PaymentWindow().Show();
+        => new PaymentWindow(_currentUser).Show();
 
     // TEACHER — all 3 pass _currentUser for authorization
     private void MenuTeacherSchedule_Click(object sender, RoutedEventArgs e)
