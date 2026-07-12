@@ -121,6 +121,8 @@ public partial class MainWindow : Window
         => new CourseManagementWindow().Show();
     private void MenuClassrooms_Click(object sender, RoutedEventArgs e)
         => new ClassroomManagementWindow().Show();
+    private void MenuGradeTypeManagement_Click(object sender, RoutedEventArgs e)
+        => new GradeTypeManagementWindow().Show();
     private void MenuClasses_Click(object sender, RoutedEventArgs e)
         => new ClassManagementWindow().Show();
     private void MenuRevenueReport_Click(object sender, RoutedEventArgs e)
