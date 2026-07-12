@@ -45,7 +45,7 @@ public partial class AiAssistantWindow : Window
             if (!_aiService.IsConfigured)
             {
                 AppendLine("System",
-                    "The AI assistant is not configured yet. An Anthropic API key must be set in the \"Anthropic\" " +
+                    "The AI assistant is not configured yet. A Google Gemini API key must be set in the \"Gemini\" " +
                     "section of appsettings.json before you can chat.");
                 DisableInput();
                 return;

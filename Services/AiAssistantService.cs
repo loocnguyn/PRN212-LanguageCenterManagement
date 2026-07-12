@@ -7,20 +7,20 @@ using Microsoft.Extensions.Configuration;
 namespace Services;
 
 /// <summary>
-/// AI Study Assistant backed by the Anthropic Claude Messages API.
-/// Follows the same config-driven, HttpClient pattern as <see cref="ZaloPayService"/>:
-/// the API key and model come from the "Anthropic" section of appsettings.json.
-/// The student's own data is passed in as a plain-text context string and sent as the
-/// system prompt, so the model can answer questions about that student's schedule,
-/// grades, and invoices without the service touching the database directly.
+/// AI Study Assistant backed by the Google Gemini API (generativelanguage.googleapis.com),
+/// which has a free tier suitable for a student project. Follows the same config-driven,
+/// HttpClient pattern as <see cref="ZaloPayService"/>: the API key, model, and endpoint come
+/// from the "Gemini" section of appsettings.json. The student's own data is passed in as a
+/// plain-text context string and sent as the system instruction, so the model can answer
+/// questions about that student's schedule, grades, and invoices without the service touching
+/// the database directly.
 /// </summary>
 public class AiAssistantService : IAiAssistantService
 {
     private readonly HttpClient _httpClient = new();
     private readonly string _apiKey;
     private readonly string _model;
-    private readonly string _endpoint;
-    private const string ApiVersion = "2023-06-01";
+    private readonly string _endpointBase;
 
     public AiAssistantService()
     {
@@ -29,12 +29,11 @@ public class AiAssistantService : IAiAssistantService
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
             .Build();
 
-        var section = config.GetSection("Anthropic");
+        var section = config.GetSection("Gemini");
         _apiKey = section["ApiKey"] ?? "";
-        // Default to the latest Claude model; can be pointed at a cheaper one (e.g. claude-haiku-4-5)
-        // via appsettings without touching code.
-        _model = section["Model"] ?? "claude-opus-4-8";
-        _endpoint = section["Endpoint"] ?? "https://api.anthropic.com/v1/messages";
+        // Free-tier, fast model; can be pointed at another Gemini model via appsettings.
+        _model = section["Model"] ?? "gemini-2.0-flash";
+        _endpointBase = section["Endpoint"] ?? "https://generativelanguage.googleapis.com/v1beta/models";
     }
 
     public bool IsConfigured => !string.IsNullOrWhiteSpace(_apiKey);
@@ -46,7 +45,7 @@ public class AiAssistantService : IAiAssistantService
             return new AiAssistantResult
             {
                 Success = false,
-                Error = "AI assistant is not configured. Add an \"Anthropic\" section with an ApiKey to appsettings.json."
+                Error = "AI assistant is not configured. Add a \"Gemini\" section with an ApiKey to appsettings.json."
             };
         }
 
@@ -56,26 +55,25 @@ public class AiAssistantService : IAiAssistantService
             "If the answer is not in the data, say you don't have that information. Be concise and friendly.\n\n" +
             "=== STUDENT DATA ===\n" + studentContext;
 
+        // Gemini generateContent request shape.
         var payload = new
         {
-            model = _model,
-            max_tokens = 1024,
-            system = systemPrompt,
-            messages = new[]
+            system_instruction = new { parts = new[] { new { text = systemPrompt } } },
+            contents = new[]
             {
-                new { role = "user", content = question }
+                new { role = "user", parts = new[] { new { text = question } } }
             }
         };
 
         try
         {
             var json = JsonSerializer.Serialize(payload);
-            using var request = new HttpRequestMessage(HttpMethod.Post, _endpoint)
+            var url = $"{_endpointBase.TrimEnd('/')}/{_model}:generateContent";
+            using var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
                 Content = new StringContent(json, Encoding.UTF8, "application/json")
             };
-            request.Headers.Add("x-api-key", _apiKey);
-            request.Headers.Add("anthropic-version", ApiVersion);
+            request.Headers.Add("x-goog-api-key", _apiKey);
 
             var response = await _httpClient.SendAsync(request);
             var body = await response.Content.ReadAsStringAsync();
@@ -97,20 +95,25 @@ public class AiAssistantService : IAiAssistantService
         }
     }
 
-    /// <summary>Pull the first text block out of the Messages API response
-    /// (shape: { "content": [ { "type": "text", "text": "..." } ] }).</summary>
+    /// <summary>Pull the first text part out of the Gemini response
+    /// (shape: { "candidates": [ { "content": { "parts": [ { "text": "..." } ] } } ] }).</summary>
     private static string ExtractText(string body)
     {
         using var doc = JsonDocument.Parse(body);
-        if (doc.RootElement.TryGetProperty("content", out var content) &&
-            content.ValueKind == JsonValueKind.Array)
+        var root = doc.RootElement;
+        if (root.TryGetProperty("candidates", out var candidates) &&
+            candidates.ValueKind == JsonValueKind.Array &&
+            candidates.GetArrayLength() > 0)
         {
-            foreach (var block in content.EnumerateArray())
+            var first = candidates[0];
+            if (first.TryGetProperty("content", out var content) &&
+                content.TryGetProperty("parts", out var parts) &&
+                parts.ValueKind == JsonValueKind.Array)
             {
-                if (block.TryGetProperty("type", out var type) && type.GetString() == "text" &&
-                    block.TryGetProperty("text", out var text))
+                foreach (var part in parts.EnumerateArray())
                 {
-                    return text.GetString() ?? "";
+                    if (part.TryGetProperty("text", out var text))
+                        return text.GetString() ?? "";
                 }
             }
         }

@@ -2,7 +2,7 @@ namespace Services;
 
 public interface IAiAssistantService
 {
-    /// <summary>True when an Anthropic API key is configured in appsettings.
+    /// <summary>True when a Gemini API key is configured in appsettings.
     /// The UI uses this to show a friendly "not configured" message instead of failing.</summary>
     bool IsConfigured { get; }
 
