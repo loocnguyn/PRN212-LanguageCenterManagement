@@ -60,6 +60,7 @@ public partial class MainWindow : Window
                 menuStudentSchedule.Visibility = Visibility.Visible;
                 menuStudentAcademics.Visibility = Visibility.Visible;
                 menuStudentFinance.Visibility = Visibility.Visible;
+                menuStudentAssistant.Visibility = Visibility.Visible;
                 break;
         }
     }
@@ -160,6 +161,8 @@ public partial class MainWindow : Window
         => new StudentGradeWindow(_currentUser).Show();
     private void MenuMyInvoices_Click(object sender, RoutedEventArgs e)
         => new StudentInvoiceWindow(_currentUser).Show();
+    private void MenuAiAssistant_Click(object sender, RoutedEventArgs e)
+        => new AiAssistantWindow(_currentUser).Show();
 
     // ALL roles
     private void MenuMyProfile_Click(object sender, RoutedEventArgs e)

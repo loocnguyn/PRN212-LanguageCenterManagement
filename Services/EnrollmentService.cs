@@ -5,11 +5,31 @@ namespace Services;
 
 public class EnrollmentService : IEnrollmentService
 {
-    private readonly IEnrollmentRepository _enrollmentRepo = new EnrollmentRepository();
-    private readonly IClassRepository _classRepo = new ClassRepository();
-    private readonly IStudentRepository _studentRepo = new StudentRepository();
-    private readonly IInvoiceRepository _invoiceRepo = new InvoiceRepository();
-    private readonly ICourseRepository _courseRepo = new CourseRepository();
+    private readonly IEnrollmentRepository _enrollmentRepo;
+    private readonly IClassRepository _classRepo;
+    private readonly IStudentRepository _studentRepo;
+    private readonly IInvoiceRepository _invoiceRepo;
+    private readonly ICourseRepository _courseRepo;
+
+    public EnrollmentService() : this(
+        new EnrollmentRepository(), new ClassRepository(), new StudentRepository(),
+        new InvoiceRepository(), new CourseRepository())
+    { }
+
+    // Injectable overload — lets unit tests supply mocked repositories.
+    public EnrollmentService(
+        IEnrollmentRepository enrollmentRepo,
+        IClassRepository classRepo,
+        IStudentRepository studentRepo,
+        IInvoiceRepository invoiceRepo,
+        ICourseRepository courseRepo)
+    {
+        _enrollmentRepo = enrollmentRepo;
+        _classRepo = classRepo;
+        _studentRepo = studentRepo;
+        _invoiceRepo = invoiceRepo;
+        _courseRepo = courseRepo;
+    }
 
     public List<Enrollment> GetAll() => _enrollmentRepo.GetAll();
     public Enrollment? GetById(int id) => _enrollmentRepo.GetById(id);

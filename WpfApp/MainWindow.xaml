@@ -148,6 +148,10 @@
                 </MenuItem>
             </MenuItem>
 
+            <MenuItem Header="AI Assistant" x:Name="menuStudentAssistant" Visibility="Collapsed" Click="MenuAiAssistant_Click">
+                <MenuItem.Icon><ui:SymbolIcon Symbol="Bot24"/></MenuItem.Icon>
+            </MenuItem>
+
             <!-- ALL roles -->
             <MenuItem Header="System">
                 <MenuItem.Icon><ui:SymbolIcon Symbol="SettingsChat24"/></MenuItem.Icon>
