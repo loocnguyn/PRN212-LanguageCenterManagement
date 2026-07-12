@@ -12,6 +12,5 @@ public class AttendanceRepository : IAttendanceRepository
     public void Delete(int id) => AttendanceDAO.Delete(id);
     public List<Attendance> GetBySessionId(int sessionId) => AttendanceDAO.GetBySessionId(sessionId);
     public void Upsert(Attendance entity) => AttendanceDAO.Upsert(entity);
+    public List<Attendance> GetByStudentId(int studentId) => AttendanceDAO.GetByStudentId(studentId);
 }
-
-

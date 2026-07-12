@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,9 +19,8 @@ public partial class AttendanceWindow : Window
     private readonly IAttendanceService _attendanceService = new AttendanceService();
 
     private Teacher? _teacher;
-    private List<Class> _teacherClasses = new();
+    private List<Class> _teacherClassesInSemester = new();
     private List<Session> _classSessions = new();
-    private Semester? _activeSemester;
 
     public AttendanceWindow(User currentUser)
     {
@@ -29,6 +29,7 @@ public partial class AttendanceWindow : Window
         Loaded += (_, _) => LoadTeacherData();
     }
 
+    /// <summary>Step 1: load the teacher and populate the Semester dropdown.</summary>
     private void LoadTeacherData()
     {
         try
@@ -40,28 +41,23 @@ public partial class AttendanceWindow : Window
                 return;
             }
 
-            _activeSemester = _semesterService.GetActive();
-            if (_activeSemester == null)
+            tbTeacherName.Text = $"Teacher: {_teacher.FullName}";
+
+            var semesters = _semesterService.GetAll()
+                .OrderByDescending(s => s.StartDate)
+                .ToList();
+
+            cboSemester.ItemsSource = semesters;
+
+            if (!semesters.Any())
             {
-                tbTeacherName.Text = $"Teacher: {_teacher.FullName} — No active semester";
+                tbSummary.Text = "No semesters found.";
                 return;
             }
 
-            tbTeacherName.Text = $"Teacher: {_teacher.FullName}";
-            tbSemesterInfo.Text = $"Semester: {_activeSemester.Name}";
-
-            _teacherClasses = _classService.GetBySemesterId(_activeSemester.SemesterId)
-                .Where(c => c.TeacherId == _teacher.TeacherId)
-                .ToList();
-
-            cboClass.ItemsSource = _teacherClasses;
-            cboSession.ItemsSource = null;
-            dgAttendance.ItemsSource = null;
-
-            if (!_teacherClasses.Any())
-                tbSummary.Text = "No classes found for this teacher in the active semester.";
-            else
-                tbSummary.Text = $"{_teacherClasses.Count} class(es) loaded. Select a class.";
+            // Default to the active semester so the common case needs no extra clicks.
+            var active = semesters.FirstOrDefault(s => s.IsActive) ?? semesters.First();
+            cboSemester.SelectedItem = active;
         }
         catch (Exception ex)
         {
@@ -69,8 +65,70 @@ public partial class AttendanceWindow : Window
         }
     }
 
+    /// <summary>Step 2: Semester selected -> populate the Course dropdown with this
+    /// teacher's courses in that semester.</summary>
+    private void CboSemester_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        cboCourse.ItemsSource = null;
+        cboClass.ItemsSource = null;
+        cboSession.ItemsSource = null;
+        dgAttendance.ItemsSource = null;
+        _teacherClassesInSemester = new List<Class>();
+
+        if (cboSemester.SelectedItem is not Semester semester || _teacher == null) return;
+
+        try
+        {
+            _teacherClassesInSemester = _classService.GetClassesWithDetails(semester.SemesterId)
+                .Where(c => c.TeacherId == _teacher.TeacherId)
+                .ToList();
+
+            var courses = _teacherClassesInSemester
+                .Where(c => c.Course != null)
+                .Select(c => c.Course)
+                .GroupBy(c => c.CourseId)
+                .Select(g => g.First())
+                .OrderBy(c => c.Name)
+                .ToList();
+
+            cboCourse.ItemsSource = courses;
+
+            tbSummary.Text = courses.Any()
+                ? $"{semester.Name}: {courses.Count} course(s) taught. Select a course."
+                : $"No classes found for this teacher in {semester.Name}.";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error loading courses: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    /// <summary>Step 3: Course selected -> populate the Class dropdown, filtered to
+    /// classes of that course, in the chosen semester, taught by this teacher.</summary>
+    private void CboCourse_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        cboClass.ItemsSource = null;
+        cboSession.ItemsSource = null;
+        dgAttendance.ItemsSource = null;
+
+        if (cboCourse.SelectedItem is not Course course) return;
+
+        var classesForCourse = _teacherClassesInSemester
+            .Where(c => c.CourseId == course.CourseId)
+            .ToList();
+
+        cboClass.ItemsSource = classesForCourse;
+        tbSummary.Text = classesForCourse.Any()
+            ? $"{course.Name}: {classesForCourse.Count} class(es). Select a class."
+            : $"No classes found for course '{course.Name}'.";
+    }
+
+    /// <summary>Step 4: Class selected -> populate the Session (date) dropdown.</summary>
     private void CboClass_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        cboSession.ItemsSource = null;
+        dgAttendance.ItemsSource = null;
+
         if (cboClass.SelectedItem is not Class cls) return;
 
         try
@@ -87,7 +145,6 @@ public partial class AttendanceWindow : Window
 
             cboSession.ItemsSource = displaySessions;
             cboSession.SelectedIndex = -1;
-            dgAttendance.ItemsSource = null;
             tbSummary.Text = $"Class '{cls.Name}': {_classSessions.Count} session(s). Select a session date.";
         }
         catch (Exception ex)
@@ -96,6 +153,7 @@ public partial class AttendanceWindow : Window
         }
     }
 
+    /// <summary>Step 5: Session selected -> load the attendance grid for that session.</summary>
     private void CboSession_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (cboSession.SelectedItem is not SessionDisplayItem item) return;

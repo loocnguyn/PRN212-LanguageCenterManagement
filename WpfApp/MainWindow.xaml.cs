@@ -155,7 +155,7 @@ public partial class MainWindow : Window
     private void MenuMyClasses_Click(object sender, RoutedEventArgs e)
         => new MyClassesWindow(_currentUser).Show();
     private void MenuAttendanceHistory_Click(object sender, RoutedEventArgs e)
-        => new AttendanceHistoryWindow().Show();
+        => new AttendanceHistoryWindow(_currentUser).Show();
     private void MenuMyGrades_Click(object sender, RoutedEventArgs e)
         => new StudentGradeWindow(_currentUser).Show();
     private void MenuMyInvoices_Click(object sender, RoutedEventArgs e)

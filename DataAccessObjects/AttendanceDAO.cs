@@ -68,4 +68,14 @@ public class AttendanceDAO
         }
         context.SaveChanges();
     }
+
+    public static List<Attendance> GetByStudentId(int studentId)
+    {
+        using var context = new LanguageCenterContext();
+        return context.Attendances
+            .Where(a => a.StudentId == studentId)
+            .Include(a => a.Session).ThenInclude(s => s.Class).ThenInclude(c => c.Course)
+            .Include(a => a.Session).ThenInclude(s => s.Class).ThenInclude(c => c.Semester)
+            .ToList();
+    }
 }

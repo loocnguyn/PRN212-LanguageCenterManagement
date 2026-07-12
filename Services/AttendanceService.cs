@@ -14,6 +14,5 @@ public class AttendanceService : IAttendanceService
     public void Delete(int id) => _repo.Delete(id);
     public List<Attendance> GetBySessionId(int sessionId) => _repo.GetBySessionId(sessionId);
     public void Upsert(Attendance entity) => _repo.Upsert(entity);
+    public List<Attendance> GetByStudentId(int studentId) => _repo.GetByStudentId(studentId);
 }
-
-

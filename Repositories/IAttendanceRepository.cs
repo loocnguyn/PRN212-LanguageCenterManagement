@@ -11,6 +11,5 @@ public interface IAttendanceRepository
     void Delete(int id);
     List<Attendance> GetBySessionId(int sessionId);
     void Upsert(Attendance entity);
+    List<Attendance> GetByStudentId(int studentId);
 }
-
-

@@ -6,17 +6,25 @@
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-            <TextBlock x:Name="tbTeacherInfo" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Margin="0,0,16,0"/>
-            <TextBlock Text="Class:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-            <ComboBox x:Name="cboClass" Width="220" Height="28" DisplayMemberPath="Name" 
+        <TextBlock Grid.Row="0" x:Name="tbTeacherInfo" FontSize="14" FontWeight="Bold" Margin="0,0,0,6"/>
+        <!-- Filter Panel: Semester -> Course -> Class -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="Semester:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+            <ComboBox x:Name="cboSemester" Width="170" Height="28" DisplayMemberPath="Name"
+                      SelectionChanged="CboSemester_SelectionChanged" VerticalContentAlignment="Center"/>
+            <TextBlock Text="Course:" VerticalAlignment="Center" Margin="16,0,6,0"/>
+            <ComboBox x:Name="cboCourse" Width="200" Height="28" DisplayMemberPath="Name"
+                      SelectionChanged="CboCourse_SelectionChanged" VerticalContentAlignment="Center"/>
+            <TextBlock Text="Class:" VerticalAlignment="Center" Margin="16,0,6,0"/>
+            <ComboBox x:Name="cboClass" Width="200" Height="28" DisplayMemberPath="Name" 
                       SelectionChanged="CboClass_SelectionChanged" VerticalContentAlignment="Center"/>
             <Button Content="Reset" Width="80" Height="28" Margin="6,0,0,0" Click="BtnReset_Click"/>
         </StackPanel>
-        <DataGrid Grid.Row="1" x:Name="dgGrades"
+        <DataGrid Grid.Row="2" x:Name="dgGrades"
                   AutoGenerateColumns="False" IsReadOnly="False" SelectionMode="Single">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Student ID"   Binding="{Binding StudentId}"   Width="80"  IsReadOnly="True"/>
@@ -27,7 +35,7 @@
                 <DataGridTextColumn Header="Note"         Binding="{Binding Note}"         Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
             <Button Content="Save Grades" Width="130" Height="32" Click="BtnSave_Click"/>
         </StackPanel>
     </Grid>

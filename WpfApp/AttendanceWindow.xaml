@@ -12,12 +12,17 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Teacher Info + Filter Panel -->
+        <!-- Teacher Info + Filter Panel: Semester -> Course -> Class -> Session -->
         <Border Grid.Row="0" Background="#F0F4F8" CornerRadius="6" Padding="12" Margin="0,0,0,8">
             <StackPanel>
+                <TextBlock x:Name="tbTeacherName" Margin="0,0,0,6" FontSize="14" FontWeight="Bold"/>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                    <TextBlock x:Name="tbTeacherName" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"/>
-                    <TextBlock x:Name="tbSemesterInfo" VerticalAlignment="Center" Margin="20,0,0,0" FontSize="13"/>
+                    <TextBlock Text="Semester:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <ComboBox x:Name="cboSemester" Width="180" Height="30" DisplayMemberPath="Name"
+                              SelectionChanged="CboSemester_SelectionChanged" VerticalContentAlignment="Center"/>
+                    <TextBlock Text="Course:" VerticalAlignment="Center" Margin="16,0,6,0"/>
+                    <ComboBox x:Name="cboCourse" Width="220" Height="30" DisplayMemberPath="Name"
+                              SelectionChanged="CboCourse_SelectionChanged" VerticalContentAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Class:" VerticalAlignment="Center" Margin="0,0,6,0"/>
