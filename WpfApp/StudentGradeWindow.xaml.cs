@@ -1,7 +1,10 @@
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using BusinessObjects;
+using Microsoft.Win32;
 using Services;
 
 namespace WpfApp;
@@ -213,6 +216,95 @@ public partial class StudentGradeWindow : Window
     private void BtnRefresh_Click(object sender, RoutedEventArgs e)
     {
         LoadGrades();
+    }
+
+    /// <summary>Exports the student's grade transcript (respecting the current Semester/Course
+    /// filter) to a .csv file: one row per grade component, plus each class's weighted average.</summary>
+    private void BtnExportCsv_Click(object sender, RoutedEventArgs e)
+    {
+        if (!_allGrades.Any())
+        {
+            MessageBox.Show("No grades to export.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var gradesToExport = _allGrades.AsEnumerable();
+
+        if (cbSemester.SelectedItem is SemesterFilterItem selectedSemester)
+            gradesToExport = gradesToExport.Where(g => g.Enrollment.Class.SemesterId == selectedSemester.SemesterId);
+
+        if (cbCourse.SelectedItem is CourseFilterItem selectedCourse && selectedCourse.CourseId != 0)
+            gradesToExport = gradesToExport.Where(g => g.Enrollment.Class.CourseId == selectedCourse.CourseId);
+
+        var gradeList = gradesToExport.ToList();
+        if (!gradeList.Any())
+        {
+            MessageBox.Show("No grades match the current filter to export.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var studentName = tbStudentInfo.Text.Replace("Student: ", "").Trim();
+        var safeName = string.Join("_", studentName.Split(Path.GetInvalidFileNameChars()));
+
+        var dialog = new SaveFileDialog
+        {
+            Filter = "CSV files (*.csv)|*.csv",
+            FileName = $"BangDiem_{safeName}_{DateTime.Now:yyyyMMdd}.csv"
+        };
+
+        if (dialog.ShowDialog() != true) return;
+
+        try
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("Semester,Course,Class,GradeType,Weight (%),Score,MaxScore,GradedAt,ClassWeightedAverage");
+
+            var classGroups = gradeList
+                .GroupBy(g => g.Enrollment.Class)
+                .OrderByDescending(g => g.Key.Semester.StartDate)
+                .ThenBy(g => g.Key.Name);
+
+            foreach (var classGroup in classGroups)
+            {
+                var classGrades = classGroup.OrderBy(g => g.GradeType.Name).ToList();
+                var weightedAverage = ComputeWeightedAverageDisplay(classGrades);
+                var cls = classGroup.Key;
+
+                foreach (var grade in classGrades)
+                {
+                    sb.AppendLine(string.Join(",", new[]
+                    {
+                        CsvEscape(cls.Semester?.Name ?? "N/A"),
+                        CsvEscape(cls.Course?.Name ?? "N/A"),
+                        CsvEscape(cls.Name),
+                        CsvEscape(grade.GradeType.Name),
+                        CsvEscape(grade.GradeType.WeightPercent.ToString()),
+                        CsvEscape(grade.Score.ToString()),
+                        CsvEscape(grade.MaxScore.ToString()),
+                        CsvEscape(grade.GradedAt.ToString("dd/MM/yyyy")),
+                        CsvEscape(weightedAverage)
+                    }));
+                }
+            }
+
+            // UTF-8 with BOM so Excel displays Vietnamese diacritics correctly.
+            File.WriteAllText(dialog.FileName, sb.ToString(), new UTF8Encoding(true));
+
+            MessageBox.Show($"Exported {gradeList.Count} grade record(s) to:\n{dialog.FileName}", "Export Successful",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error exporting CSV: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private static string CsvEscape(string value)
+    {
+        if (string.IsNullOrEmpty(value)) return "";
+        return value.Contains(',') || value.Contains('"') || value.Contains('\n')
+            ? "\"" + value.Replace("\"", "\"\"") + "\""
+            : value;
     }
 
     // Shared weighted-average calculation, reused by both the class-list summary

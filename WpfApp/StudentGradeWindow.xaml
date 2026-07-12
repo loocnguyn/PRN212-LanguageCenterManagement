@@ -1,7 +1,7 @@
 ﻿<Window x:Class="WpfApp.StudentGradeWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="My Grades" Height="600" Width="900"
+        Title="My Grades" Height="600" Width="1050"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -22,6 +22,7 @@
             <TextBlock Text="Course:" VerticalAlignment="Center" Margin="16,0,6,0"/>
             <ComboBox x:Name="cbCourse" Width="200" Height="28" SelectionChanged="CbCourse_SelectionChanged"/>
             <Button Content="Refresh" Width="80" Height="28" Margin="12,0,0,0" Click="BtnRefresh_Click"/>
+            <Button Content="Export Transcript (CSV)" Width="150" Height="28" Margin="8,0,0,0" Click="BtnExportCsv_Click"/>
             <TextBlock x:Name="tbSummary" VerticalAlignment="Center" Margin="16,0,0,0" FontSize="12" Foreground="#555"/>
         </StackPanel>
 
