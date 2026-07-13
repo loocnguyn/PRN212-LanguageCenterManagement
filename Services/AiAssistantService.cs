@@ -31,8 +31,11 @@ public class AiAssistantService : IAiAssistantService
 
         var section = config.GetSection("Gemini");
         _apiKey = section["ApiKey"] ?? "";
-        // Free-tier, fast model; can be pointed at another Gemini model via appsettings.
-        _model = section["Model"] ?? "gemini-2.0-flash";
+        // Older model names (gemini-2.0-flash, gemini-2.5-flash) return 0 free-tier quota
+        // or a 404 "no longer available to new users" on newly created API keys.
+        // gemini-3.1-flash-lite is confirmed (via the Rate Limits dashboard) to have a
+        // nonzero free quota, so default to that.
+        _model = section["Model"] ?? "gemini-3.1-flash-lite";
         _endpointBase = section["Endpoint"] ?? "https://generativelanguage.googleapis.com/v1beta/models";
     }
 
