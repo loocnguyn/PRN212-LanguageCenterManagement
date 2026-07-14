@@ -1,0 +1,20 @@
+<Window x:Class="WpfApp.GradeTypeManagementWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Grading Structure" Height="500" Width="700"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}">
+    <!--
+        TODO (Nhân): Design and implement the per-course grading structure editor.
+        Backend groundwork is already in place — see Services/IGradeTypeService.cs:
+          - GetByCourseId(courseId)
+          - GetTotalWeightPercent(courseId, excludeGradeTypeId?)
+        Expected flow: pick a Course -> list/add/edit/delete its GradeType rows
+        (name, weight %) -> validate total weight == 100% before saving.
+    -->
+    <Grid Margin="14">
+        <TextBlock Text="Grading Structure management — coming soon (TODO: Nhân)"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
+    </Grid>
+</Window>

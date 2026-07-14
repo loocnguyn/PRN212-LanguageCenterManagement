@@ -60,6 +60,7 @@ public partial class MainWindow : Window
                 menuStudentSchedule.Visibility = Visibility.Visible;
                 menuStudentAcademics.Visibility = Visibility.Visible;
                 menuStudentFinance.Visibility = Visibility.Visible;
+                menuStudentAssistant.Visibility = Visibility.Visible;
                 break;
         }
     }
@@ -120,6 +121,8 @@ public partial class MainWindow : Window
         => new CourseManagementWindow().Show();
     private void MenuClassrooms_Click(object sender, RoutedEventArgs e)
         => new ClassroomManagementWindow().Show();
+    private void MenuGradeTypeManagement_Click(object sender, RoutedEventArgs e)
+        => new GradeTypeManagementWindow().Show();
     private void MenuClasses_Click(object sender, RoutedEventArgs e)
         => new ClassManagementWindow().Show();
     private void MenuRevenueReport_Click(object sender, RoutedEventArgs e)
@@ -160,6 +163,8 @@ public partial class MainWindow : Window
         => new StudentGradeWindow(_currentUser).Show();
     private void MenuMyInvoices_Click(object sender, RoutedEventArgs e)
         => new StudentInvoiceWindow(_currentUser).Show();
+    private void MenuAiAssistant_Click(object sender, RoutedEventArgs e)
+        => new AiAssistantWindow(_currentUser).Show();
 
     // ALL roles
     private void MenuMyProfile_Click(object sender, RoutedEventArgs e)

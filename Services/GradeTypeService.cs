@@ -6,7 +6,12 @@ namespace Services;
 
 public class GradeTypeService : IGradeTypeService
 {
-    private readonly IGradeTypeRepository _repo = new GradeTypeRepository();
+    private readonly IGradeTypeRepository _repo;
+
+    public GradeTypeService() : this(new GradeTypeRepository()) { }
+
+    // Injectable overload — lets unit tests supply a mocked repository.
+    public GradeTypeService(IGradeTypeRepository repo) => _repo = repo;
 
     public List<GradeType> GetAll() => _repo.GetAll();
     public GradeType? GetById(int id) => _repo.GetById(id);

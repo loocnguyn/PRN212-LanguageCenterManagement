@@ -48,6 +48,9 @@
                 <MenuItem Header="Classroom Management" Click="MenuClassrooms_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="Building24"/></MenuItem.Icon>
                 </MenuItem>
+                <MenuItem Header="Grading Structure" Click="MenuGradeTypeManagement_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="DocumentBulletList24"/></MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
 
             <MenuItem Header="Classes" x:Name="menuClasses" Visibility="Collapsed">
@@ -146,6 +149,10 @@
                 <MenuItem Header="My Invoices" Click="MenuMyInvoices_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="Receipt24"/></MenuItem.Icon>
                 </MenuItem>
+            </MenuItem>
+
+            <MenuItem Header="AI Assistant" x:Name="menuStudentAssistant" Visibility="Collapsed" Click="MenuAiAssistant_Click">
+                <MenuItem.Icon><ui:SymbolIcon Symbol="Bot24"/></MenuItem.Icon>
             </MenuItem>
 
             <!-- ALL roles -->
