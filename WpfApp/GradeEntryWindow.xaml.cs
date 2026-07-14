@@ -21,16 +21,17 @@ public partial class GradeEntryWindow : Window
     private List<GradeType> _gradeTypes = new();
     private List<Enrollment> _enrollments = new();
     private Teacher? _teacher;
-    private List<Class> _teacherClasses = new();
+    private List<Class> _teacherClassesInSemester = new();
 
     public GradeEntryWindow(User currentUser)
     {
         InitializeComponent();
         _currentUser = currentUser;
-        Loaded += (_, _) => LoadTeacherClasses();
+        Loaded += (_, _) => LoadTeacherData();
     }
 
-    private void LoadTeacherClasses()
+    /// <summary>Step 1: load the teacher and populate the Semester dropdown.</summary>
+    private void LoadTeacherData()
     {
         try
         {
@@ -43,30 +44,82 @@ public partial class GradeEntryWindow : Window
 
             tbTeacherInfo.Text = $"Teacher: {_teacher.FullName}";
 
-            var semester = _semesterService.GetActive();
-            if (semester == null)
+            var semesters = _semesterService.GetAll()
+                .OrderByDescending(s => s.StartDate)
+                .ToList();
+
+            cboSemester.ItemsSource = semesters;
+
+            if (!semesters.Any())
             {
-                tbTeacherInfo.Text += " — No active semester";
+                tbTeacherInfo.Text += " — No semesters found";
                 return;
             }
 
-            _teacherClasses = _classService.GetBySemesterId(semester.SemesterId)
-                .Where(c => c.TeacherId == _teacher.TeacherId)
-                .ToList();
-
-            cboClass.ItemsSource = _teacherClasses;
-            cboClass.SelectedIndex = -1;
-
-            if (!_teacherClasses.Any())
-                tbTeacherInfo.Text += $" — No classes in {semester.Name}";
+            var active = semesters.FirstOrDefault(s => s.IsActive) ?? semesters.First();
+            cboSemester.SelectedItem = active;
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Error loading teacher classes: {ex.Message}", "Error",
+            MessageBox.Show($"Error loading teacher data: {ex.Message}", "Error",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
+    /// <summary>Step 2: Semester selected -> populate the Course dropdown with this
+    /// teacher's courses in that semester.</summary>
+    private void CboSemester_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        cboCourse.ItemsSource = null;
+        cboClass.ItemsSource = null;
+        dgGrades.ItemsSource = null;
+        _teacherClassesInSemester = new List<Class>();
+
+        if (cboSemester.SelectedItem is not Semester semester || _teacher == null) return;
+
+        try
+        {
+            _teacherClassesInSemester = _classService.GetClassesWithDetails(semester.SemesterId)
+                .Where(c => c.TeacherId == _teacher.TeacherId)
+                .ToList();
+
+            var courses = _teacherClassesInSemester
+                .Where(c => c.Course != null)
+                .Select(c => c.Course)
+                .GroupBy(c => c.CourseId)
+                .Select(g => g.First())
+                .OrderBy(c => c.Name)
+                .ToList();
+
+            cboCourse.ItemsSource = courses;
+
+            if (!courses.Any())
+                tbTeacherInfo.Text = $"Teacher: {_teacher.FullName} — No classes in {semester.Name}";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error loading courses: {ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    /// <summary>Step 3: Course selected -> populate the Class dropdown, filtered to
+    /// classes of that course, in the chosen semester, taught by this teacher.</summary>
+    private void CboCourse_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        cboClass.ItemsSource = null;
+        dgGrades.ItemsSource = null;
+
+        if (cboCourse.SelectedItem is not Course course) return;
+
+        var classesForCourse = _teacherClassesInSemester
+            .Where(c => c.CourseId == course.CourseId)
+            .ToList();
+
+        cboClass.ItemsSource = classesForCourse;
+    }
+
+    /// <summary>Step 4: Class selected -> load the grade entry grid.</summary>
     private void CboClass_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (cboClass.SelectedItem is not Class cls) return;

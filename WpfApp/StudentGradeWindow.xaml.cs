@@ -1,16 +1,30 @@
-﻿using System.Linq;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using BusinessObjects;
+using Microsoft.Win32;
 using Services;
 
 namespace WpfApp;
 
-public class GradeDisplayItem
+// NOTE: SemesterFilterItem and CourseFilterItem are already defined in
+// AttendanceHistoryWindow.xaml.cs (same "WpfApp" namespace) — reused here,
+// do NOT redeclare them in this file.
+
+public class ClassGradeSummaryItem
 {
-    public string SemesterName { get; set; } = "";
+    public int ClassId { get; set; }
+    public int CourseId { get; set; }
     public string CourseName { get; set; } = "";
     public string ClassName { get; set; } = "";
+    public int GradeCount { get; set; }
+    public string WeightedAverageDisplay { get; set; } = "";
+}
+
+public class GradeDetailDisplayItem
+{
     public string GradeTypeName { get; set; } = "";
     public string ScoreDisplay { get; set; } = "";
     public string WeightPercent { get; set; } = "";
@@ -24,6 +38,7 @@ public partial class StudentGradeWindow : Window
     private readonly IGradeService _gradeService = new GradeService();
 
     private int _studentId;
+    private List<Grade> _allGrades = new();
 
     public StudentGradeWindow(User currentUser)
     {
@@ -41,103 +56,56 @@ public partial class StudentGradeWindow : Window
             {
                 tbStudentInfo.Text = "No student profile linked to this account.";
                 tbSummary.Text = "";
-                dgGrades.ItemsSource = null;
+                cbSemester.Visibility = Visibility.Collapsed;
+                cbCourse.Visibility = Visibility.Collapsed;
+                dgClasses.ItemsSource = null;
                 return;
             }
             _studentId = student.StudentId;
             tbStudentInfo.Text = $"Student: {student.FullName}";
 
-            var grades = _gradeService.GetByStudentId(_studentId);
+            _allGrades = _gradeService.GetByStudentId(_studentId);
 
-            if (!grades.Any())
+            if (!_allGrades.Any())
             {
                 tbSummary.Text = "You have no grades yet.";
-                dgGrades.ItemsSource = null;
+                cbSemester.Visibility = Visibility.Collapsed;
+                cbCourse.Visibility = Visibility.Collapsed;
+                dgClasses.ItemsSource = null;
                 return;
             }
 
-            var displayItems = new List<GradeDisplayItem>();
+            cbSemester.Visibility = Visibility.Visible;
+            cbCourse.Visibility = Visibility.Visible;
 
-            // Group by Semester (descending by StartDate), then Class, then GradeType
-            var groupedBySemester = grades
-                .GroupBy(g => g.Enrollment.Class.Semester)
-                .OrderByDescending(sg => sg.Key.StartDate)
+            var semesterItems = _allGrades
+                .Select(g => g.Enrollment.Class.Semester)
+                .GroupBy(s => s.SemesterId)
+                .Select(g => g.First())
+                .OrderByDescending(s => s.StartDate)
+                .Select(s => new SemesterFilterItem { SemesterId = s.SemesterId, DisplayName = s.Name })
                 .ToList();
 
-            foreach (var semesterGroup in groupedBySemester)
+            cbSemester.ItemsSource = semesterItems;
+            cbSemester.DisplayMemberPath = "DisplayName";
+            cbSemester.SelectedValuePath = "SemesterId";
+
+            if (semesterItems.Count > 0)
             {
-                var semester = semesterGroup.Key;
+                var today = DateOnly.FromDateTime(DateTime.Now);
+                var currentSemester = _allGrades
+                    .Select(g => g.Enrollment.Class.Semester)
+                    .FirstOrDefault(s => s.StartDate <= today && s.EndDate >= today);
 
-                var groupedByClass = semesterGroup
-                    .GroupBy(g => g.Enrollment.Class)
-                    .OrderBy(cg => cg.Key.Name)
-                    .ToList();
-
-                foreach (var classGroup in groupedByClass)
+                cbSemester.SelectedIndex = 0;
+                if (currentSemester != null)
                 {
-                    var cls = classGroup.Key;
-                    var course = cls.Course;
-
-                    // Sort grades by GradeType name within each class
-                    var sortedGrades = classGroup.OrderBy(g => g.GradeType.Name).ToList();
-
-                    // Calculate weighted score for this class
-                    decimal totalWeightedScore = 0;
-                    decimal totalWeight = 0;
-
-                    foreach (var grade in sortedGrades)
-                    {
-                        // Guard against MaxScore <= 0 to prevent division by zero or NaN/Infinity
-                        if (grade.MaxScore > 0)
-                        {
-                            var normalizedScore = (grade.Score / grade.MaxScore) * 10; // Normalize to 10
-                            var weight = grade.GradeType.WeightPercent;
-                            totalWeightedScore += normalizedScore * weight;
-                            totalWeight += weight;
-                        }
-
-                        var displayItem = new GradeDisplayItem
-                        {
-                            SemesterName = semester.Name,
-                            CourseName = course?.Name ?? "N/A",
-                            ClassName = cls.Name,
-                            GradeTypeName = grade.GradeType.Name,
-                            ScoreDisplay = $"{grade.Score}/{grade.MaxScore}",
-                            WeightPercent = $"{grade.GradeType.WeightPercent}%",
-                            GradedAtDisplay = grade.GradedAt.ToString("dd/MM/yyyy")
-                        };
-                        displayItems.Add(displayItem);
-                    }
-
-                    // Add summary row for this class
-                    string weightedScoreText;
-                    if (totalWeight < 100)
-                    {
-                        var weightedScore = Math.Round(totalWeightedScore / totalWeight, 2);
-                        weightedScoreText = $"{weightedScore} (chưa đủ đầu điểm)";
-                    }
-                    else
-                    {
-                        var weightedScore = Math.Round(totalWeightedScore / totalWeight, 2);
-                        weightedScoreText = weightedScore.ToString("F2");
-                    }
-
-                    var summaryItem = new GradeDisplayItem
-                    {
-                        SemesterName = "",
-                        CourseName = "",
-                        ClassName = $"[CLASS TOTAL: {cls.Name}]",
-                        GradeTypeName = "",
-                        ScoreDisplay = weightedScoreText,
-                        WeightPercent = $"{totalWeight}%",
-                        GradedAtDisplay = ""
-                    };
-                    displayItems.Add(summaryItem);
+                    var match = semesterItems.FirstOrDefault(x => x.SemesterId == currentSemester.SemesterId);
+                    if (match != null) cbSemester.SelectedItem = match;
                 }
             }
 
-            dgGrades.ItemsSource = displayItems;
-            tbSummary.Text = $"Showing {grades.Count} grade record(s)";
+            // CbSemester_SelectionChanged fires from the assignment above and handles the rest.
         }
         catch (Exception ex)
         {
@@ -145,9 +113,224 @@ public partial class StudentGradeWindow : Window
         }
     }
 
+    /// <summary>Step 1: Semester selected -> populate the Course dropdown ("All Courses" + this
+    /// semester's courses) then refresh the class list.</summary>
+    private void CbSemester_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (cbSemester.SelectedItem is not SemesterFilterItem selected)
+        {
+            cbCourse.ItemsSource = null;
+            dgClasses.ItemsSource = null;
+            return;
+        }
+
+        var courseItems = new List<CourseFilterItem> { new() { CourseId = 0, DisplayName = "All Courses" } };
+        courseItems.AddRange(_allGrades
+            .Where(g => g.Enrollment.Class.SemesterId == selected.SemesterId && g.Enrollment.Class.Course != null)
+            .Select(g => g.Enrollment.Class.Course)
+            .GroupBy(c => c.CourseId)
+            .Select(g => g.First())
+            .OrderBy(c => c.Name)
+            .Select(c => new CourseFilterItem { CourseId = c.CourseId, DisplayName = c.Name }));
+
+        cbCourse.ItemsSource = courseItems;
+        cbCourse.DisplayMemberPath = "DisplayName";
+        cbCourse.SelectedValuePath = "CourseId";
+        cbCourse.SelectedIndex = 0; // "All Courses" — CbCourse_SelectionChanged fires and refreshes the grid.
+    }
+
+    /// <summary>Step 2: Course selected -> refresh the class list, filtered to that course
+    /// (or all courses in the semester when "All Courses" is selected).</summary>
+    private void CbCourse_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        RefreshClassList();
+    }
+
+    private void RefreshClassList()
+    {
+        try
+        {
+            if (cbSemester.SelectedItem is not SemesterFilterItem selectedSemester)
+            {
+                dgClasses.ItemsSource = null;
+                return;
+            }
+
+            var gradesInSemester = _allGrades
+                .Where(g => g.Enrollment.Class.SemesterId == selectedSemester.SemesterId)
+                .ToList();
+
+            if (cbCourse.SelectedItem is CourseFilterItem selectedCourse && selectedCourse.CourseId != 0)
+            {
+                gradesInSemester = gradesInSemester
+                    .Where(g => g.Enrollment.Class.CourseId == selectedCourse.CourseId)
+                    .ToList();
+            }
+
+            if (!gradesInSemester.Any())
+            {
+                dgClasses.ItemsSource = null;
+                tbSummary.Text = "No grades match this filter.";
+                return;
+            }
+
+            var summaryItems = gradesInSemester
+                .GroupBy(g => g.Enrollment.Class)
+                .OrderBy(g => g.Key.Name)
+                .Select(g => new ClassGradeSummaryItem
+                {
+                    ClassId = g.Key.ClassId,
+                    CourseId = g.Key.CourseId,
+                    CourseName = g.Key.Course?.Name ?? "N/A",
+                    ClassName = g.Key.Name,
+                    GradeCount = g.Count(),
+                    WeightedAverageDisplay = ComputeWeightedAverageDisplay(g.ToList())
+                })
+                .ToList();
+
+            dgClasses.ItemsSource = summaryItems;
+            tbSummary.Text = $"Showing {summaryItems.Count} class(es)";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error refreshing class list: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void DgClasses_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (dgClasses.SelectedItem is not ClassGradeSummaryItem selected) return;
+
+        var gradesForClass = _allGrades
+            .Where(g => g.Enrollment.Class.ClassId == selected.ClassId)
+            .OrderBy(g => g.GradeType.Name)
+            .ToList();
+
+        var detailWindow = new ClassGradeDetailWindow(selected.ClassName, gradesForClass)
+        {
+            Owner = this
+        };
+        detailWindow.ShowDialog();
+    }
+
     private void BtnRefresh_Click(object sender, RoutedEventArgs e)
     {
         LoadGrades();
     }
-}
 
+    /// <summary>Exports the student's grade transcript (respecting the current Semester/Course
+    /// filter) to a .csv file: one row per grade component, plus each class's weighted average.</summary>
+    private void BtnExportCsv_Click(object sender, RoutedEventArgs e)
+    {
+        if (!_allGrades.Any())
+        {
+            MessageBox.Show("No grades to export.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var gradesToExport = _allGrades.AsEnumerable();
+
+        if (cbSemester.SelectedItem is SemesterFilterItem selectedSemester)
+            gradesToExport = gradesToExport.Where(g => g.Enrollment.Class.SemesterId == selectedSemester.SemesterId);
+
+        if (cbCourse.SelectedItem is CourseFilterItem selectedCourse && selectedCourse.CourseId != 0)
+            gradesToExport = gradesToExport.Where(g => g.Enrollment.Class.CourseId == selectedCourse.CourseId);
+
+        var gradeList = gradesToExport.ToList();
+        if (!gradeList.Any())
+        {
+            MessageBox.Show("No grades match the current filter to export.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var studentName = tbStudentInfo.Text.Replace("Student: ", "").Trim();
+        var safeName = string.Join("_", studentName.Split(Path.GetInvalidFileNameChars()));
+
+        var dialog = new SaveFileDialog
+        {
+            Filter = "CSV files (*.csv)|*.csv",
+            FileName = $"BangDiem_{safeName}_{DateTime.Now:yyyyMMdd}.csv"
+        };
+
+        if (dialog.ShowDialog() != true) return;
+
+        try
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("Semester,Course,Class,GradeType,Weight (%),Score,MaxScore,GradedAt,ClassWeightedAverage");
+
+            var classGroups = gradeList
+                .GroupBy(g => g.Enrollment.Class)
+                .OrderByDescending(g => g.Key.Semester.StartDate)
+                .ThenBy(g => g.Key.Name);
+
+            foreach (var classGroup in classGroups)
+            {
+                var classGrades = classGroup.OrderBy(g => g.GradeType.Name).ToList();
+                var weightedAverage = ComputeWeightedAverageDisplay(classGrades);
+                var cls = classGroup.Key;
+
+                foreach (var grade in classGrades)
+                {
+                    sb.AppendLine(string.Join(",", new[]
+                    {
+                        CsvEscape(cls.Semester?.Name ?? "N/A"),
+                        CsvEscape(cls.Course?.Name ?? "N/A"),
+                        CsvEscape(cls.Name),
+                        CsvEscape(grade.GradeType.Name),
+                        CsvEscape(grade.GradeType.WeightPercent.ToString()),
+                        CsvEscape(grade.Score.ToString()),
+                        CsvEscape(grade.MaxScore.ToString()),
+                        CsvEscape(grade.GradedAt.ToString("dd/MM/yyyy")),
+                        CsvEscape(weightedAverage)
+                    }));
+                }
+            }
+
+            // UTF-8 with BOM so Excel displays Vietnamese diacritics correctly.
+            File.WriteAllText(dialog.FileName, sb.ToString(), new UTF8Encoding(true));
+
+            MessageBox.Show($"Exported {gradeList.Count} grade record(s) to:\n{dialog.FileName}", "Export Successful",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error exporting CSV: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private static string CsvEscape(string value)
+    {
+        if (string.IsNullOrEmpty(value)) return "";
+        return value.Contains(',') || value.Contains('"') || value.Contains('\n')
+            ? "\"" + value.Replace("\"", "\"\"") + "\""
+            : value;
+    }
+
+    // Shared weighted-average calculation, reused by both the class-list summary
+    // and ClassGradeDetailWindow so the two never disagree on the numbers.
+    // Guards MaxScore > 0 (bug fixed earlier) AND totalWeight == 0 (no valid grade yet).
+    public static string ComputeWeightedAverageDisplay(List<Grade> grades)
+    {
+        decimal totalWeightedScore = 0;
+        decimal totalWeight = 0;
+
+        foreach (var grade in grades)
+        {
+            if (grade.MaxScore > 0)
+            {
+                var normalizedScore = (grade.Score / grade.MaxScore) * 10;
+                var weight = grade.GradeType.WeightPercent;
+                totalWeightedScore += normalizedScore * weight;
+                totalWeight += weight;
+            }
+        }
+
+        if (totalWeight == 0) return "N/A";
+
+        var weightedScore = Math.Round(totalWeightedScore / totalWeight, 2);
+        return totalWeight < 100
+            ? $"{weightedScore} (chưa đủ đầu điểm)"
+            : weightedScore.ToString("F2");
+    }
+}

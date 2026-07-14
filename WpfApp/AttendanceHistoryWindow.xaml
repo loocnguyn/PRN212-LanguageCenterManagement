@@ -1,27 +1,43 @@
 ﻿<Window x:Class="WpfApp.AttendanceHistoryWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Attendance History" Height="560" Width="820"
+        Title="Attendance History" Height="600" Width="900"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-            <TextBlock Text="Student ID:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-            <TextBox x:Name="txtStudentId" Width="120" Height="28" VerticalContentAlignment="Center" Padding="4,0"/>
-            <Button Content="Load"  Width="80" Height="28" Margin="6,0,0,0" Click="BtnLoad_Click"/>
-            <Button Content="Reset" Width="80" Height="28" Margin="6,0,0,0" Click="BtnReset_Click"/>
+
+        <!-- Header: student info -->
+        <Border Grid.Row="0" Background="#F0F4F8" CornerRadius="6" Padding="12" Margin="0,0,0,8">
+            <TextBlock x:Name="tbStudentInfo" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"/>
+        </Border>
+
+        <!-- Filters: Semester -> Course -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8" VerticalAlignment="Center">
+            <TextBlock Text="Semester:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+            <ComboBox x:Name="cbSemester" Width="200" Height="28" SelectionChanged="CbSemester_SelectionChanged"/>
+            <TextBlock Text="Course:" VerticalAlignment="Center" Margin="16,0,6,0"/>
+            <ComboBox x:Name="cbCourse" Width="200" Height="28" SelectionChanged="CbCourse_SelectionChanged"/>
+            <Button Content="Refresh" Width="80" Height="28" Margin="12,0,0,0" Click="BtnRefresh_Click"/>
+            <TextBlock x:Name="tbSummary" VerticalAlignment="Center" Margin="16,0,0,0" FontSize="12" Foreground="#555"/>
         </StackPanel>
-        <DataGrid Grid.Row="1" x:Name="dgHistory"
-                  AutoGenerateColumns="False" IsReadOnly="True">
+
+        <TextBlock Grid.Row="2" x:Name="tbNoData" FontSize="13" Foreground="#666" Margin="0,0,0,8" Visibility="Collapsed"/>
+
+        <!-- Classes DataGrid: double-click a row to see session-by-session attendance -->
+        <DataGrid Grid.Row="3" x:Name="dgClasses"
+                  AutoGenerateColumns="False" IsReadOnly="True" BorderThickness="1" BorderBrush="LightGray"
+                  MouseDoubleClick="DgClasses_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Session ID" Binding="{Binding SessionId}"    Width="90"/>
-                <DataGridTextColumn Header="Class"      Binding="{Binding ClassName}"    Width="150"/>
-                <DataGridTextColumn Header="Date"       Binding="{Binding SessionDate}"  Width="110"/>
-                <DataGridTextColumn Header="Status"     Binding="{Binding Status}"       Width="100"/>
-                <DataGridTextColumn Header="Note"       Binding="{Binding Note}"         Width="*"/>
+                <DataGridTextColumn Header="Course"          Binding="{Binding CourseDisplay}"  Width="220"/>
+                <DataGridTextColumn Header="Class Name"      Binding="{Binding ClassName}"      Width="160"/>
+                <DataGridTextColumn Header="Teacher"         Binding="{Binding TeacherName}"    Width="160"/>
+                <DataGridTextColumn Header="Total Sessions"  Binding="{Binding TotalSessions}"  Width="130" TextBlock.TextAlignment="Right"/>
+                <DataGridTextColumn Header="Absent Count"    Binding="{Binding AbsentCount}"    Width="130" TextBlock.TextAlignment="Right"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
