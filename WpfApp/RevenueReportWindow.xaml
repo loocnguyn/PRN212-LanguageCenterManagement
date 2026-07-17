@@ -1,7 +1,7 @@
 <Window x:Class="WpfApp.RevenueReportWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Revenue Report" Height="680" Width="1120"
+        Title="Revenue Report" Height="760" Width="1320"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -26,18 +26,61 @@
             </ComboBox>
             <Button Content="Generate" Width="100" Height="30" Margin="10,0,0,0"
                     Click="BtnGenerate_Click"/>
+            <Button Content="Advanced" Width="90" Height="30" Margin="6,0,0,0"
+                    Click="BtnAdvanced_Click"/>
             <Button Content="Clear" Width="80" Height="30" Margin="6,0,0,0"
                     Click="BtnClear_Click"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
-            <TextBlock Text="Quick range:" VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <Button Content="This Month" Width="100" Height="28" Margin="0,0,6,0"
-                    Click="BtnThisMonth_Click"/>
-            <Button Content="Last Month" Width="100" Height="28" Margin="0,0,6,0"
-                    Click="BtnLastMonth_Click"/>
-            <Button Content="This Quarter" Width="110" Height="28"
-                    Click="BtnThisQuarter_Click"/>
+        <StackPanel Grid.Row="1" Margin="0,0,0,8">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Quick range:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <Button Content="This Month" Width="100" Height="28" Margin="0,0,6,0"
+                        Click="BtnThisMonth_Click"/>
+                <Button Content="Last Month" Width="100" Height="28" Margin="0,0,6,0"
+                        Click="BtnLastMonth_Click"/>
+                <Button Content="This Quarter" Width="110" Height="28"
+                        Click="BtnThisQuarter_Click"/>
+            </StackPanel>
+
+            <Border x:Name="advancedPanel" Visibility="Collapsed" BorderBrush="#D0D7DE"
+                    BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,8,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="85"/>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="55"/>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="65"/>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Semester:" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Row="0" Grid.Column="1" x:Name="cmbSemester" Height="28"/>
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Course:" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Row="0" Grid.Column="3" x:Name="cmbCourse" Height="28"/>
+                    <TextBlock Grid.Row="0" Grid.Column="4" Text="Class:" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Row="0" Grid.Column="5" x:Name="cmbClass" Height="28"/>
+                    <TextBlock Grid.Row="0" Grid.Column="6" Text="Teacher:" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Row="0" Grid.Column="7" x:Name="cmbTeacher" Height="28"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Staff:" Margin="0,8,0,0" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Row="1" Grid.Column="1" x:Name="cmbStaff" Height="28" Margin="0,8,0,0"/>
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Student:" Margin="12,8,0,0" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="1" Grid.Column="3" x:Name="txtStudentSearch" Height="28" Margin="0,8,0,0" Padding="4,0" VerticalContentAlignment="Center"/>
+                    <TextBlock Grid.Row="1" Grid.Column="4" Text="Min:" Margin="12,8,0,0" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="1" Grid.Column="5" x:Name="txtAmountMin" Height="28" Margin="0,8,0,0" Padding="4,0" VerticalContentAlignment="Center"/>
+                    <TextBlock Grid.Row="1" Grid.Column="6" Text="Max:" Margin="12,8,0,0" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="1" Grid.Column="7" x:Name="txtAmountMax" Height="28" Margin="0,8,0,0" Padding="4,0" VerticalContentAlignment="Center"/>
+                </Grid>
+            </Border>
         </StackPanel>
 
         <GroupBox Grid.Row="2" Header="Summary" Padding="10" Margin="0,0,0,10">
@@ -76,9 +119,14 @@
                 <DataGridTextColumn Header="Invoice ID" Binding="{Binding InvoiceId}" Width="80"/>
                 <DataGridTextColumn Header="Student ID" Binding="{Binding StudentId}" Width="80"/>
                 <DataGridTextColumn Header="Student" Binding="{Binding StudentName}" Width="145"/>
+                <DataGridTextColumn Header="Semester" Binding="{Binding SemesterName}" Width="120"/>
+                <DataGridTextColumn Header="Course" Binding="{Binding CourseName}" Width="150"/>
+                <DataGridTextColumn Header="Class" Binding="{Binding ClassName}" Width="110"/>
+                <DataGridTextColumn Header="Teacher" Binding="{Binding TeacherName}" Width="140"/>
                 <DataGridTextColumn Header="Amount Paid" Binding="{Binding AmountPaid}" Width="110"/>
                 <DataGridTextColumn Header="Method" Binding="{Binding PaymentMethod}" Width="100"/>
                 <DataGridTextColumn Header="Paid At" Binding="{Binding PaidAt}" Width="140"/>
+                <DataGridTextColumn Header="Invoice Status" Binding="{Binding InvoiceStatus}" Width="100"/>
                 <DataGridTextColumn Header="Staff ID" Binding="{Binding StaffId}" Width="75"/>
                 <DataGridTextColumn Header="Staff" Binding="{Binding StaffName}" Width="135"/>
                 <DataGridTextColumn Header="Note" Binding="{Binding Note}" Width="*"/>

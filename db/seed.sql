@@ -46,6 +46,17 @@ INSERT INTO Courses (code, name, level, language, duration_sessions, tuition_fee
 ('JPN-N5', N'Japanese N5',             'N5', 'Japanese', 50, 4500000);
 GO
 
+INSERT INTO TuitionDiscounts
+    (code, name, discount_type, discount_value, start_date, end_date, is_active, note, payment_deadline_days, condition_type)
+VALUES
+    ('EARLY5', N'Early payment discount 5%', 'PERCENT', 5, NULL, NULL, 1,
+     N'Giảm 5% nếu học viên thanh toán đủ trong 7 ngày từ ngày đăng ký', 7, 'EARLY_PAYMENT'),
+    ('GROUP8', N'Group registration discount 8%', 'PERCENT', 8, NULL, NULL, 1,
+     N'Giảm 8% cho học viên đăng ký theo nhóm', NULL, 'NONE'),
+    ('SCHOLAR500K', N'Scholarship discount 500,000', 'FIXED', 500000, NULL, NULL, 1,
+     N'Giảm cố định 500,000 cho học viên được hỗ trợ', NULL, 'NONE');
+GO
+
 INSERT INTO Classrooms (name, capacity, location) VALUES
 ('Room 101', 25, 'Floor 1'),
 ('Room 201', 20, 'Floor 2'),
@@ -100,11 +111,13 @@ INSERT INTO Enrollments (student_id, class_id, enrolled_date, status) VALUES
 (1, 3, '2026-05-30', 'ACTIVE');
 GO
 
-INSERT INTO Invoices (student_id, enrollment_id, amount, status, due_date) VALUES
-(1, 1, 3500000, 'UNPAID', '2025-06-01'),
-(2, 2, 3500000, 'UNPAID', '2025-06-01'),
-(3, 3, 3500000, 'UNPAID', '2025-06-01'),
-(1, 4, 4500000, 'UNPAID', '2025-07-01');
+INSERT INTO Invoices
+    (student_id, enrollment_id, original_amount, discount_amount, amount, status, due_date, discount_status)
+VALUES
+(1, 1, 3500000, 0, 3500000, 'UNPAID', '2025-06-01', 'NONE'),
+(2, 2, 3500000, 0, 3500000, 'UNPAID', '2025-06-01', 'NONE'),
+(3, 3, 3500000, 0, 3500000, 'UNPAID', '2025-06-01', 'NONE'),
+(1, 4, 4500000, 0, 4500000, 'UNPAID', '2025-07-01', 'NONE');
 GO
 
 INSERT INTO Payments (invoice_id, staff_id, amount_paid, payment_method, receipt_code) VALUES

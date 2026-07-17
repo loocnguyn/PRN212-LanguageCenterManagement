@@ -10,6 +10,7 @@ public partial class EnrollmentWindow : Window
     private readonly IEnrollmentService _enrollmentService = new EnrollmentService();
     private readonly IClassService _classService = new ClassService();
     private readonly ISemesterService _semesterService = new SemesterService();
+    private readonly ITuitionDiscountService _discountService = new TuitionDiscountService();
     private List<Enrollment> _all = new();
     private Semester? _activeSemester;
 
@@ -34,6 +35,23 @@ public partial class EnrollmentWindow : Window
             .ToList();
         cboClass.ItemsSource = classes;
         if (classes.Any()) cboClass.SelectedIndex = 0;
+
+        LoadDiscounts();
+    }
+
+    private void LoadDiscounts()
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var discounts = new List<DiscountOption>
+        {
+            new(null, "None")
+        };
+        discounts.AddRange(_discountService.GetActive(today)
+            .Select(x => new DiscountOption(
+                x.DiscountId,
+                $"{x.Code} - {x.Name} ({FormatDiscount(x)})")));
+        cboDiscount.ItemsSource = discounts;
+        cboDiscount.SelectedIndex = 0;
     }
 
     private void LoadData()
@@ -59,11 +77,13 @@ public partial class EnrollmentWindow : Window
         }
         try
         {
-            _enrollmentService.Enroll(studentId, cls.ClassId);
+            var discountId = (cboDiscount.SelectedItem as DiscountOption)?.DiscountId;
+            _enrollmentService.Enroll(studentId, cls.ClassId, discountId);
             MessageBox.Show($"Student {studentId} enrolled successfully in '{cls.Name}'.", "Success",
                 MessageBoxButton.OK, MessageBoxImage.Information);
             LoadData();
             txtStudentId.Text = "";
+            cboDiscount.SelectedIndex = 0;
         }
         catch (InvalidOperationException ex)
         {
@@ -143,4 +163,11 @@ public partial class EnrollmentWindow : Window
             }
         }
     }
+
+    private static string FormatDiscount(TuitionDiscount discount)
+        => discount.DiscountType == "PERCENT"
+            ? $"{discount.DiscountValue:0.##}%"
+            : $"{discount.DiscountValue:N0} VND";
+
+    private sealed record DiscountOption(int? DiscountId, string DisplayText);
 }

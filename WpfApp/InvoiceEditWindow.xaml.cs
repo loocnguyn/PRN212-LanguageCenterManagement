@@ -19,13 +19,32 @@ public partial class InvoiceEditWindow : Window
 
     private void LoadInvoice()
     {
+        var paid = _service.GetPaidAmount(_invoice.InvoiceId);
+        var remaining = Math.Max(0, _invoice.Amount - paid);
+
+        txtInvoiceId.Text = _invoice.InvoiceId.ToString();
+        txtCreatedAt.Text = _invoice.CreatedAt.ToString("g");
         txtStudentId.Text = _invoice.StudentId.ToString();
+        txtStudentName.Text = _invoice.Student?.FullName ?? "";
         txtEnrollmentId.Text = _invoice.EnrollmentId?.ToString() ?? "";
+        txtStatus.Text = _invoice.Status;
+
+        txtSemester.Text = _invoice.Enrollment?.Class?.Semester?.Name ?? "";
+        txtCourse.Text = _invoice.Enrollment?.Class?.Course?.Name ?? "";
+        txtClass.Text = _invoice.Enrollment?.Class?.Name ?? "";
+        txtTeacher.Text = _invoice.Enrollment?.Class?.Teacher?.FullName ?? "";
+
+        txtOriginalAmount.Text = (_invoice.OriginalAmount > 0 ? _invoice.OriginalAmount : _invoice.Amount).ToString("N0");
+        txtDiscount.Text = _invoice.Discount == null ? "" : $"{_invoice.Discount.Code} - {_invoice.Discount.Name}";
+        txtDiscountAmount.Text = _invoice.DiscountAmount.ToString("N0");
+        txtDiscountStatus.Text = _invoice.DiscountStatus;
+        txtPaidAmount.Text = paid.ToString("N0");
+        txtRemainingAmount.Text = remaining.ToString("N0");
+
         txtAmount.Text = _invoice.Amount.ToString("0.##");
         dpDueDate.DisplayDateStart = DateTime.Today;
         dpDueDate.SelectedDate = _invoice.DueDate?.ToDateTime(TimeOnly.MinValue);
         txtNote.Text = _invoice.Note ?? "";
-        txtStatus.Text = _invoice.Status;
     }
 
     private void BtnSave_Click(object sender, RoutedEventArgs e)

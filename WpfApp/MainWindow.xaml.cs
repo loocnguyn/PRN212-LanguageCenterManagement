@@ -47,6 +47,7 @@ public partial class MainWindow : Window
                 menuCourses.Visibility  = Visibility.Visible;
                 menuClasses.Visibility  = Visibility.Visible;
                 menuReports.Visibility  = Visibility.Visible;
+                menuDiscounts.Visibility = Visibility.Visible;
                 break;
             case "STAFF":
                 ApplyStaffDepartmentVisibility();
@@ -79,6 +80,7 @@ public partial class MainWindow : Window
         menuCourses.Visibility = showAcademic ? Visibility.Visible : Visibility.Collapsed;
         menuClasses.Visibility = showAcademic ? Visibility.Visible : Visibility.Collapsed;
         menuFinance.Visibility = showFinance ? Visibility.Visible : Visibility.Collapsed;
+        menuDiscounts.Visibility = Visibility.Collapsed;
     }
 
     private void LoadSemesterInfo()
@@ -127,6 +129,8 @@ public partial class MainWindow : Window
         => new ClassManagementWindow().Show();
     private void MenuRevenueReport_Click(object sender, RoutedEventArgs e)
         => new RevenueReportWindow().Show();
+    private void MenuTuitionDiscounts_Click(object sender, RoutedEventArgs e)
+        => new TuitionDiscountManagementWindow().Show();
 
     // STAFF
     private void MenuStudents_Click(object sender, RoutedEventArgs e)

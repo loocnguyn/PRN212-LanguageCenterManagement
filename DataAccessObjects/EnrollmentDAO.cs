@@ -12,6 +12,22 @@ public class EnrollmentDAO
         decimal tuitionFee,
         DateOnly dueDate,
         string note)
+        => EnrollWithInvoice(
+            enrollment,
+            new InvoicePricingInfo
+            {
+                OriginalAmount = tuitionFee,
+                FinalAmount = tuitionFee,
+                DiscountStatus = "NONE"
+            },
+            dueDate,
+            note);
+
+    public static void EnrollWithInvoice(
+        Enrollment enrollment,
+        InvoicePricingInfo pricing,
+        DateOnly dueDate,
+        string note)
     {
         using var context = new LanguageCenterContext();
         using var transaction = context.Database.BeginTransaction(IsolationLevel.Serializable);
@@ -42,7 +58,12 @@ public class EnrollmentDAO
                 {
                     StudentId = enrollment.StudentId,
                     EnrollmentId = enrollment.EnrollmentId,
-                    Amount = tuitionFee,
+                    OriginalAmount = pricing.OriginalAmount,
+                    DiscountId = pricing.DiscountId,
+                    DiscountAmount = pricing.DiscountAmount,
+                    Amount = pricing.FinalAmount,
+                    DiscountDeadline = pricing.DiscountDeadline,
+                    DiscountStatus = pricing.DiscountStatus,
                     Status = "UNPAID",
                     DueDate = dueDate,
                     CreatedAt = DateTime.Now,
@@ -152,7 +173,10 @@ public class EnrollmentDAO
                 {
                     StudentId = oldEnrollment.StudentId,
                     EnrollmentId = targetEnrollment.EnrollmentId,
+                    OriginalAmount = newTuitionFee,
+                    DiscountAmount = 0,
                     Amount = newTuitionFee,
+                    DiscountStatus = "NONE",
                     Status = "UNPAID",
                     DueDate = dueDate,
                     CreatedAt = DateTime.Now,
@@ -165,6 +189,11 @@ public class EnrollmentDAO
                 var refundAmount = Math.Max(0, paidAmount - newTuitionFee);
 
                 sourceInvoice.EnrollmentId = targetEnrollment.EnrollmentId;
+                sourceInvoice.OriginalAmount = newTuitionFee;
+                sourceInvoice.DiscountId = null;
+                sourceInvoice.DiscountAmount = 0;
+                sourceInvoice.DiscountDeadline = null;
+                sourceInvoice.DiscountStatus = "NONE";
                 sourceInvoice.Amount = newTuitionFee;
                 sourceInvoice.DueDate ??= dueDate;
                 sourceInvoice.Note = AppendNote(
