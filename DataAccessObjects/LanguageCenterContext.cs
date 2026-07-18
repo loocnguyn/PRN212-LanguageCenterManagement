@@ -52,6 +52,8 @@ public partial class LanguageCenterContext : DbContext
 
     public virtual DbSet<TeacherAttendance> TeacherAttendances { get; set; }
 
+    public virtual DbSet<TuitionDiscount> TuitionDiscounts { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<WalletTransaction> WalletTransactions { get; set; }
@@ -368,11 +370,23 @@ public partial class LanguageCenterContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnName("created_at");
+            entity.Property(e => e.DiscountAmount)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("discount_amount");
+            entity.Property(e => e.DiscountDeadline).HasColumnName("discount_deadline");
+            entity.Property(e => e.DiscountId).HasColumnName("discount_id");
+            entity.Property(e => e.DiscountStatus)
+                .HasMaxLength(20)
+                .HasDefaultValue("NONE")
+                .HasColumnName("discount_status");
             entity.Property(e => e.DueDate).HasColumnName("due_date");
             entity.Property(e => e.EnrollmentId).HasColumnName("enrollment_id");
             entity.Property(e => e.Note)
                 .HasMaxLength(255)
                 .HasColumnName("note");
+            entity.Property(e => e.OriginalAmount)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("original_amount");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasDefaultValue("UNPAID")
@@ -383,10 +397,53 @@ public partial class LanguageCenterContext : DbContext
                 .HasForeignKey(d => d.EnrollmentId)
                 .HasConstraintName("FK__Invoices__enroll__6E01572D");
 
+            entity.HasOne(d => d.Discount).WithMany(p => p.Invoices)
+                .HasForeignKey(d => d.DiscountId)
+                .HasConstraintName("FK_Invoices_TuitionDiscounts");
+
             entity.HasOne(d => d.Student).WithMany(p => p.Invoices)
                 .HasForeignKey(d => d.StudentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Invoices__studen__6D0D32F4");
+        });
+
+        modelBuilder.Entity<TuitionDiscount>(entity =>
+        {
+            entity.HasKey(e => e.DiscountId);
+
+            entity.HasIndex(e => e.Code).IsUnique();
+
+            entity.HasIndex(e => new { e.IsActive, e.StartDate, e.EndDate }, "idx_discount_active");
+
+            entity.Property(e => e.DiscountId).HasColumnName("discount_id");
+            entity.Property(e => e.Code)
+                .HasMaxLength(50)
+                .HasColumnName("code");
+            entity.Property(e => e.Name)
+                .HasMaxLength(150)
+                .HasColumnName("name");
+            entity.Property(e => e.DiscountType)
+                .HasMaxLength(20)
+                .HasColumnName("discount_type");
+            entity.Property(e => e.DiscountValue)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("discount_value");
+            entity.Property(e => e.StartDate).HasColumnName("start_date");
+            entity.Property(e => e.EndDate).HasColumnName("end_date");
+            entity.Property(e => e.IsActive)
+                .HasDefaultValue(true)
+                .HasColumnName("is_active");
+            entity.Property(e => e.Note)
+                .HasMaxLength(255)
+                .HasColumnName("note");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnName("created_at");
+            entity.Property(e => e.PaymentDeadlineDays).HasColumnName("payment_deadline_days");
+            entity.Property(e => e.ConditionType)
+                .HasMaxLength(30)
+                .HasDefaultValue("NONE")
+                .HasColumnName("condition_type");
         });
 
         modelBuilder.Entity<Payment>(entity =>

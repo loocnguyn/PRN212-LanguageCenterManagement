@@ -70,6 +70,13 @@
                 </MenuItem>
             </MenuItem>
 
+            <MenuItem Header="Discounts" x:Name="menuDiscounts" Visibility="Collapsed">
+                <MenuItem.Icon><ui:SymbolIcon Symbol="ReceiptMoney24"/></MenuItem.Icon>
+                <MenuItem Header="Tuition Discount Management" Click="MenuTuitionDiscounts_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="ReceiptMoney24"/></MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+
             <!-- STAFF (Academic Setup department) only -->
             <MenuItem Header="Students" x:Name="menuStudents" Visibility="Collapsed">
                 <MenuItem.Icon><ui:SymbolIcon Symbol="PeopleTeam24"/></MenuItem.Icon>
@@ -92,6 +99,9 @@
                 </MenuItem>
                 <MenuItem Header="Payment"            Click="MenuPayment_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="Wallet24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Tuition Discounts" Click="MenuTuitionDiscounts_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="ReceiptMoney24"/></MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
 

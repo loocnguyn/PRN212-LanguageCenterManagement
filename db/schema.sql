@@ -234,16 +234,48 @@ GO
 -- 5. FINANCIAL MANAGEMENT
 -- ============================================================
 
+CREATE TABLE TuitionDiscounts (
+    discount_id           INT           IDENTITY(1,1) PRIMARY KEY,
+    code                  NVARCHAR(50)  NOT NULL UNIQUE,
+    name                  NVARCHAR(150) NOT NULL,
+    discount_type         NVARCHAR(20)  NOT NULL
+                                        CHECK (discount_type IN ('PERCENT', 'FIXED')),
+    discount_value        DECIMAL(18,2) NOT NULL CHECK (discount_value > 0),
+    start_date            DATE          NULL,
+    end_date              DATE          NULL,
+    is_active             BIT           NOT NULL DEFAULT 1,
+    note                  NVARCHAR(255) NULL,
+    created_at            DATETIME2     NOT NULL DEFAULT GETDATE(),
+    payment_deadline_days INT           NULL,
+    condition_type        NVARCHAR(30)  NOT NULL DEFAULT 'NONE'
+                                        CHECK (condition_type IN ('NONE', 'EARLY_PAYMENT')),
+    CONSTRAINT chk_tuition_discount_date
+        CHECK (end_date IS NULL OR start_date IS NULL OR end_date >= start_date),
+    CONSTRAINT chk_tuition_discount_percent
+        CHECK (discount_type <> 'PERCENT' OR discount_value <= 100),
+    CONSTRAINT chk_tuition_discount_deadline
+        CHECK (payment_deadline_days IS NULL OR payment_deadline_days > 0)
+);
+GO
+
 CREATE TABLE Invoices (
-    invoice_id    INT           IDENTITY(1,1) PRIMARY KEY,
-    student_id    INT           NOT NULL REFERENCES Students(student_id),
-    enrollment_id INT           NULL     REFERENCES Enrollments(enrollment_id),
-    amount        DECIMAL(18,2) NOT NULL,
-    status        NVARCHAR(20)  NOT NULL DEFAULT 'UNPAID'
-                                CHECK (status IN ('UNPAID', 'PARTIAL', 'PAID', 'CANCELLED')),
-    due_date      DATE          NULL,
-    created_at    DATETIME2     NOT NULL DEFAULT GETDATE(),
-    note          NVARCHAR(255) NULL
+    invoice_id        INT           IDENTITY(1,1) PRIMARY KEY,
+    student_id        INT           NOT NULL REFERENCES Students(student_id),
+    enrollment_id     INT           NULL     REFERENCES Enrollments(enrollment_id),
+    original_amount   DECIMAL(18,2) NOT NULL DEFAULT 0 CHECK (original_amount >= 0),
+    discount_id       INT           NULL     REFERENCES TuitionDiscounts(discount_id),
+    discount_amount   DECIMAL(18,2) NOT NULL DEFAULT 0 CHECK (discount_amount >= 0),
+    amount            DECIMAL(18,2) NOT NULL CHECK (amount >= 0),
+    status            NVARCHAR(20)  NOT NULL DEFAULT 'UNPAID'
+                                     CHECK (status IN ('UNPAID', 'PARTIAL', 'PAID', 'CANCELLED')),
+    due_date          DATE          NULL,
+    discount_deadline DATE          NULL,
+    discount_status   NVARCHAR(20)  NOT NULL DEFAULT 'NONE'
+                                     CHECK (discount_status IN ('NONE', 'ACTIVE', 'LOCKED', 'EXPIRED')),
+    created_at        DATETIME2     NOT NULL DEFAULT GETDATE(),
+    note              NVARCHAR(255) NULL,
+    CONSTRAINT chk_invoice_discount_not_over_original
+        CHECK (discount_amount <= original_amount)
 );
 GO
 
@@ -294,8 +326,10 @@ CREATE INDEX idx_enrollment_class   ON Enrollments(class_id, status);
 CREATE INDEX idx_session_class_date ON Sessions(class_id, session_date);
 CREATE INDEX idx_attend_session     ON Attendances(session_id);
 CREATE INDEX idx_attend_student     ON Attendances(student_id);
+CREATE INDEX idx_discount_active    ON TuitionDiscounts(is_active, start_date, end_date);
 CREATE INDEX idx_invoice_student    ON Invoices(student_id, status);
 CREATE INDEX idx_invoice_enrollment ON Invoices(enrollment_id);
+CREATE INDEX idx_invoice_discount   ON Invoices(discount_id);
 CREATE INDEX idx_payment_invoice    ON Payments(invoice_id);
 CREATE INDEX idx_wallet_student     ON WalletTransactions(student_id);
 CREATE INDEX idx_wallet_status      ON WalletTransactions(status);

@@ -5,6 +5,7 @@ namespace Repositories;
 public interface IEnrollmentRepository
 {
     void EnrollWithInvoice(Enrollment enrollment, decimal tuitionFee, DateOnly dueDate, string note);
+    void EnrollWithInvoice(Enrollment enrollment, InvoicePricingInfo pricing, DateOnly dueDate, string note);
     List<Enrollment> GetAll();
     Enrollment? GetById(int id);
     void Save(Enrollment entity);

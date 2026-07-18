@@ -56,6 +56,18 @@ public class PaymentDAO
         var query = context.Payments
             .Include(x => x.Invoice)
                 .ThenInclude(x => x.Student)
+            .Include(x => x.Invoice)
+                .ThenInclude(x => x.Enrollment)
+                .ThenInclude(x => x!.Class)
+                .ThenInclude(x => x.Course)
+            .Include(x => x.Invoice)
+                .ThenInclude(x => x.Enrollment)
+                .ThenInclude(x => x!.Class)
+                .ThenInclude(x => x.Teacher)
+            .Include(x => x.Invoice)
+                .ThenInclude(x => x.Enrollment)
+                .ThenInclude(x => x!.Class)
+                .ThenInclude(x => x.Semester)
             .Include(x => x.Staff)
             .AsNoTracking()
             .Where(x => x.PaidAt >= from && x.PaidAt < toExclusive);
@@ -73,9 +85,15 @@ public class PaymentDAO
         try
         {
             var invoice = context.Invoices
+                .Include(x => x.Discount)
                 .Include(x => x.Payments)
                 .SingleOrDefault(x => x.InvoiceId == payment.InvoiceId)
                 ?? throw new InvalidOperationException("Không tìm thấy hóa đơn.");
+
+            InvoiceDAO.ApplyExpiredEarlyDiscounts(context);
+            context.Entry(invoice).Reload();
+            context.Entry(invoice).Reference(x => x.Discount).Load();
+            context.Entry(invoice).Collection(x => x.Payments).Load();
 
             var paidAmount = invoice.Payments.Sum(x => x.AmountPaid);
             var remainingAmount = invoice.Amount - paidAmount;
@@ -96,6 +114,7 @@ public class PaymentDAO
             invoice.Status = newPaidAmount <= 0
                 ? "UNPAID"
                 : newPaidAmount < invoice.Amount ? "PARTIAL" : "PAID";
+            InvoiceDAO.LockEarlyDiscountIfPaidOnTime(invoice, newPaidAmount);
 
             context.SaveChanges();
             transaction.Commit();

@@ -45,9 +45,14 @@ public partial class StudentInvoiceWindow : Window
                     return new InvoiceDisplayItem
                     {
                         InvoiceId = x.InvoiceId,
+                        OriginalAmount = x.OriginalAmount > 0 ? x.OriginalAmount : x.Amount,
+                        DiscountText = x.Discount == null ? "" : $"{x.Discount.Code} - {x.Discount.Name}",
+                        DiscountAmount = x.DiscountAmount,
                         Amount = x.Amount,
                         PaidAmount = paidAmount,
                         RemainingAmount = Math.Max(0, x.Amount - paidAmount),
+                        DiscountStatus = x.DiscountStatus,
+                        DiscountDeadline = x.DiscountDeadline,
                         DueDate = x.DueDate,
                         Status = x.Status,
                         Note = x.Note
@@ -127,9 +132,14 @@ public partial class StudentInvoiceWindow : Window
     private sealed class InvoiceDisplayItem
     {
         public int InvoiceId { get; init; }
+        public decimal OriginalAmount { get; init; }
+        public string DiscountText { get; init; } = "";
+        public decimal DiscountAmount { get; init; }
         public decimal Amount { get; init; }
         public decimal PaidAmount { get; init; }
         public decimal RemainingAmount { get; init; }
+        public string DiscountStatus { get; init; } = "";
+        public DateOnly? DiscountDeadline { get; init; }
         public DateOnly? DueDate { get; init; }
         public string Status { get; init; } = "";
         public string? Note { get; init; }

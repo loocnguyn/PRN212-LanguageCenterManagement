@@ -10,10 +10,11 @@ public class EnrollmentService : IEnrollmentService
     private readonly IStudentRepository _studentRepo;
     private readonly IInvoiceRepository _invoiceRepo;
     private readonly ICourseRepository _courseRepo;
+    private readonly ITuitionDiscountRepository _discountRepo;
 
     public EnrollmentService() : this(
         new EnrollmentRepository(), new ClassRepository(), new StudentRepository(),
-        new InvoiceRepository(), new CourseRepository())
+        new InvoiceRepository(), new CourseRepository(), new TuitionDiscountRepository())
     { }
 
     // Injectable overload — lets unit tests supply mocked repositories.
@@ -22,13 +23,15 @@ public class EnrollmentService : IEnrollmentService
         IClassRepository classRepo,
         IStudentRepository studentRepo,
         IInvoiceRepository invoiceRepo,
-        ICourseRepository courseRepo)
+        ICourseRepository courseRepo,
+        ITuitionDiscountRepository? discountRepo = null)
     {
         _enrollmentRepo = enrollmentRepo;
         _classRepo = classRepo;
         _studentRepo = studentRepo;
         _invoiceRepo = invoiceRepo;
         _courseRepo = courseRepo;
+        _discountRepo = discountRepo ?? new TuitionDiscountRepository();
     }
 
     public List<Enrollment> GetAll() => _enrollmentRepo.GetAll();
@@ -40,7 +43,11 @@ public class EnrollmentService : IEnrollmentService
     public List<Enrollment> GetByClassId(int classId) => _enrollmentRepo.GetByClassId(classId);
     public List<Enrollment> GetByStudentId(int studentId) => _enrollmentRepo.GetByStudentId(studentId);
 
-    public void Enroll(int studentId, int classId)
+    public void Enroll(int studentId, int classId) => EnrollInternal(studentId, classId, null, useDiscountPricing: false);
+
+    public void Enroll(int studentId, int classId, int? discountId) => EnrollInternal(studentId, classId, discountId, useDiscountPricing: true);
+
+    private void EnrollInternal(int studentId, int classId, int? discountId, bool useDiscountPricing)
     {
         var student = _studentRepo.GetById(studentId)
             ?? throw new InvalidOperationException($"Student {studentId} not found.");
@@ -71,11 +78,7 @@ public class EnrollmentService : IEnrollmentService
                 // Reactivate the dropped enrollment
                 existing.Status = "ACTIVE";
                 existing.EnrolledDate = DateOnly.FromDateTime(DateTime.Today);
-                _enrollmentRepo.EnrollWithInvoice(
-                    existing,
-                    course.TuitionFee,
-                    DateOnly.FromDateTime(DateTime.Today).AddMonths(1),
-                    $"Tuition fee for class {cls.Name}");
+                EnrollWithInvoice(existing, course.TuitionFee, cls.Name, discountId, useDiscountPricing);
                 return;
             }
             throw new InvalidOperationException(
@@ -89,11 +92,70 @@ public class EnrollmentService : IEnrollmentService
             EnrolledDate = DateOnly.FromDateTime(DateTime.Today),
             Status = "ACTIVE"
         };
-        _enrollmentRepo.EnrollWithInvoice(
-            enrollment,
-            course.TuitionFee,
-            DateOnly.FromDateTime(DateTime.Today).AddMonths(1),
-            $"Tuition fee for class {cls.Name}");
+        EnrollWithInvoice(enrollment, course.TuitionFee, cls.Name, discountId, useDiscountPricing);
+    }
+
+    private void EnrollWithInvoice(
+        Enrollment enrollment,
+        decimal tuitionFee,
+        string className,
+        int? discountId,
+        bool useDiscountPricing)
+    {
+        var dueDate = DateOnly.FromDateTime(DateTime.Today).AddMonths(1);
+        var note = $"Tuition fee for class {className}";
+
+        if (!useDiscountPricing || discountId is null)
+        {
+            _enrollmentRepo.EnrollWithInvoice(enrollment, tuitionFee, dueDate, note);
+            return;
+        }
+
+        var pricing = CalculateInvoicePricing(tuitionFee, discountId.Value, enrollment.EnrolledDate);
+        var discountNote = pricing.DiscountId.HasValue
+            ? $"{note} | Discount applied"
+            : note;
+        _enrollmentRepo.EnrollWithInvoice(enrollment, pricing, dueDate, discountNote);
+    }
+
+    private InvoicePricingInfo CalculateInvoicePricing(decimal originalAmount, int discountId, DateOnly enrolledDate)
+    {
+        var discount = _discountRepo.GetById(discountId)
+            ?? throw new InvalidOperationException($"Discount {discountId} not found.");
+
+        if (!discount.IsActive)
+            throw new InvalidOperationException($"Discount '{discount.Code}' is not active.");
+        if (discount.StartDate.HasValue && discount.StartDate.Value > enrolledDate)
+            throw new InvalidOperationException($"Discount '{discount.Code}' is not available yet.");
+        if (discount.EndDate.HasValue && discount.EndDate.Value < enrolledDate)
+            throw new InvalidOperationException($"Discount '{discount.Code}' has expired.");
+
+        var discountAmount = discount.DiscountType == "PERCENT"
+            ? Math.Round(originalAmount * discount.DiscountValue / 100m, 2)
+            : discount.DiscountValue;
+        discountAmount = Math.Min(originalAmount, Math.Max(0, discountAmount));
+
+        var status = "ACTIVE";
+        DateOnly? deadline = null;
+        if (discount.ConditionType == "EARLY_PAYMENT")
+        {
+            var days = discount.PaymentDeadlineDays ?? 7;
+            deadline = enrolledDate.AddDays(days);
+        }
+        else
+        {
+            status = "LOCKED";
+        }
+
+        return new InvoicePricingInfo
+        {
+            OriginalAmount = originalAmount,
+            DiscountId = discount.DiscountId,
+            DiscountAmount = discountAmount,
+            FinalAmount = Math.Max(0, originalAmount - discountAmount),
+            DiscountDeadline = deadline,
+            DiscountStatus = status
+        };
     }
 
     public void TransferClass(int oldEnrollmentId, int newClassId)

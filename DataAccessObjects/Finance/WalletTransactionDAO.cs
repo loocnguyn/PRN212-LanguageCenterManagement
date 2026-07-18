@@ -94,9 +94,15 @@ public class WalletTransactionDAO
                 ?? throw new InvalidOperationException("Student not found.");
 
             var invoice = context.Invoices
+                .Include(x => x.Discount)
                 .Include(x => x.Payments)
                 .SingleOrDefault(x => x.InvoiceId == invoiceId && x.StudentId == studentId)
                 ?? throw new InvalidOperationException("Invoice not found for this student.");
+
+            InvoiceDAO.ApplyExpiredEarlyDiscounts(context);
+            context.Entry(invoice).Reload();
+            context.Entry(invoice).Reference(x => x.Discount).Load();
+            context.Entry(invoice).Collection(x => x.Payments).Load();
 
             var paidAmount = invoice.Payments.Sum(x => x.AmountPaid);
             var remainingAmount = Math.Max(0, invoice.Amount - paidAmount);
@@ -119,6 +125,7 @@ public class WalletTransactionDAO
             });
 
             invoice.Status = "PAID";
+            InvoiceDAO.LockEarlyDiscountIfPaidOnTime(invoice, paidAmount + remainingAmount);
 
             context.WalletTransactions.Add(new WalletTransaction
             {

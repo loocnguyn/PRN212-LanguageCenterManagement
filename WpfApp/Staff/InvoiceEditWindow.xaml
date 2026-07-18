@@ -1,55 +1,134 @@
 <Window x:Class="WpfApp.InvoiceEditWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Edit Invoice" Height="560" Width="560"
-        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
-    <Grid Margin="20">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="130"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+        Title="Edit Invoice" Height="760" Width="760"
+        WindowStartupLocation="CenterOwner" ResizeMode="CanResize">
+    <Grid Margin="16">
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
-            <RowDefinition Height="50"/>
-            <RowDefinition Height="50"/>
-            <RowDefinition Height="50"/>
-            <RowDefinition Height="125"/>
-            <RowDefinition Height="50"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Student ID:" VerticalAlignment="Center"/>
-        <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtStudentId"
-                 Margin="0,7" IsReadOnly="True"
-                 VerticalContentAlignment="Center" Padding="8,0"/>
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <GroupBox Header="Invoice / Student Info" Padding="12" Margin="0,0,0,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="42"/>
+                            <RowDefinition Height="42"/>
+                            <RowDefinition Height="42"/>
+                        </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="1" Text="Enrollment ID:" VerticalAlignment="Center"/>
-        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtEnrollmentId"
-                 Margin="0,7" IsReadOnly="True"
-                 VerticalContentAlignment="Center" Padding="8,0"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Invoice ID:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtInvoiceId" IsReadOnly="True" Margin="0,5,12,5" Padding="8,0" VerticalContentAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Created At:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="3" x:Name="txtCreatedAt" IsReadOnly="True" Margin="0,5" Padding="8,0" VerticalContentAlignment="Center"/>
 
-        <TextBlock Grid.Row="2" Text="Amount:" VerticalAlignment="Center"/>
-        <TextBox Grid.Row="2" Grid.Column="1" x:Name="txtAmount" Margin="0,7"
-                 VerticalContentAlignment="Center" Padding="8,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Student ID:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtStudentId" IsReadOnly="True" Margin="0,5,12,5" Padding="8,0" VerticalContentAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Student Name:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="3" x:Name="txtStudentName" IsReadOnly="True" Margin="0,5" Padding="8,0" VerticalContentAlignment="Center"/>
 
-        <TextBlock Grid.Row="3" Text="Due date:" VerticalAlignment="Center"/>
-        <DatePicker Grid.Row="3" Grid.Column="1" x:Name="dpDueDate" Margin="0,7"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Enrollment ID:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" x:Name="txtEnrollmentId" IsReadOnly="True" Margin="0,5,12,5" Padding="8,0" VerticalContentAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="2" Text="Status:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="2" Grid.Column="3" x:Name="txtStatus" IsReadOnly="True" Margin="0,5" Padding="8,0" VerticalContentAlignment="Center"/>
+                    </Grid>
+                </GroupBox>
 
-        <TextBlock Grid.Row="4" Text="Note:" VerticalAlignment="Top" Margin="0,9,0,0"/>
-        <TextBox Grid.Row="4" Grid.Column="1" x:Name="txtNote"
-                 Margin="0,7" AcceptsReturn="True" TextWrapping="Wrap"
-                 VerticalScrollBarVisibility="Auto" Padding="8,6"/>
+                <GroupBox Header="Academic Info" Padding="12" Margin="0,0,0,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="42"/>
+                            <RowDefinition Height="42"/>
+                        </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="5" Text="Status:" VerticalAlignment="Center"/>
-        <TextBox Grid.Row="5" Grid.Column="1" x:Name="txtStatus"
-                 Margin="0,7" IsReadOnly="True"
-                 VerticalContentAlignment="Center" Padding="8,0"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Semester:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtSemester" IsReadOnly="True" Margin="0,5,12,5" Padding="8,0" VerticalContentAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Course:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="3" x:Name="txtCourse" IsReadOnly="True" Margin="0,5" Padding="8,0" VerticalContentAlignment="Center"/>
 
-        <StackPanel Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal"
-                    HorizontalAlignment="Right" VerticalAlignment="Bottom">
-            <Button Content="Save" Width="90" Height="32" Margin="0,0,8,0"
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Class:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtClass" IsReadOnly="True" Margin="0,5,12,5" Padding="8,0" VerticalContentAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Teacher:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="3" x:Name="txtTeacher" IsReadOnly="True" Margin="0,5" Padding="8,0" VerticalContentAlignment="Center"/>
+                    </Grid>
+                </GroupBox>
+
+                <GroupBox Header="Payment / Discount Info" Padding="12" Margin="0,0,0,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="42"/>
+                            <RowDefinition Height="42"/>
+                            <RowDefinition Height="42"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Original:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtOriginalAmount" IsReadOnly="True" Margin="0,5,12,5" Padding="8,0" VerticalContentAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Discount:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="3" x:Name="txtDiscount" IsReadOnly="True" Margin="0,5" Padding="8,0" VerticalContentAlignment="Center"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Discount Amt:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtDiscountAmount" IsReadOnly="True" Margin="0,5,12,5" Padding="8,0" VerticalContentAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Discount Status:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="3" x:Name="txtDiscountStatus" IsReadOnly="True" Margin="0,5" Padding="8,0" VerticalContentAlignment="Center"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Paid:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" x:Name="txtPaidAmount" IsReadOnly="True" Margin="0,5,12,5" Padding="8,0" VerticalContentAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="2" Text="Remaining:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="2" Grid.Column="3" x:Name="txtRemainingAmount" IsReadOnly="True" Margin="0,5" Padding="8,0" VerticalContentAlignment="Center"/>
+                    </Grid>
+                </GroupBox>
+
+                <GroupBox Header="Editable Fields" Padding="12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="46"/>
+                            <RowDefinition Height="46"/>
+                            <RowDefinition Height="130"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Final Amount:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtAmount" Margin="0,6" Padding="8,0" VerticalContentAlignment="Center"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Due date:" VerticalAlignment="Center"/>
+                        <DatePicker Grid.Row="1" Grid.Column="1" x:Name="dpDueDate" Margin="0,6"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Note:" VerticalAlignment="Top" Margin="0,10,0,0"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" x:Name="txtNote"
+                                 Margin="0,6" AcceptsReturn="True" TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto" Padding="8,6"/>
+                    </Grid>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button Content="Save" Width="90" Height="34" Margin="0,0,8,0"
                     Click="BtnSave_Click"/>
-            <Button Content="Cancel" Width="90" Height="32" IsCancel="True"/>
+            <Button Content="Cancel" Width="90" Height="34" IsCancel="True"/>
         </StackPanel>
     </Grid>
 </Window>

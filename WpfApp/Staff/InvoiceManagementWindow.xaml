@@ -1,7 +1,7 @@
 <Window x:Class="WpfApp.InvoiceManagementWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Invoice Management" Height="620" Width="1120"
+        Title="Invoice Management" Height="700" Width="1360"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -9,19 +9,87 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-            <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-            <TextBox x:Name="txtSearch" Width="200" Height="28"
-                     VerticalContentAlignment="Center" Padding="4,0"/>
-            <TextBlock Text="Status:" VerticalAlignment="Center" Margin="12,0,6,0"/>
-            <ComboBox x:Name="cmbStatus" Width="130" Height="30">
-                <ComboBoxItem Content="All" IsSelected="True"/>
-                <ComboBoxItem Content="UNPAID"/>
-                <ComboBoxItem Content="PAID"/>
-                <ComboBoxItem Content="PARTIAL"/>
-            </ComboBox>
-            <Button Content="Search" Width="80" Height="28" Margin="8,0,0,0"
-                    Click="BtnSearch_Click"/>
+        <StackPanel Grid.Row="0" Margin="0,0,0,8">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <TextBox x:Name="txtSearch" Width="220" Height="28"
+                         VerticalContentAlignment="Center" Padding="4,0"/>
+                <TextBlock Text="Status:" VerticalAlignment="Center" Margin="12,0,6,0"/>
+                <ComboBox x:Name="cmbStatus" Width="130" Height="30">
+                    <ComboBoxItem Content="All" IsSelected="True"/>
+                    <ComboBoxItem Content="UNPAID"/>
+                    <ComboBoxItem Content="PAID"/>
+                    <ComboBoxItem Content="PARTIAL"/>
+                    <ComboBoxItem Content="CANCELLED"/>
+                </ComboBox>
+                <Button Content="Search" Width="80" Height="28" Margin="8,0,0,0"
+                        Click="BtnSearch_Click"/>
+                <Button Content="Advanced" Width="90" Height="28" Margin="6,0,0,0"
+                        Click="BtnAdvanced_Click"/>
+                <Button Content="Clear" Width="80" Height="28" Margin="6,0,0,0"
+                        Click="BtnClear_Click"/>
+            </StackPanel>
+
+            <Border x:Name="advancedPanel" Visibility="Collapsed" BorderBrush="#D0D7DE"
+                    BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,8,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="95"/>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="45"/>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="145"/>
+                        <ColumnDefinition Width="105"/>
+                        <ColumnDefinition Width="145"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Due date:" VerticalAlignment="Center"/>
+                    <DatePicker Grid.Row="0" Grid.Column="1" x:Name="dpDueFrom" Height="28"/>
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="to" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <DatePicker Grid.Row="0" Grid.Column="3" x:Name="dpDueTo" Height="28"/>
+                    <TextBlock Grid.Row="0" Grid.Column="4" Text="Payment:" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Row="0" Grid.Column="5" x:Name="cmbPaymentState" Height="28">
+                        <ComboBoxItem Content="All" IsSelected="True"/>
+                        <ComboBoxItem Content="Has Debt"/>
+                        <ComboBoxItem Content="Paid Full"/>
+                        <ComboBoxItem Content="No Payment"/>
+                        <ComboBoxItem Content="Has Payment"/>
+                    </ComboBox>
+                    <TextBlock Grid.Row="0" Grid.Column="6" Text="Discount:" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Row="0" Grid.Column="7" x:Name="cmbDiscountStatus" Height="28">
+                        <ComboBoxItem Content="All" IsSelected="True"/>
+                        <ComboBoxItem Content="NONE"/>
+                        <ComboBoxItem Content="ACTIVE"/>
+                        <ComboBoxItem Content="LOCKED"/>
+                        <ComboBoxItem Content="EXPIRED"/>
+                    </ComboBox>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Created:" Margin="0,8,0,0" VerticalAlignment="Center"/>
+                    <DatePicker Grid.Row="1" Grid.Column="1" x:Name="dpCreatedFrom" Height="28" Margin="0,8,0,0"/>
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="to" HorizontalAlignment="Center" Margin="0,8,0,0" VerticalAlignment="Center"/>
+                    <DatePicker Grid.Row="1" Grid.Column="3" x:Name="dpCreatedTo" Height="28" Margin="0,8,0,0"/>
+                    <TextBlock Grid.Row="1" Grid.Column="4" Text="Amount min:" Margin="12,8,0,0" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="1" Grid.Column="5" x:Name="txtAmountMin" Height="28" Margin="0,8,0,0" Padding="4,0" VerticalContentAlignment="Center"/>
+                    <TextBlock Grid.Row="1" Grid.Column="6" Text="Remaining min:" Margin="12,8,0,0" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="1" Grid.Column="7" x:Name="txtRemainingMin" Height="28" Margin="0,8,0,0" Padding="4,0" VerticalContentAlignment="Center"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Semester:" Margin="0,8,0,0" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Row="2" Grid.Column="1" x:Name="cmbSemester" Height="28" Margin="0,8,0,0"/>
+                    <TextBlock Grid.Row="2" Grid.Column="2" Text="Course:" HorizontalAlignment="Center" Margin="0,8,0,0" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Row="2" Grid.Column="3" x:Name="cmbCourse" Height="28" Margin="0,8,0,0"/>
+                    <TextBlock Grid.Row="2" Grid.Column="4" Text="Class:" Margin="12,8,0,0" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Row="2" Grid.Column="5" x:Name="cmbClass" Height="28" Margin="0,8,0,0"/>
+                    <TextBlock Grid.Row="2" Grid.Column="6" Text="Teacher:" Margin="12,8,0,0" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Row="2" Grid.Column="7" x:Name="cmbTeacher" Height="28" Margin="0,8,0,0"/>
+                </Grid>
+            </Border>
         </StackPanel>
         <DataGrid Grid.Row="1" x:Name="dgInvoices"
                   AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single">
@@ -30,9 +98,18 @@
                 <DataGridTextColumn Header="Student ID" Binding="{Binding StudentId}" Width="90"/>
                 <DataGridTextColumn Header="Student" Binding="{Binding StudentName}" Width="150"/>
                 <DataGridTextColumn Header="Enrollment" Binding="{Binding EnrollmentId}" Width="90"/>
-                <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" Width="110"/>
+                <DataGridTextColumn Header="Semester" Binding="{Binding SemesterName}" Width="120"/>
+                <DataGridTextColumn Header="Course" Binding="{Binding CourseName}" Width="150"/>
+                <DataGridTextColumn Header="Class" Binding="{Binding ClassName}" Width="110"/>
+                <DataGridTextColumn Header="Teacher" Binding="{Binding TeacherName}" Width="140"/>
+                <DataGridTextColumn Header="Original" Binding="{Binding OriginalAmount}" Width="105"/>
+                <DataGridTextColumn Header="Discount" Binding="{Binding DiscountText}" Width="140"/>
+                <DataGridTextColumn Header="Discount Amt" Binding="{Binding DiscountAmount}" Width="105"/>
+                <DataGridTextColumn Header="Final Amount" Binding="{Binding Amount}" Width="110"/>
                 <DataGridTextColumn Header="Paid" Binding="{Binding PaidAmount}" Width="110"/>
                 <DataGridTextColumn Header="Remaining" Binding="{Binding RemainingAmount}" Width="110"/>
+                <DataGridTextColumn Header="Discount Status" Binding="{Binding DiscountStatus}" Width="115"/>
+                <DataGridTextColumn Header="Discount Deadline" Binding="{Binding DiscountDeadline}" Width="120"/>
                 <DataGridTextColumn Header="Due Date" Binding="{Binding DueDate}" Width="110"/>
                 <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100"/>
                 <DataGridTextColumn Header="Created" Binding="{Binding CreatedAt}" Width="135"/>
