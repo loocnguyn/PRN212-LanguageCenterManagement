@@ -20,7 +20,6 @@ public partial class CourseManagementWindow : Window
             : _all.Where(c => c.Name.ToLower().Contains(kw) || c.Code.ToLower().Contains(kw)).ToList();
     }
     private void BtnReset_Click(object sender, RoutedEventArgs e) { txtSearch.Text = ""; dgCourses.ItemsSource = _all; }
-    private void DgCourses_SelectionChanged(object sender, SelectionChangedEventArgs e) { }
     private void BtnAdd_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new CourseDetailWindow { Owner = this };
