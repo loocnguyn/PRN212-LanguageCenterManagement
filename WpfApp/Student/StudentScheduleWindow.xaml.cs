@@ -20,6 +20,7 @@ public partial class StudentScheduleWindow : Window
     private readonly IEnrollmentService _enrollmentService = new EnrollmentService();
     private readonly ISemesterService _semesterService = new SemesterService();
     private readonly ISessionService _sessionService = new SessionService();
+    private readonly ISlotService _slotService = new SlotService();
 
     private int _studentId;
     private List<Session> _allSessions = new();
@@ -169,13 +170,15 @@ public partial class StudentScheduleWindow : Window
         var weekEnd = _weekStart.AddDays(6);
         tbWeekRange.Text = $"{_weekStart:dd/MM} to {weekEnd:dd/MM/yyyy}";
 
+        var slots = _slotService.GetAll();
         var rows = ScheduleGridBuilder.Build(
             _allSessions,
             _weekStart,
+            slots,
             counterpartNameSelector: s => s.Class?.Teacher?.FullName ?? "",
             statusTextSelector: s => ResolveStatusText(s));
 
-        ScheduleGridRenderer.Render(scheduleGrid, rows, _weekStart);
+        ScheduleGridRenderer.Render(scheduleGrid, rows, _weekStart, slots);
     }
 
     private string ResolveStatusText(Session s)

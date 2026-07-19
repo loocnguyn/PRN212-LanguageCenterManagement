@@ -97,7 +97,7 @@ INSERT INTO Classes (semester_id, course_id, teacher_id, classroom_id, name, max
 GO
 
 -- day_of_week: 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat, 7=Sun
--- Times match the fixed FAP-style slots in BusinessObjects/ScheduleSlot.cs so sessions line up in the grid.
+-- Times match the seeded Slots (above) so sessions line up in the weekly grid.
 INSERT INTO ClassSchedules (class_id, day_of_week, start_time, end_time) VALUES
 (1, 1, '07:00', '09:15'),   -- Slot 1, Mon
 (1, 3, '07:00', '09:15'),   -- Slot 1, Wed

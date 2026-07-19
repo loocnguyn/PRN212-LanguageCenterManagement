@@ -1,9 +1,9 @@
 namespace BusinessObjects;
 
 /// <summary>
-/// A configurable daily time slot (period). Replaces the old hardcoded
-/// <see cref="ScheduleSlot"/> list — admins can adjust each slot's start/end time
-/// via the Slot Time Setting screen, and class schedules pick a day + slot.
+/// A configurable daily time slot (period). Admins can adjust each slot's
+/// start/end time via the Slot Time Setting screen; class schedules pick a
+/// day + slot, and the weekly timetable grid is laid out from these rows.
 /// </summary>
 public partial class Slot
 {

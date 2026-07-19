@@ -14,7 +14,7 @@ public static class ScheduleGridRenderer
 {
     private static readonly string[] DayHeaders = { "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN" };
 
-    public static void Render(Grid grid, List<ScheduleRow> rows, DateOnly weekStart)
+    public static void Render(Grid grid, List<ScheduleRow> rows, DateOnly weekStart, IReadOnlyList<Slot> slots)
     {
         grid.RowDefinitions.Clear();
         grid.ColumnDefinitions.Clear();
@@ -38,8 +38,8 @@ public static class ScheduleGridRenderer
         {
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             var row = rows[r];
-            var slotTime = ScheduleSlot.All.FirstOrDefault(s => s.Number == row.SlotNumber);
-            AddSlotHeader(grid, r + 1, row.SlotNumber, slotTime.Start, slotTime.End);
+            var slot = slots.FirstOrDefault(s => s.SlotNo == row.SlotNumber);
+            AddSlotHeader(grid, r + 1, row.SlotNumber, slot?.StartTime ?? default, slot?.EndTime ?? default);
 
             for (int d = 0; d < 7; d++)
             {
