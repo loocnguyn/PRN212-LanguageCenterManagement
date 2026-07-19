@@ -1,0 +1,61 @@
+<Window x:Class="WpfApp.DepartmentManagementWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        Title="Departments" Height="560" Width="720"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}">
+
+    <Window.Resources>
+        <!-- Access-group badge: teal for Academic, amber-ish for Finance -->
+        <DataTemplate x:Key="AccessBadgeTemplate">
+            <Border x:Name="badge" CornerRadius="10" Padding="10,3" HorizontalAlignment="Left"
+                    Background="{StaticResource InfoBrush}">
+                <TextBlock Text="{Binding AccessGroupDisplay}" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+            </Border>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding AccessGroup}" Value="FINANCE">
+                    <Setter TargetName="badge" Property="Background" Value="{StaticResource RoleStudentBrush}"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </Window.Resources>
+
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Background="{StaticResource PrimaryBrush}" Padding="20,14">
+            <StackPanel Orientation="Horizontal">
+                <ui:SymbolIcon Symbol="Building24" Foreground="White" FontSize="26" Margin="0,0,12,0"/>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Departments" Foreground="White" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock Text="Manage staff departments and the access they unlock"
+                               Foreground="#DCEBFF" FontSize="12"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Style="{StaticResource Card}" Padding="0">
+                <DataGrid x:Name="dgDepartments" AutoGenerateColumns="False" IsReadOnly="True"
+                          SelectionMode="Single" BorderThickness="0" Background="Transparent" RowHeight="44"
+                          MouseDoubleClick="DgDepartments_MouseDoubleClick">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding DepartmentId}" Width="60"/>
+                        <DataGridTextColumn Header="Department" Binding="{Binding Name}" Width="*"/>
+                        <DataGridTemplateColumn Header="Access group" Width="200" CellTemplate="{StaticResource AccessBadgeTemplate}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+                <Button Content="Add"    Style="{StaticResource PillButton}"        Width="90" Margin="0,0,8,0" Click="BtnAdd_Click"/>
+                <Button Content="Edit"   Style="{StaticResource PillButtonSuccess}" Width="90" Margin="0,0,8,0" Click="BtnEdit_Click"/>
+                <Button Content="Delete" Style="{StaticResource PillButtonDanger}"  Width="90" Click="BtnDelete_Click"/>
+            </StackPanel>
+        </Grid>
+    </DockPanel>
+</Window>

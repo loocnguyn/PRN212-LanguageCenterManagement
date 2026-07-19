@@ -106,10 +106,8 @@
 
                         <!-- Staff: Department -->
                         <TextBlock Grid.Row="6" Grid.Column="0" x:Name="lblDept" Text="Department" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
-                        <ComboBox  Grid.Row="6" Grid.Column="1" x:Name="cmbDept" Height="32" Margin="0,0,0,10" Visibility="Collapsed">
-                            <ComboBoxItem Content="Academic Setup"/>
-                            <ComboBoxItem Content="Finance"/>
-                        </ComboBox>
+                        <!-- Items populated from the Departments table at runtime -->
+                        <ComboBox  Grid.Row="6" Grid.Column="1" x:Name="cmbDept" Height="32" Margin="0,0,0,10" Visibility="Collapsed"/>
                     </Grid>
                 </TabItem>
 

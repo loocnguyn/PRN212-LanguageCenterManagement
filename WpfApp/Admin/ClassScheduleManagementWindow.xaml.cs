@@ -1,5 +1,4 @@
 using System.Windows;
-using System.Windows.Controls;
 using BusinessObjects;
 using Services;
 
@@ -9,78 +8,65 @@ public partial class ClassScheduleManagementWindow : Window
 {
     private readonly IClassScheduleService _service = new ClassScheduleService();
     private readonly IClassService _classService = new ClassService();
-    private List<ClassSchedule> _all = new();
-    private List<ScheduleDisplay> _displayAll = new();
+    private List<ClassRow> _all = new();
 
     public ClassScheduleManagementWindow() { InitializeComponent(); LoadData(); }
 
     private void LoadData()
     {
-        _all = _service.GetAll();
-        var classes = _classService.GetAll();
-        var classDict = classes.ToDictionary(c => c.ClassId, c => c.Name);
-        cboClassFilter.ItemsSource = classes;
-        _displayAll = _all.Select(s => new ScheduleDisplay(s, classDict.GetValueOrDefault(s.ClassId, "?"))).ToList();
+        var schedules = _service.GetAll();
+        var byClass = schedules.GroupBy(s => s.ClassId).ToDictionary(g => g.Key, g => g.ToList());
+
+        // Every class is a row, even if it has no sessions yet.
+        _all = _classService.GetAll()
+            .Select(c => new ClassRow(c.ClassId, c.Name,
+                byClass.GetValueOrDefault(c.ClassId) ?? new List<ClassSchedule>()))
+            .OrderBy(r => r.ClassName)
+            .ToList();
         ApplyFilter();
     }
 
     private void ApplyFilter()
     {
-        var filtered = _displayAll.AsEnumerable();
-        if (cboClassFilter.SelectedValue is int classId)
-            filtered = filtered.Where(d => d.Schedule.ClassId == classId);
         var kw = txtSearch.Text.Trim().ToLower();
-        if (!string.IsNullOrEmpty(kw))
-            filtered = filtered.Where(d => d.DayName.ToLower().Contains(kw) || d.ClassName.ToLower().Contains(kw));
-        dgSchedules.ItemsSource = filtered.ToList();
+        dgClasses.ItemsSource = string.IsNullOrEmpty(kw)
+            ? _all
+            : _all.Where(r => r.ClassName.ToLower().Contains(kw)).ToList();
     }
 
-    private void CboClassFilter_SelectionChanged(object sender, SelectionChangedEventArgs e) => ApplyFilter();
     private void BtnSearch_Click(object sender, RoutedEventArgs e) => ApplyFilter();
-    private void BtnReset_Click(object sender, RoutedEventArgs e) { txtSearch.Text = ""; cboClassFilter.SelectedIndex = -1; ApplyFilter(); }
-    private void DgSchedules_SelectionChanged(object sender, SelectionChangedEventArgs e) { }
+    private void BtnReset_Click(object sender, RoutedEventArgs e) { txtSearch.Text = ""; ApplyFilter(); }
 
-    private void BtnAdd_Click(object sender, RoutedEventArgs e)
+    private void DgClasses_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        => ManageSelected();
+
+    private void BtnManage_Click(object sender, RoutedEventArgs e) => ManageSelected();
+
+    private void ManageSelected()
     {
-        var dialog = new ClassScheduleDialog();
-        dialog.Owner = this;
-        if (dialog.ShowDialog() == true && dialog.Result != null)
+        if (dgClasses.SelectedItem is not ClassRow r)
         {
-            _service.Save(dialog.Result);
-            LoadData();
+            MessageBox.Show("Please select a class.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
         }
+        new ClassScheduleEditorWindow(r.ClassId, r.ClassName) { Owner = this }.ShowDialog();
+        LoadData();
     }
 
-    private void BtnEdit_Click(object sender, RoutedEventArgs e)
+    private static string DayName(int d) => d switch
     {
-        if (dgSchedules.SelectedItem is not ScheduleDisplay d)
-        { MessageBox.Show("Please select a schedule."); return; }
-        var dialog = new ClassScheduleDialog(d.Schedule);
-        dialog.Owner = this;
-        if (dialog.ShowDialog() == true && dialog.Result != null)
-        {
-            _service.Update(dialog.Result);
-            LoadData();
-        }
-    }
+        1 => "Mon", 2 => "Tue", 3 => "Wed", 4 => "Thu",
+        5 => "Fri", 6 => "Sat", 7 => "Sun", _ => "?"
+    };
 
-    private void BtnDelete_Click(object sender, RoutedEventArgs e)
+    private record ClassRow(int ClassId, string ClassName, List<ClassSchedule> Schedules)
     {
-        if (dgSchedules.SelectedItem is not ScheduleDisplay d)
-        { MessageBox.Show("Please select a schedule."); return; }
-        var confirm = MessageBox.Show($"Delete schedule #{d.Schedule.ScheduleId}?", "Confirm", MessageBoxButton.YesNo);
-        if (confirm == MessageBoxResult.Yes) { _service.Delete(d.Schedule.ScheduleId); LoadData(); }
-    }
+        public int Count => Schedules.Count;
 
-    private record ScheduleDisplay(ClassSchedule Schedule, string ClassName)
-    {
-        public int ScheduleId => Schedule.ScheduleId;
-        public string DayName => Schedule.DayOfWeek switch
-        {
-            1 => "Monday", 2 => "Tuesday", 3 => "Wednesday", 4 => "Thursday",
-            5 => "Friday", 6 => "Saturday", 7 => "Sunday", _ => "Unknown"
-        };
-        public string StartTimeStr => Schedule.StartTime.ToString("HH:mm");
-        public string EndTimeStr => Schedule.EndTime.ToString("HH:mm");
+        public string Summary => Schedules.Count == 0
+            ? "— no sessions —"
+            : string.Join("   •   ", Schedules
+                .OrderBy(s => s.DayOfWeek).ThenBy(s => s.StartTime)
+                .Select(s => $"{DayName(s.DayOfWeek)} {s.StartTime:HH\\:mm}–{s.EndTime:HH\\:mm}"));
     }
 }

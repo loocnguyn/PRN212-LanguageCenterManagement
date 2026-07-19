@@ -10,6 +10,7 @@ public partial class MainWindow : Window
 {
     private readonly User _currentUser;
     private readonly IStaffService _staffService = new StaffService();
+    private readonly IDepartmentService _departmentService = new DepartmentService();
     private readonly DispatcherTimer _dashboardRefreshTimer = new() { Interval = TimeSpan.FromSeconds(15) };
 
     public MainWindow(User currentUser)
@@ -42,15 +43,12 @@ public partial class MainWindow : Window
         switch (role)
         {
             case "ADMIN":
+                // Admin sees everything. Account sub-items (student/staff/departments/etc.)
+                // default to Visible in XAML; Finance now also carries Revenue Report + Discounts.
                 menuAccounts.Visibility = Visibility.Visible;
                 menuSemesters.Visibility = Visibility.Visible;
                 menuCourses.Visibility  = Visibility.Visible;
                 menuClasses.Visibility  = Visibility.Visible;
-                menuReports.Visibility  = Visibility.Visible;
-                menuDiscounts.Visibility = Visibility.Visible;
-                // Admin is a superset of both Staff departments: academic setup (Students/Enrollment)
-                // and finance (Debt List/Invoice/Payment) are both available on top of Admin's own menus.
-                menuStudents.Visibility = Visibility.Visible;
                 menuFinance.Visibility = Visibility.Visible;
                 break;
             case "STAFF":
@@ -70,21 +68,37 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>Staff without a Department set (e.g. legacy seeded accounts) get both menus
-    /// so nobody is locked out; new accounts always require a Department (see AccountDetailWindow).</summary>
+    /// <summary>Resolves the staff member's department to an access group and shows the matching
+    /// menus. Staff whose department can't be resolved (e.g. legacy/blank) get both groups so
+    /// nobody is locked out. Academic staff reach Student Management inside the Accounts menu but
+    /// not the admin-only account tools.</summary>
     private void ApplyStaffDepartmentVisibility()
     {
-        var department = _staffService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id)?.Department;
+        var deptName = _staffService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id)?.Department;
+        var accessGroup = deptName == null
+            ? null
+            : _departmentService.GetAll().FirstOrDefault(d => d.Name == deptName)?.AccessGroup;
 
-        var showAcademic = department is null or "Academic Setup";
-        var showFinance = department is null or "Finance";
+        var showAcademic = accessGroup is null or "ACADEMIC";
+        var showFinance = accessGroup is null or "FINANCE";
 
-        menuStudents.Visibility = showAcademic ? Visibility.Visible : Visibility.Collapsed;
-        menuSemesters.Visibility = showAcademic ? Visibility.Visible : Visibility.Collapsed;
-        menuCourses.Visibility = showAcademic ? Visibility.Visible : Visibility.Collapsed;
-        menuClasses.Visibility = showAcademic ? Visibility.Visible : Visibility.Collapsed;
+        if (showAcademic)
+        {
+            menuAccounts.Visibility = Visibility.Visible;
+            // Only Student Management is relevant to academic staff; hide admin-only account tools.
+            menuMiAccountManagement.Visibility = Visibility.Collapsed;
+            menuMiTeacherManagement.Visibility = Visibility.Collapsed;
+            menuMiStaffManagement.Visibility = Visibility.Collapsed;
+            menuMiDepartments.Visibility = Visibility.Collapsed;
+            menuAccountsSep.Visibility = Visibility.Collapsed;
+            menuMiDeactivated.Visibility = Visibility.Collapsed;
+
+            menuSemesters.Visibility = Visibility.Visible;
+            menuCourses.Visibility = Visibility.Visible;
+            menuClasses.Visibility = Visibility.Visible;
+        }
+
         menuFinance.Visibility = showFinance ? Visibility.Visible : Visibility.Collapsed;
-        menuDiscounts.Visibility = Visibility.Collapsed;
     }
 
     private void LoadSemesterInfo()
@@ -123,6 +137,12 @@ public partial class MainWindow : Window
         => new AccountManagementWindow(_currentUser).Show();
     private void MenuDeactivatedAccounts_Click(object sender, RoutedEventArgs e)
         => new DeactivatedAccountsWindow().Show();
+    private void MenuStaffManagement_Click(object sender, RoutedEventArgs e)
+        => new StaffManagementWindow().Show();
+    private void MenuTeacherManagement_Click(object sender, RoutedEventArgs e)
+        => new TeacherManagementWindow().Show();
+    private void MenuDepartments_Click(object sender, RoutedEventArgs e)
+        => new DepartmentManagementWindow().Show();
     private void MenuSemesters_Click(object sender, RoutedEventArgs e)
         => new SemesterWindow().Show();
     private void MenuCourses_Click(object sender, RoutedEventArgs e)

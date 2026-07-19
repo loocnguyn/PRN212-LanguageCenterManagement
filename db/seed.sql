@@ -23,6 +23,13 @@ INSERT INTO Admins (user_id, full_name, phone, email) VALUES
 (1, N'System Admin', '0900000000', 'admin@center.edu.vn');
 GO
 
+-- Department names must match the values used in Staff.department below; access_group
+-- drives menu visibility (see MainWindow.ApplyStaffDepartmentVisibility).
+INSERT INTO Departments (name, access_group) VALUES
+(N'Academic Setup', 'ACADEMIC'),
+(N'Finance',        'FINANCE');
+GO
+
 -- staff01 = Academic Setup (class/semester setup), staff02 = Finance (tuition collection)
 INSERT INTO Staff (user_id, full_name, phone, email, department) VALUES
 (2, N'Nguyen Van A', '0901000001', 'a@center.edu.vn', N'Academic Setup'),

@@ -3,8 +3,20 @@ using Repositories;
 
 namespace Services;
 
+// ============================================================
+//  SessionService — the concrete class meetings (one row per
+//  date a class actually meets). These are AUTO-GENERATED from
+//  a class's weekly ClassSchedules once its semester reaches the
+//  LEARNING phase; they are never seeded by hand.
+//  CONTENTS:
+//    1. CRUD & queries              — pass-through to the repo
+//    2. GenerateSessionsForClass    — expand weekly slots into dates
+//    3. EnsureSessionsForSemester   — bulk generate for a semester
+//    4. Date helpers                — DB day -> DayOfWeek, first match
+// ============================================================
 public class SessionService : ISessionService
 {
+    // ---- 1. CRUD & queries -------------------------------------
     private readonly ISessionRepository _sessionRepo = new SessionRepository();
     private readonly IClassRepository _classRepo = new ClassRepository();
     private readonly ISemesterRepository _semesterRepo = new SemesterRepository();
@@ -20,6 +32,11 @@ public class SessionService : ISessionService
     public List<Session> GetByClassIds(List<int> classIds) => _sessionRepo.GetByClassIds(classIds);
     public List<Session> GetByClassIdWithDetails(int classId) => _sessionRepo.GetByClassIdWithDetails(classId);
 
+    // ---- 2. Generate a single class's sessions -----------------
+    /// <summary>Expands each of the class's weekly schedule slots into concrete dated sessions,
+    /// from the day after the semester's setup phase ends through the semester end date.
+    /// No-ops if the class already has any sessions (the CountByClassId guard), so it is safe
+    /// to call repeatedly.</summary>
     public void GenerateSessionsForClass(int classId)
     {
         var cls = _classRepo.GetById(classId)
@@ -67,6 +84,9 @@ public class SessionService : ISessionService
         }
     }
 
+    // ---- 3. Generate for a whole semester ----------------------
+    /// <summary>Generates sessions for every class in the semester, but only while the semester
+    /// is in its LEARNING phase (today is past setup-end and on/before end). Called on app startup.</summary>
     public void EnsureSessionsForSemester(int semesterId)
     {
         var semester = _semesterRepo.GetById(semesterId)
@@ -89,6 +109,8 @@ public class SessionService : ISessionService
         }
     }
 
+    // ---- 4. Date helpers ---------------------------------------
+    /// <summary>Maps the DB day convention (1=Mon .. 7=Sun) to .NET's DayOfWeek (0=Sun .. 6=Sat).</summary>
     private static DayOfWeek MapDayOfWeek(byte dbDay)
     {
         if (dbDay < 1 || dbDay > 7)

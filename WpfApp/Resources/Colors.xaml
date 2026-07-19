@@ -8,6 +8,8 @@
     <Color x:Key="SecondaryColor">#107C10</Color>
     <Color x:Key="SecondaryLightColor">#DFF6DD</Color>
     <Color x:Key="DangerColor">#D13438</Color>
+    <Color x:Key="InfoColor">#0B8A8F</Color>
+    <Color x:Key="InfoDarkColor">#0A6E72</Color>
     <Color x:Key="SurfaceColor">#FFFFFF</Color>
     <Color x:Key="BackgroundColor">#F3F3F3</Color>
     <Color x:Key="BorderColor">#E0E0E0</Color>
@@ -20,6 +22,8 @@
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}"/>
     <SolidColorBrush x:Key="SecondaryLightBrush" Color="{StaticResource SecondaryLightColor}"/>
     <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}"/>
+    <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource InfoColor}"/>
+    <SolidColorBrush x:Key="InfoDarkBrush" Color="{StaticResource InfoDarkColor}"/>
     <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}"/>
     <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}"/>
     <SolidColorBrush x:Key="BorderBrush2" Color="{StaticResource BorderColor}"/>

@@ -56,18 +56,113 @@
     </Style>
 
     <!-- ============================================================
-         ComboBox — tighter padding than WPF-UI's default so selected
-         text doesn't get clipped in the many narrow (110-200px)
-         ComboBoxes across the app (class/session/status/method filters).
+         ComboBox — fully templated (non-editable) so every dropdown in
+         the app gets a consistent rounded border, hover accent, a clear
+         chevron, and a soft-shadowed popup instead of the flat default.
          ============================================================ -->
 
     <Style TargetType="ComboBox">
-        <Setter Property="Padding" Value="6,4"/>
-        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="Padding" Value="10,4"/>
+        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <ToggleButton Name="ToggleButton" Focusable="False" ClickMode="Press"
+                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border x:Name="border" CornerRadius="6" BorderThickness="1"
+                                            BorderBrush="{StaticResource BorderBrush2}"
+                                            Background="{StaticResource SurfaceBrush}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="28"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Path Grid.Column="1" x:Name="arrow"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  Data="M0,0 L4,4 L8,0 Z"
+                                                  Fill="{StaticResource TextSecondaryBrush}"/>
+                                        </Grid>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                                            <Setter TargetName="arrow" Property="Fill" Value="{StaticResource PrimaryBrush}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                                            <Setter TargetName="arrow" Property="Fill" Value="{StaticResource PrimaryBrush}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+
+                        <ContentPresenter Name="ContentSite" IsHitTestVisible="False"
+                                          Content="{TemplateBinding SelectionBoxItem}"
+                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                          ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
+
+                        <Popup Name="PART_Popup" Placement="Bottom" AllowsTransparency="True"
+                               Focusable="False" PopupAnimation="Slide"
+                               IsOpen="{TemplateBinding IsDropDownOpen}">
+                            <Border x:Name="dropDownBorder" Margin="0,2,0,6"
+                                    MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                    MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                                    Background="{StaticResource SurfaceBrush}"
+                                    BorderBrush="{StaticResource BorderBrush2}"
+                                    BorderThickness="1" CornerRadius="6">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#33000000" BlurRadius="10" ShadowDepth="2" Direction="270"/>
+                                </Border.Effect>
+                                <ScrollViewer>
+                                    <ItemsPresenter SnapsToDevicePixels="True"/>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                        <Trigger Property="HasItems" Value="False">
+                            <Setter TargetName="dropDownBorder" Property="MinHeight" Value="36"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style TargetType="ComboBoxItem">
-        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="Padding" Value="10,7"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="itemBorder" Background="Transparent"
+                            Padding="{TemplateBinding Padding}" CornerRadius="4" Margin="3,1">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="itemBorder" Property="Background" Value="{StaticResource PrimaryLightBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="itemBorder" Property="Background" Value="{StaticResource PrimaryLightBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- ============================================================
@@ -148,6 +243,12 @@
 
     <Style x:Key="PillButtonDanger" TargetType="Button" BasedOn="{StaticResource PillButton}">
         <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
+    </Style>
+
+    <!-- Teal "info" pill — for read-only / view actions that need to stand out
+         from the surface without competing with the primary blue. -->
+    <Style x:Key="PillButtonInfo" TargetType="Button" BasedOn="{StaticResource PillButton}">
+        <Setter Property="Background" Value="{StaticResource InfoBrush}"/>
     </Style>
 
     <!-- Subtle (secondary) pill: light fill, dark text — for lower-emphasis actions -->

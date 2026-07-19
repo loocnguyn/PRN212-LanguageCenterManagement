@@ -7,8 +7,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace DataAccessObjects;
 
+// ============================================================
+//  LanguageCenterContext — the single EF Core DbContext for the
+//  whole app. Every DAO news one up, does its work, disposes it.
+//  CONTENTS:
+//    1. Constructors        — parameterless (runtime) + options (tests)
+//    2. DbSet<T> properties — one table per entity, alphabetical
+//    3. OnConfiguring       — reads the connection string from appsettings.json
+//    4. GetConnectionString — config lookup helper
+//    5. OnModelCreating     — Fluent API: keys, indexes, column names,
+//                             relationships — one Entity<T>(...) block each
+//    6. OnModelCreatingPartial — hook for generated partial (if any)
+// ============================================================
 public partial class LanguageCenterContext : DbContext
 {
+    // ---- 1. Constructors ---------------------------------------
     public LanguageCenterContext()
     {
     }
@@ -18,6 +31,7 @@ public partial class LanguageCenterContext : DbContext
     {
     }
 
+    // ---- 2. DbSet<T> properties (one per table) ----------------
     public virtual DbSet<Admin> Admins { get; set; }
 
     public virtual DbSet<Attendance> Attendances { get; set; }
@@ -29,6 +43,8 @@ public partial class LanguageCenterContext : DbContext
     public virtual DbSet<Classroom> Classrooms { get; set; }
 
     public virtual DbSet<Course> Courses { get; set; }
+
+    public virtual DbSet<Department> Departments { get; set; }
 
     public virtual DbSet<Enrollment> Enrollments { get; set; }
 
@@ -60,9 +76,11 @@ public partial class LanguageCenterContext : DbContext
 
     public virtual DbSet<WalletTransaction> WalletTransactions { get; set; }
 
+    // ---- 3. OnConfiguring (which database to talk to) ----------
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer(GetConnectionString());
 
+    // ---- 4. Connection-string lookup ---------------------------
     private static string GetConnectionString()
     {
         IConfiguration config = new ConfigurationBuilder()
@@ -72,6 +90,10 @@ public partial class LanguageCenterContext : DbContext
         return config["ConnectionStrings:DefaultConnectionString"]!;
     }
 
+    // ---- 5. OnModelCreating (entity -> table mapping) ----------
+    // Each modelBuilder.Entity<T>(...) block below configures one table:
+    // primary key, unique/index constraints, and the entity-property to
+    // snake_case column-name mapping. Grouped loosely by domain.
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("Vietnamese_CI_AS");
@@ -218,6 +240,17 @@ public partial class LanguageCenterContext : DbContext
             entity.Property(e => e.SlotNo).HasColumnName("slot_no");
             entity.Property(e => e.StartTime).HasColumnName("start_time");
             entity.Property(e => e.EndTime).HasColumnName("end_time");
+        });
+
+        modelBuilder.Entity<Department>(entity =>
+        {
+            entity.HasKey(e => e.DepartmentId);
+            entity.ToTable("Departments");
+            entity.HasIndex(e => e.Name).IsUnique();
+            entity.Ignore(e => e.AccessGroupDisplay);
+            entity.Property(e => e.DepartmentId).HasColumnName("department_id");
+            entity.Property(e => e.Name).HasMaxLength(100).HasColumnName("name");
+            entity.Property(e => e.AccessGroup).HasMaxLength(20).HasColumnName("access_group");
         });
 
         modelBuilder.Entity<Classroom>(entity =>

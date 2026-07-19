@@ -9,12 +9,16 @@ namespace WpfApp;
 public partial class AccountDetailWindow : Window
 {
     private readonly IUserService _service = new UserService();
+    private readonly IDepartmentService _departmentService = new DepartmentService();
     private readonly User? _editUser;
 
-    public AccountDetailWindow(User? user = null)
+    public AccountDetailWindow(User? user = null, string? presetRole = null)
     {
         InitializeComponent();
         _editUser = user;
+
+        // Department options come from the managed Departments table.
+        txtDept.ItemsSource = _departmentService.GetAll().Select(d => d.Name).ToList();
 
         if (user != null)
         {
@@ -26,6 +30,15 @@ public partial class AccountDetailWindow : Window
             txtUsername.IsEnabled = false;
             lblPasswordHint.Visibility = Visibility.Visible;
             LoadProfileFields(user);
+        }
+        else if (presetRole != null)
+        {
+            // Opened from a role-specific screen (e.g. Staff/Student Management):
+            // lock the role so this dialog only creates that kind of account.
+            cmbRole.SelectedItem = cmbRole.Items.Cast<ComboBoxItem>()
+                .FirstOrDefault(i => i.Content.ToString() == presetRole);
+            cmbRole.IsEnabled = false;
+            ShowFieldsForRole(presetRole);
         }
     }
 
@@ -66,7 +79,7 @@ public partial class AccountDetailWindow : Window
                     txtFullName.Text = st.FullName;
                     txtPhone.Text = st.Phone ?? "";
                     txtEmail.Text = st.Email ?? "";
-                    SelectComboItem(txtDept, st.Department);
+                    txtDept.SelectedItem = st.Department;
                 }
                 break;
             case "ADMIN":
@@ -270,12 +283,12 @@ public partial class AccountDetailWindow : Window
             case "STAFF":
                 if (isNew)
                 {
-                    StaffDAO.Save(new Staff { UserId = userId, FullName = fullName, Phone = phone, Email = email, Department = (txtDept.SelectedItem as ComboBoxItem)?.Content.ToString() });
+                    StaffDAO.Save(new Staff { UserId = userId, FullName = fullName, Phone = phone, Email = email, Department = txtDept.SelectedItem as string });
                 }
                 else
                 {
                     var st = StaffDAO.GetAll().FirstOrDefault(x => x.UserId == userId);
-                    if (st != null) { st.FullName = fullName; st.Phone = phone; st.Email = email; st.Department = (txtDept.SelectedItem as ComboBoxItem)?.Content.ToString(); StaffDAO.Update(st); }
+                    if (st != null) { st.FullName = fullName; st.Phone = phone; st.Email = email; st.Department = txtDept.SelectedItem as string; StaffDAO.Update(st); }
                 }
                 break;
             case "ADMIN":

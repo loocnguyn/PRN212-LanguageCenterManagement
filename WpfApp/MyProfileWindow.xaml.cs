@@ -13,6 +13,7 @@ public partial class MyProfileWindow : Window
     private readonly ITeacherService _teacherService = new TeacherService();
     private readonly IStaffService _staffService = new StaffService();
     private readonly IAdminService _adminService = new AdminService();
+    private readonly IDepartmentService _departmentService = new DepartmentService();
 
     private Student? _student;
     private Teacher? _teacher;
@@ -71,7 +72,8 @@ public partial class MyProfileWindow : Window
                     ShowField(lblGender, cmbGender);
                     SelectComboItem(cmbGender, _staff.Gender);
                     ShowField(lblDept, cmbDept);
-                    SelectComboItem(cmbDept, _staff.Department);
+                    cmbDept.ItemsSource = _departmentService.GetAll().Select(d => d.Name).ToList();
+                    cmbDept.SelectedItem = _staff.Department;
                     cmbDept.IsEnabled = false;
                     break;
 

@@ -11,7 +11,7 @@
                 <ui:SymbolIcon Symbol="CalendarLtr24" Foreground="White" FontSize="26" Margin="0,0,12,0"/>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="Class Schedule Management" Foreground="White" FontSize="18" FontWeight="SemiBold"/>
-                    <TextBlock Text="Set the weekly timetable for each class"
+                    <TextBlock Text="One row per class — open a class to manage its weekly sessions"
                                Foreground="#DCEBFF" FontSize="12"/>
                 </StackPanel>
             </StackPanel>
@@ -26,35 +26,28 @@
 
             <Border Grid.Row="0" Style="{StaticResource Card}" Padding="12" Margin="0,0,0,14">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Class:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <ComboBox x:Name="cboClassFilter" Width="220" Height="32" VerticalContentAlignment="Center"
-                              DisplayMemberPath="Name" SelectedValuePath="ClassId"
-                              SelectionChanged="CboClassFilter_SelectionChanged"/>
-                    <TextBlock Text="Search:" VerticalAlignment="Center" Margin="16,0,6,0"/>
-                    <TextBox x:Name="txtSearch" Width="220" Height="32" VerticalContentAlignment="Center" Padding="6,0"/>
+                    <TextBlock Text="Search class:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBox x:Name="txtSearch" Width="240" Height="32" VerticalContentAlignment="Center" Padding="6,0"/>
                     <Button Content="Search" Style="{StaticResource PillButton}" Width="84" Margin="8,0,0,0" Click="BtnSearch_Click"/>
                     <Button Content="Reset" Style="{StaticResource PillButtonSubtle}" Width="84" Margin="8,0,0,0" Click="BtnReset_Click"/>
                 </StackPanel>
             </Border>
 
             <Border Grid.Row="1" Style="{StaticResource Card}" Padding="0">
-                <DataGrid x:Name="dgSchedules" AutoGenerateColumns="False" IsReadOnly="True"
-                          SelectionMode="Single" BorderThickness="0" Background="Transparent" RowHeight="40"
-                          SelectionChanged="DgSchedules_SelectionChanged">
+                <DataGrid x:Name="dgClasses" AutoGenerateColumns="False" IsReadOnly="True"
+                          SelectionMode="Single" BorderThickness="0" Background="Transparent" RowHeight="48"
+                          MouseDoubleClick="DgClasses_MouseDoubleClick">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="ID" Binding="{Binding ScheduleId}" Width="50"/>
-                        <DataGridTextColumn Header="Class" Binding="{Binding ClassName}" Width="180"/>
-                        <DataGridTextColumn Header="Day" Binding="{Binding DayName}" Width="140"/>
-                        <DataGridTextColumn Header="Start" Binding="{Binding StartTimeStr}" Width="120"/>
-                        <DataGridTextColumn Header="End" Binding="{Binding EndTimeStr}" Width="*"/>
+                        <DataGridTextColumn Header="Class" Binding="{Binding ClassName}" Width="200"
+                                            FontWeight="SemiBold"/>
+                        <DataGridTextColumn Header="Weekly sessions" Binding="{Binding Summary}" Width="*"/>
+                        <DataGridTextColumn Header="Count" Binding="{Binding Count}" Width="90"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>
 
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
-                <Button Content="Add"    Style="{StaticResource PillButton}"        Width="90" Margin="0,0,8,0" Click="BtnAdd_Click"/>
-                <Button Content="Edit"   Style="{StaticResource PillButtonSuccess}" Width="90" Margin="0,0,8,0" Click="BtnEdit_Click"/>
-                <Button Content="Delete" Style="{StaticResource PillButtonDanger}"  Width="90" Click="BtnDelete_Click"/>
+                <Button Content="Manage Schedule" Style="{StaticResource PillButton}" Width="160" Click="BtnManage_Click"/>
             </StackPanel>
         </Grid>
     </DockPanel>

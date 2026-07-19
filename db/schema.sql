@@ -64,6 +64,17 @@ CREATE TABLE Teachers (
 );
 GO
 
+-- Staff departments. access_group decides which menu group a department's
+-- staff can reach: 'ACADEMIC' (students/classes/enrollment) or 'FINANCE'
+-- (invoices/payments/reports/discounts). Managed via the Departments screen.
+CREATE TABLE Departments (
+    department_id INT           IDENTITY(1,1) PRIMARY KEY,
+    name          NVARCHAR(100) NOT NULL UNIQUE,
+    access_group  NVARCHAR(20)  NOT NULL DEFAULT 'ACADEMIC'
+                  CHECK (access_group IN ('ACADEMIC', 'FINANCE'))
+);
+GO
+
 CREATE TABLE Staff (
     staff_id      INT           IDENTITY(1,1) PRIMARY KEY,
     user_id       INT           NOT NULL UNIQUE REFERENCES Users(id),

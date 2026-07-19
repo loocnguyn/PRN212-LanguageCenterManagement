@@ -18,10 +18,17 @@ public partial class ClassScheduleDialog : Window
         new("Thursday", 4), new("Friday", 5), new("Saturday", 6), new("Sunday", 7)
     };
 
-    public ClassScheduleDialog()
+    public ClassScheduleDialog(int? presetClassId = null)
     {
         InitializeComponent();
         LoadDropdowns();
+        if (presetClassId is int classId)
+        {
+            // Opened from the per-class editor: lock the class so every session added here
+            // belongs to that class.
+            cboClass.SelectedValue = classId;
+            cboClass.IsEnabled = false;
+        }
     }
 
     public ClassScheduleDialog(ClassSchedule schedule)
