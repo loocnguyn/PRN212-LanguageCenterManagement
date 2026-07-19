@@ -63,6 +63,16 @@ INSERT INTO Classrooms (name, capacity, location) VALUES
 ('Room 301', 15, 'Floor 3');
 GO
 
+-- FAP-style daily slots. These are editable via the Slot Time Setting screen.
+INSERT INTO Slots (slot_no, start_time, end_time) VALUES
+(1, '07:00', '09:15'),
+(2, '09:30', '11:45'),
+(3, '12:30', '14:45'),
+(4, '15:00', '17:15'),
+(5, '17:30', '19:45'),
+(6, '20:00', '22:15');
+GO
+
 -- setup_end_date = start_date + 2 weeks (setup phase); learning phase runs setup_end_date..end_date
 -- Fall 2025 (active) is dated around "today" so it's immediately in the LEARNING phase for testing
 -- schedule generation without manually patching the DB.

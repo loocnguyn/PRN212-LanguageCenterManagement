@@ -1,5 +1,4 @@
 using System.Windows;
-using System.Windows.Controls;
 using BusinessObjects;
 using Services;
 
@@ -11,6 +10,7 @@ public partial class ClassScheduleDialog : Window
     private readonly int? _editId;
     private readonly IClassService _classService = new ClassService();
     private readonly IClassScheduleService _scheduleService = new ClassScheduleService();
+    private readonly ISlotService _slotService = new SlotService();
 
     private static readonly List<KeyValuePair<string, byte>> Days = new()
     {
@@ -31,45 +31,34 @@ public partial class ClassScheduleDialog : Window
         LoadDropdowns();
         cboClass.SelectedValue = schedule.ClassId;
         cboDayOfWeek.SelectedValue = schedule.DayOfWeek;
-        txtStartTime.Text = schedule.StartTime.ToString("HH:mm");
-        txtEndTime.Text = schedule.EndTime.ToString("HH:mm");
+        // Preselect the slot whose start time matches the existing schedule.
+        var slots = (List<Slot>)cboSlot.ItemsSource;
+        var match = slots.FirstOrDefault(s => s.StartTime == schedule.StartTime && s.EndTime == schedule.EndTime)
+            ?? slots.FirstOrDefault(s => s.StartTime == schedule.StartTime);
+        if (match != null) cboSlot.SelectedValue = match.SlotId;
     }
 
     private void LoadDropdowns()
     {
         cboClass.ItemsSource = _classService.GetAll();
         cboDayOfWeek.ItemsSource = Days;
-    }
-
-    private string? Validate()
-    {
-        if (cboClass.SelectedValue == null)
-            return "Please select a Class.";
-        if (cboDayOfWeek.SelectedValue == null)
-            return "Please select a Day of Week.";
-        if (!TimeOnly.TryParse(txtStartTime.Text.Trim(), out _))
-            return "Start Time must be in HH:mm format (e.g. 08:00).";
-        if (!TimeOnly.TryParse(txtEndTime.Text.Trim(), out _))
-            return "End Time must be in HH:mm format (e.g. 10:00).";
-        var start = TimeOnly.Parse(txtStartTime.Text.Trim());
-        var end = TimeOnly.Parse(txtEndTime.Text.Trim());
-        if (end <= start)
-            return "End Time must be after Start Time.";
-        return null;
+        cboSlot.ItemsSource = _slotService.GetAll();
+        tbHint.Text = "The slot's start/end time is applied to this schedule.";
     }
 
     private void BtnSave_Click(object sender, RoutedEventArgs e)
     {
-        var error = Validate();
-        if (error != null) { MessageBox.Show(error, "Validation"); return; }
+        if (cboClass.SelectedValue == null) { MessageBox.Show("Please select a Class.", "Validation"); return; }
+        if (cboDayOfWeek.SelectedValue == null) { MessageBox.Show("Please select a Day of Week.", "Validation"); return; }
+        if (cboSlot.SelectedItem is not Slot slot) { MessageBox.Show("Please select a Slot.", "Validation"); return; }
 
         var schedule = new ClassSchedule
         {
             ScheduleId = _editId ?? 0,
             ClassId = (int)cboClass.SelectedValue,
             DayOfWeek = (byte)cboDayOfWeek.SelectedValue,
-            StartTime = TimeOnly.Parse(txtStartTime.Text.Trim()),
-            EndTime = TimeOnly.Parse(txtEndTime.Text.Trim())
+            StartTime = slot.StartTime,
+            EndTime = slot.EndTime
         };
 
         var conflicts = _scheduleService.CheckConflicts(schedule);
@@ -84,8 +73,5 @@ public partial class ClassScheduleDialog : Window
         DialogResult = true;
     }
 
-    private void BtnCancel_Click(object sender, RoutedEventArgs e)
-    {
-        DialogResult = false;
-    }
+    private void BtnCancel_Click(object sender, RoutedEventArgs e) => DialogResult = false;
 }

@@ -44,6 +44,8 @@ public partial class LanguageCenterContext : DbContext
 
     public virtual DbSet<Session> Sessions { get; set; }
 
+    public virtual DbSet<Slot> Slots { get; set; }
+
     public virtual DbSet<Staff> Staff { get; set; }
 
     public virtual DbSet<Student> Students { get; set; }
@@ -204,6 +206,18 @@ public partial class LanguageCenterContext : DbContext
             entity.HasOne(d => d.Class).WithMany(p => p.ClassSchedules)
                 .HasForeignKey(d => d.ClassId)
                 .HasConstraintName("FK__ClassSche__class__412EB0B6");
+        });
+
+        modelBuilder.Entity<Slot>(entity =>
+        {
+            entity.HasKey(e => e.SlotId);
+            entity.ToTable("Slots");
+            entity.HasIndex(e => e.SlotNo).IsUnique();
+            entity.Ignore(e => e.Display);
+            entity.Property(e => e.SlotId).HasColumnName("slot_id");
+            entity.Property(e => e.SlotNo).HasColumnName("slot_no");
+            entity.Property(e => e.StartTime).HasColumnName("start_time");
+            entity.Property(e => e.EndTime).HasColumnName("end_time");
         });
 
         modelBuilder.Entity<Classroom>(entity =>

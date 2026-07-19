@@ -139,6 +139,17 @@ CREATE TABLE Classes (
 );
 GO
 
+-- Configurable daily time slots (periods). Admins adjust these via Slot Time Setting;
+-- a class schedule picks a day + slot and copies the slot's times into ClassSchedules.
+CREATE TABLE Slots (
+    slot_id    INT  IDENTITY(1,1) PRIMARY KEY,
+    slot_no    INT  NOT NULL UNIQUE,
+    start_time TIME NOT NULL,
+    end_time   TIME NOT NULL,
+    CONSTRAINT chk_slot_time CHECK (end_time > start_time)
+);
+GO
+
 -- day_of_week: 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat, 7=Sun
 CREATE TABLE ClassSchedules (
     schedule_id INT     IDENTITY(1,1) PRIMARY KEY,

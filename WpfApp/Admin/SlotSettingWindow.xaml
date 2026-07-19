@@ -1,0 +1,46 @@
+<Window x:Class="WpfApp.SlotSettingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        Title="Slot Time Setting" Height="600" Width="700"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}">
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Background="{StaticResource PrimaryBrush}" Padding="20,14">
+            <StackPanel Orientation="Horizontal">
+                <ui:SymbolIcon Symbol="Clock24" Foreground="White" FontSize="26" Margin="0,0,12,0"/>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Slot Time Setting" Foreground="White" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock Text="Adjust the start and end time of each daily period (slot)"
+                               Foreground="#DCEBFF" FontSize="12"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Style="{StaticResource Card}" Padding="0">
+                <DataGrid x:Name="dgSlots" AutoGenerateColumns="False" IsReadOnly="True"
+                          SelectionMode="Single" BorderThickness="0" Background="Transparent" RowHeight="42"
+                          MouseDoubleClick="DgSlots_MouseDoubleClick">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Slot" Binding="{Binding SlotNo}" Width="120"/>
+                        <DataGridTextColumn Header="Start" Binding="{Binding StartTime, StringFormat='{}{0:HH\\:mm}'}" Width="150"/>
+                        <DataGridTextColumn Header="End" Binding="{Binding EndTime, StringFormat='{}{0:HH\\:mm}'}" Width="150"/>
+                        <DataGridTextColumn Header="Label" Binding="{Binding Display}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+                <Button Content="Add"    Style="{StaticResource PillButton}"        Width="90" Margin="0,0,8,0" Click="BtnAdd_Click"/>
+                <Button Content="Edit"   Style="{StaticResource PillButtonSuccess}" Width="90" Margin="0,0,8,0" Click="BtnEdit_Click"/>
+                <Button Content="Delete" Style="{StaticResource PillButtonDanger}"  Width="90" Click="BtnDelete_Click"/>
+            </StackPanel>
+        </Grid>
+    </DockPanel>
+</Window>
