@@ -6,6 +6,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  TopUpWalletWindow — top up the student wallet via ZaloPay.
+//  CONTENTS:
+//    1. Construction & balance  — show current balance
+//    2. TopUp                   — create a ZaloPay order, open pay URL
+//    3. Polling                 — poll order status until paid/timeout
+// ============================================================
 public partial class TopUpWalletWindow : Window
 {
     private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(3);

@@ -5,6 +5,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  TuitionDiscountDetailWindow — Add/Edit a discount code.
+//  CONTENTS:
+//    1. Construction   — add vs edit (LoadDiscount prefills)
+//    2. Save / Cancel  — validate then create/update
+//    3. Combo helpers  — get/select combo text
+// ============================================================
 public partial class TuitionDiscountDetailWindow : Window
 {
     private readonly ITuitionDiscountService _service = new TuitionDiscountService();

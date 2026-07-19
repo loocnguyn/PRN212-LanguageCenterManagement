@@ -3,6 +3,7 @@ using Services;
 
 namespace WpfApp;
 
+// LoginWindow — username/password sign-in; on success opens MainWindow for the user's role.
 public partial class LoginWindow : Window
 {
     private readonly IUserService _userService = new UserService();

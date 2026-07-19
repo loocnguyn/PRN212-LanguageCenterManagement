@@ -4,6 +4,14 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  ClassScheduleManagementWindow — one row per class + summary.
+//  CONTENTS:
+//    1. Construction & LoadData — every class + its session summary
+//    2. Search / filter         — by class name
+//    3. ManageSelected          — open ClassScheduleEditorWindow
+//    4. ClassRow                — grid-facing view model (summary text)
+// ============================================================
 public partial class ClassScheduleManagementWindow : Window
 {
     private readonly IClassScheduleService _service = new ClassScheduleService();

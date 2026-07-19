@@ -5,6 +5,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  DeactivatedAccountsWindow — list soft-deleted accounts and
+//  reactivate them.
+//  CONTENTS:
+//    1. Construction & load — inactive users into the grid
+//    2. Row actions         — double-click to view; Activate
+// ============================================================
 public partial class DeactivatedAccountsWindow : Window
 {
     private readonly IUserService _service = new UserService();

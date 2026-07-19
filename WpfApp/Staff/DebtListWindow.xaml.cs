@@ -5,6 +5,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  DebtListWindow — students/enrollments with outstanding tuition.
+//  CONTENTS:
+//    1. Construction & load  — compute debt items into the grid
+//    2. Advanced filter      — toggle panel, clear
+//    3. Filter matching      — combo options + per-row predicates
+// ============================================================
 public partial class DebtListWindow : Window
 {
     private readonly IInvoiceService _service = new InvoiceService();

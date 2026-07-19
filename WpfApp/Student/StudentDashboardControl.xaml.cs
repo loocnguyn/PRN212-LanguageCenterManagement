@@ -6,6 +6,7 @@ using Services;
 
 namespace WpfApp;
 
+// StudentDashboardControl — student home: hero + wallet/invoice/grade/class tiles + upcoming sessions (RefreshData).
 public partial class StudentDashboardControl : UserControl, IDashboardControl
 {
     private readonly User _currentUser;

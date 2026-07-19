@@ -4,6 +4,12 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  InvoiceEditWindow — edit an existing invoice.
+//  CONTENTS:
+//    1. Construction & LoadInvoice — prefill fields from the invoice
+//    2. Save                       — validate then update
+// ============================================================
 public partial class InvoiceEditWindow : Window
 {
     private readonly IInvoiceService _service = new InvoiceService();

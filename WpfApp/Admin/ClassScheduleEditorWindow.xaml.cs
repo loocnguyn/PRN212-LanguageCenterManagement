@@ -4,6 +4,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  ClassScheduleEditorWindow — manage one class's weekly sessions.
+//  CONTENTS:
+//    1. Construction & LoadData — that class's schedule rows
+//    2. Add / Delete            — ClassScheduleDialog (class locked); delete
+//    3. Row                     — grid-facing view model
+// ============================================================
 public partial class ClassScheduleEditorWindow : Window
 {
     private readonly IClassScheduleService _service = new ClassScheduleService();

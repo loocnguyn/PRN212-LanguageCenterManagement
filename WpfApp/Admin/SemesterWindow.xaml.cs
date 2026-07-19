@@ -5,6 +5,15 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  SemesterWindow — manage semesters (dates, phases, active flag).
+//  CONTENTS:
+//    1. Fields & load        — grid + form state
+//    2. Form helpers         — clear, auto setup-end on start change, select
+//    3. Add / edit / delete  — validate then persist
+//    4. SetActive            — make one semester the active one
+//    5. ValidateForm         — build a Semester or report errors
+// ============================================================
 public partial class SemesterWindow : Window
 {
     private readonly ISemesterService _service = new SemesterService();

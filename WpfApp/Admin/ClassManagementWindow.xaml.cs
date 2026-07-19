@@ -5,6 +5,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  ClassManagementWindow — list & manage classes.
+//  CONTENTS:
+//    1. Fields & load    — all classes into the grid
+//    2. Search / reset   — filter by keyword
+//    3. Add / edit / delete — open ClassDialog; delete selected
+// ============================================================
 public partial class ClassManagementWindow : Window
 {
     private readonly IClassService _service = new ClassService();

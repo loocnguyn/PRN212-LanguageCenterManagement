@@ -5,6 +5,14 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  RevenueReportWindow — payments over a date range, with filters.
+//  CONTENTS:
+//    1. Fields & construction   — base vs filtered payment lists
+//    2. GenerateReport          — pull payments, total, populate grid
+//    3. Quick ranges            — this/last month, this quarter, clear
+//    4. Advanced filter         — combo options + row matching
+// ============================================================
 public partial class RevenueReportWindow : Window
 {
     private readonly IPaymentService _service = new PaymentService();

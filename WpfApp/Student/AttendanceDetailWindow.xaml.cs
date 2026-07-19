@@ -13,6 +13,7 @@ public class AttendanceDetailDisplayItem
     public string RecordedAtDisplay { get; set; } = "";
 }
 
+// AttendanceDetailWindow — read-only list of a class's attendance rows for the student.
 public partial class AttendanceDetailWindow : Window
 {
     public AttendanceDetailWindow(string className, List<Attendance> attendances)

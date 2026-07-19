@@ -6,6 +6,7 @@ using Services;
 
 namespace WpfApp;
 
+// TeacherDashboardControl — teacher home: hero + class/session/attendance tiles + classes-needing-grades (RefreshData).
 public partial class TeacherDashboardControl : UserControl, IDashboardControl
 {
     private readonly User _currentUser;

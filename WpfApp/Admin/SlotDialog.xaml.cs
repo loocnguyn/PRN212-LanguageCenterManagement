@@ -3,6 +3,12 @@ using BusinessObjects;
 
 namespace WpfApp;
 
+// ============================================================
+//  SlotDialog — Add/Edit one time slot (number, start, end).
+//  CONTENTS:
+//    1. Construction   — add vs edit (prefill)
+//    2. Save / Cancel  — validate times, return via Result
+// ============================================================
 public partial class SlotDialog : Window
 {
     public Slot Result { get; private set; } = null!;

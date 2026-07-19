@@ -5,6 +5,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  CourseManagementWindow — list & manage the course catalog.
+//  CONTENTS:
+//    1. Fields & load    — all courses into the grid
+//    2. Search / reset   — filter by keyword
+//    3. Add / edit / delete — open CourseDetailWindow; delete selected
+// ============================================================
 public partial class CourseManagementWindow : Window
 {
     private readonly ICourseService _service = new CourseService();

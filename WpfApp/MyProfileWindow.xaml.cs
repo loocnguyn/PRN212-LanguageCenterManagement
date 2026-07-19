@@ -5,6 +5,14 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  MyProfileWindow — the signed-in user views/edits their own profile.
+//  CONTENTS:
+//    1. Construction & LoadProfile — role-colored header + role fields
+//    2. Field helpers              — show field, select combo item
+//    3. Save                       — validate & persist; optional password
+//    4. RoleBrush                  — accent color per role
+// ============================================================
 public partial class MyProfileWindow : Window
 {
     private readonly User _currentUser;

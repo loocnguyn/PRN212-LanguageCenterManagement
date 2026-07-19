@@ -8,6 +8,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  GradeEntryWindow — teacher enters/edits grades for a class.
+//  CONTENTS:
+//    1. Construction & LoadTeacherData — the teacher's classes
+//    2. Cascading selects              — semester->course->class grid
+//    3. Save / Reset                   — persist grades; clear
+// ============================================================
 public partial class GradeEntryWindow : Window
 {
     private readonly User _currentUser;

@@ -6,6 +6,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  TeacherScheduleWindow — weekly timetable grid for the teacher.
+//  CONTENTS:
+//    1. Construction & LoadSchedule — sessions for the teacher
+//    2. Week navigation             — prev/next week
+//    3. RenderGrid / status text    — draw via ScheduleGridRenderer
+// ============================================================
 public partial class TeacherScheduleWindow : Window
 {
     private readonly User _currentUser;

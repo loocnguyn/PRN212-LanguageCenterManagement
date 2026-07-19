@@ -4,6 +4,12 @@ using BusinessObjects;
 
 namespace WpfApp;
 
+// ============================================================
+//  DepartmentDialog — Add/Edit a department (name + access group).
+//  CONTENTS:
+//    1. Construction   — add vs edit (prefill name/access group)
+//    2. Save / Cancel  — validate name, return via Result
+// ============================================================
 public partial class DepartmentDialog : Window
 {
     public Department Result { get; private set; } = null!;

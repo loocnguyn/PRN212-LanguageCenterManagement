@@ -4,6 +4,12 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  SlotSettingWindow — manage the daily time slots.
+//  CONTENTS:
+//    1. Construction & load  — slots into the grid
+//    2. Add / edit / delete  — SlotDialog; delete selected
+// ============================================================
 public partial class SlotSettingWindow : Window
 {
     private readonly ISlotService _service = new SlotService();

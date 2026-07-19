@@ -10,6 +10,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  ClassResultWindow — final results/summary for a teacher's class.
+//  CONTENTS:
+//    1. Construction & LoadTeacherClasses — the teacher's classes
+//    2. Class select                      — compute & show results
+//    3. Reset                             — clear the view
+// ============================================================
 public partial class ClassResultWindow : Window
 {
     private readonly User _currentUser;

@@ -5,6 +5,12 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  TuitionDiscountManagementWindow — list & manage discount codes.
+//  CONTENTS:
+//    1. Construction & load  — discounts into the grid
+//    2. Add / edit / delete  — TuitionDiscountDetailWindow; delete selected
+// ============================================================
 public partial class TuitionDiscountManagementWindow : Window
 {
     private readonly ITuitionDiscountService _service = new TuitionDiscountService();

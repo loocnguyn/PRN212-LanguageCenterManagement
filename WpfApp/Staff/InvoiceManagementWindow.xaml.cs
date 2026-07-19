@@ -5,6 +5,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  InvoiceManagementWindow — browse/manage all invoices.
+//  CONTENTS:
+//    1. Construction & ApplyFilter — load + keyword/status filter
+//    2. Advanced filter            — toggle panel, clear
+//    3. Filter matching            — combo options + per-row predicates
+// ============================================================
 public partial class InvoiceManagementWindow : Window
 {
     private readonly IInvoiceService _service = new InvoiceService();

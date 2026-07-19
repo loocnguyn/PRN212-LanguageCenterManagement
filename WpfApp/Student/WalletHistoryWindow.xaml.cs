@@ -3,6 +3,7 @@ using Services;
 
 namespace WpfApp;
 
+// WalletHistoryWindow — read-only list of the student's wallet transactions.
 public partial class WalletHistoryWindow : Window
 {
     private readonly IWalletService _walletService = new WalletService();

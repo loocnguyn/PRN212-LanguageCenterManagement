@@ -6,6 +6,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  AccountViewWindow — read-only detail view of one account.
+//  CONTENTS:
+//    1. Construction & Load    — role-colored header + sections
+//    2. LoadProfile            — role-specific profile rows
+//    3. AddRow / helpers       — label/value row builder, initials, brush
+// ============================================================
 public partial class AccountViewWindow : Window
 {
     private readonly IStudentService _studentService = new StudentService();

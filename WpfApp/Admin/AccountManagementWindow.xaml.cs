@@ -5,6 +5,15 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  AccountManagementWindow — list & manage all active accounts.
+//  CONTENTS:
+//    1. Fields & construction  — paging state, current user
+//    2. Load / stats / filter  — load actives, role counts, search+role filter
+//    3. Paging                 — first / prev / next / last
+//    4. Row actions            — view / add / edit / deactivate
+//  View->AccountViewWindow, Add/Edit->AccountDetailWindow.
+// ============================================================
 public partial class AccountManagementWindow : Window
 {
     private readonly IUserService _service = new UserService();

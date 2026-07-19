@@ -6,6 +6,14 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  PaymentWindow — record a tuition payment against an invoice.
+//  CONTENTS:
+//    1. Construction & staff   — resolve current staff (null for admin)
+//    2. LoadInvoices           — outstanding invoices into the grid
+//    3. Advanced filter        — toggle panel, clear, matching
+//    4. Pay                    — record the payment (BtnPay_Click)
+// ============================================================
 public partial class PaymentWindow : Window
 {
     private readonly IPaymentService _payService = new PaymentService();

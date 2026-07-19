@@ -3,6 +3,12 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  App — WPF entry point. On startup, if a semester is in its
+//  LEARNING phase, it locks enrollments on the transition day and
+//  (idempotently) generates class sessions. DB errors are swallowed
+//  so the app still opens to the login window.
+// ============================================================
 public partial class App : Application
 {
     protected override void OnStartup(StartupEventArgs e)

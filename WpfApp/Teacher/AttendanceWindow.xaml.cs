@@ -8,6 +8,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  AttendanceWindow — teacher marks attendance for a session.
+//  CONTENTS:
+//    1. Construction & LoadTeacherData — the teacher's classes
+//    2. Cascading selects              — semester->course->class->session
+//    3. Save                           — persist the roster's attendance
+// ============================================================
 public partial class AttendanceWindow : Window
 {
     private readonly User _currentUser;

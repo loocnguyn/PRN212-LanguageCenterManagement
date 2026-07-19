@@ -5,6 +5,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  DepartmentManagementWindow — CRUD for staff departments.
+//  CONTENTS:
+//    1. Construction & load   — departments into the grid
+//    2. Add / edit / delete   — DepartmentDialog; delete selected
+//    3. TrySave               — friendly error on duplicate name
+// ============================================================
 public partial class DepartmentManagementWindow : Window
 {
     private readonly IDepartmentService _service = new DepartmentService();

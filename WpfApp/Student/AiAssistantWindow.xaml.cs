@@ -8,6 +8,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  AiAssistantWindow — chat UI over AiAssistantService (Gemini).
+//  CONTENTS:
+//    1. Construction & Init    — resolve student, greet
+//    2. BuildContext           — student data fed to the model as context
+//    3. Chat flow              — key handling, SendAsync, append, busy state
+// ============================================================
 public partial class AiAssistantWindow : Window
 {
     private readonly User _currentUser;

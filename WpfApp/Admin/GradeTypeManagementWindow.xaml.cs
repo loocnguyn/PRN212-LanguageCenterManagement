@@ -6,6 +6,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  GradeTypeManagementWindow — per-course grade components & weights.
+//  CONTENTS:
+//    1. Construction & loading   — course picker, grade-type grid
+//    2. UpdateTotalIndicator     — progress bar/status for total weight
+//    3. Add / edit / delete      — GradeTypeDialog; enforce 100% total
+// ============================================================
 public partial class GradeTypeManagementWindow : Window
 {
     private readonly ICourseService _courseService = new CourseService();

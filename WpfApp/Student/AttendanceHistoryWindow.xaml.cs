@@ -33,6 +33,13 @@ public class ClassAttendanceSummaryItem
     public int AbsentCount { get; set; }
 }
 
+// ============================================================
+//  AttendanceHistoryWindow — student's attendance across classes.
+//  CONTENTS:
+//    1. Construction & LoadAttendance — pull the student's records
+//    2. Semester/course filters       — cascading combos -> class list
+//    3. Row actions                   — double-click for class detail
+// ============================================================
 public partial class AttendanceHistoryWindow : Window
 {
     private readonly User _currentUser;

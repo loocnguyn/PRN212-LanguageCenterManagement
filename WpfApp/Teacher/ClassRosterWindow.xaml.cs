@@ -8,6 +8,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  ClassRosterWindow — the student roster of a teacher's class.
+//  CONTENTS:
+//    1. Construction & LoadTeacherData — the teacher's classes
+//    2. Cascading selects              — semester->course->class->roster
+//    3. Reset                          — clear the view
+// ============================================================
 public partial class ClassRosterWindow : Window
 {
     private readonly User _currentUser;

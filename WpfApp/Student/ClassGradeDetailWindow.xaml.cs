@@ -4,6 +4,7 @@ using BusinessObjects;
 
 namespace WpfApp;
 
+// ClassGradeDetailWindow — read-only breakdown of a student's grades for one class.
 public partial class ClassGradeDetailWindow : Window
 {
     public ClassGradeDetailWindow(string className, List<Grade> grades)

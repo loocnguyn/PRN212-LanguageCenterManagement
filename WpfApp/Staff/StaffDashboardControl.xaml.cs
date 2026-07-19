@@ -6,6 +6,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  StaffDashboardControl — staff home; tiles depend on department.
+//  CONTENTS:
+//    1. Construction & RefreshData — hero + department-based tiles
+//    2. LoadFinanceTiles           — finance-department metrics
+//    3. LoadAcademicTiles          — academic-department metrics
+// ============================================================
 public partial class StaffDashboardControl : UserControl, IDashboardControl
 {
     private readonly User _currentUser;

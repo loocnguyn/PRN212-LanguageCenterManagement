@@ -5,6 +5,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  InvoiceAddWindow — create an invoice for a student's enrollment.
+//  CONTENTS:
+//    1. Construction & load   — student list
+//    2. Cascading selects     — student -> enrollment -> amount
+//    3. Save                  — validate then create the invoice
+// ============================================================
 public partial class InvoiceAddWindow : Window
 {
     private readonly IInvoiceService _service = new InvoiceService();

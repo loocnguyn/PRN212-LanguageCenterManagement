@@ -6,6 +6,7 @@ using Services;
 
 namespace WpfApp;
 
+// AdminDashboardControl — admin home: gradient hero + overview stat tiles (RefreshData rebuilds them).
 public partial class AdminDashboardControl : UserControl, IDashboardControl
 {
     private readonly User _currentUser;

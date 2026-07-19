@@ -4,6 +4,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  CourseDetailWindow — Add/Edit a course (code, level, tuition…).
+//  CONTENTS:
+//    1. Construction    — add vs edit; prefill fields
+//    2. Save            — validate then create/update the course
+//    3. Helpers         — SelectComboItem, Cancel
+// ============================================================
 public partial class CourseDetailWindow : Window
 {
     private readonly ICourseService _service = new CourseService();

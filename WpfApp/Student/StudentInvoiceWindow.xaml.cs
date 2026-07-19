@@ -5,6 +5,12 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  StudentInvoiceWindow — the student's invoices + wallet actions.
+//  CONTENTS:
+//    1. Construction & load  — invoices + wallet balance
+//    2. Wallet actions       — top up, history, pay from wallet
+// ============================================================
 public partial class StudentInvoiceWindow : Window
 {
     private readonly IInvoiceService _invoiceService = new InvoiceService();

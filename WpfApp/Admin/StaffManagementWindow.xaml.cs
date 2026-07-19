@@ -5,6 +5,15 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  StaffManagementWindow — browse/manage staff + their departments.
+//  CONTENTS:
+//    1. Fields & construction   — services + department filter
+//    2. Loading & filtering     — join staff to their user, search
+//    3. Row actions             — view / add / edit / deactivate
+//    4. StaffRow                — grid-facing view model
+//  Add/Edit reuse AccountDetailWindow (role locked to STAFF).
+// ============================================================
 public partial class StaffManagementWindow : Window
 {
     private readonly IStaffService _staffService = new StaffService();

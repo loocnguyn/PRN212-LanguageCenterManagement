@@ -5,6 +5,14 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  EnrollmentWindow — enroll students into classes (with discounts).
+//  CONTENTS:
+//    1. Construction & setup — active semester, discount options, load
+//    2. Enroll               — enroll selected student+class (+discount)
+//    3. Change class / Drop   — move or withdraw an enrollment
+//    4. Helpers               — discount formatting, DiscountOption record
+// ============================================================
 public partial class EnrollmentWindow : Window
 {
     private readonly IEnrollmentService _enrollmentService = new EnrollmentService();

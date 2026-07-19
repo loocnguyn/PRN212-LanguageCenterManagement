@@ -25,6 +25,13 @@ public class ClassDisplayItem
     public DateOnly? SemesterStartDate { get; set; }
 }
 
+// ============================================================
+//  MyClassesWindow — the student's enrolled classes.
+//  CONTENTS:
+//    1. Construction & LoadClasses — the student's enrollments
+//    2. Filters                    — semester/course/show-all -> display
+//    3. Helpers                    — date-range formatting
+// ============================================================
 public partial class MyClassesWindow : Window
 {
     private readonly User _currentUser;

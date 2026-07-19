@@ -3,6 +3,12 @@ using BusinessObjects;
 
 namespace WpfApp;
 
+// ============================================================
+//  GradeTypeDialog — Add/Edit one grade component (name, weight%).
+//  CONTENTS:
+//    1. Construction   — shows remaining weight; add vs edit
+//    2. Save / Cancel  — validate weight, return via Result
+// ============================================================
 public partial class GradeTypeDialog : Window
 {
     public GradeType Result { get; private set; } = null!;

@@ -4,6 +4,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  ClassDialog — Add/Edit a class (course, teacher, room, dates).
+//  CONTENTS:
+//    1. Construction   — add vs edit; LoadDropdowns fills pickers
+//    2. Validate       — required fields / date sanity -> error string
+//    3. Save / Cancel  — build the Class and return it via Result
+// ============================================================
 public partial class ClassDialog : Window
 {
     public Class? Result { get; private set; }

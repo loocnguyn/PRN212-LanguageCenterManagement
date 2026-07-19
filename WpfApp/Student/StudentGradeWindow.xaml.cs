@@ -31,6 +31,14 @@ public class GradeDetailDisplayItem
     public string GradedAtDisplay { get; set; } = "";
 }
 
+// ============================================================
+//  StudentGradeWindow — the student's grades, with CSV export.
+//  CONTENTS:
+//    1. Construction & LoadGrades — pull the student's grades
+//    2. Semester/course filters   — cascading combos -> class list
+//    3. Row actions & export      — class detail, CSV export
+//    4. Helpers                   — CSV escaping, weighted average
+// ============================================================
 public partial class StudentGradeWindow : Window
 {
     private readonly User _currentUser;

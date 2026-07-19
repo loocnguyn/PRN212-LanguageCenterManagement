@@ -3,6 +3,13 @@ using BusinessObjects;
 
 namespace WpfApp;
 
+// ============================================================
+//  ClassroomDialog — Add/Edit a classroom (name, capacity, location).
+//  CONTENTS:
+//    1. Construction   — add vs edit (prefill from existing)
+//    2. Validate       — required fields / capacity -> error string
+//    3. Save / Cancel  — build the Classroom and return via Result
+// ============================================================
 public partial class ClassroomDialog : Window
 {
     public Classroom? Result { get; private set; }

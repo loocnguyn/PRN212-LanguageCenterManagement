@@ -4,6 +4,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  ClassDetailWindow — Add/Edit a class with full detail fields.
+//  CONTENTS:
+//    1. Construction    — add vs edit; prefill + dropdowns
+//    2. Save            — validate then create/update the class
+//    3. Helpers         — SelectComboItem, Cancel
+// ============================================================
 public partial class ClassDetailWindow : Window
 {
     private readonly IClassService _classService = new ClassService();

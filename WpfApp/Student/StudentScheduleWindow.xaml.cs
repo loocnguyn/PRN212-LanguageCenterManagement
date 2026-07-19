@@ -6,6 +6,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  StudentScheduleWindow — weekly timetable grid for the student.
+//  CONTENTS:
+//    1. Construction & LoadSchedule — sessions for the student
+//    2. Semester select + week nav  — prev/next week
+//    3. RenderGrid / status text    — draw via ScheduleGridRenderer
+// ============================================================
 public partial class StudentScheduleWindow : Window
 {
     private readonly User _currentUser;

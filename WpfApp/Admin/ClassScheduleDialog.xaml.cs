@@ -4,6 +4,13 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  ClassScheduleDialog — Add/Edit one weekly session (class, day, slot).
+//  CONTENTS:
+//    1. Construction    — new (optional preset class) vs edit; dropdowns
+//    2. Save / Cancel   — build ClassSchedule from the chosen slot;
+//                         CheckConflicts before returning via Result
+// ============================================================
 public partial class ClassScheduleDialog : Window
 {
     public ClassSchedule? Result { get; private set; }
