@@ -35,7 +35,7 @@ public partial class StudentDashboardControl : UserControl, IDashboardControl
                 MessageBox.Show("No student profile linked to this account.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            tbHeader.Text = $"Student — {student.FullName}";
+            tbHeader.Text = $"Welcome back, {student.FullName}";
 
             var enrollments = _enrollmentService.GetByStudentId(student.StudentId);
             var classIds = enrollments.Select(e => e.ClassId).ToList();

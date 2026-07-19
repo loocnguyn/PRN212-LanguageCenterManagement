@@ -35,7 +35,7 @@ public partial class TeacherDashboardControl : UserControl, IDashboardControl
                 MessageBox.Show("Teacher profile not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            tbHeader.Text = $"Teacher — {teacher.FullName}";
+            tbHeader.Text = $"Welcome back, {teacher.FullName}";
 
             var semester = _semesterService.GetActive();
             var myClasses = semester == null

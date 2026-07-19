@@ -29,22 +29,28 @@ public partial class AdminDashboardControl : UserControl, IDashboardControl
         try
         {
             var fullName = _adminService.GetAll().FirstOrDefault(a => a.UserId == _currentUser.Id)?.FullName ?? _currentUser.Username;
-            tbHeader.Text = $"Admin — {fullName}";
+            tbHeader.Text = $"Welcome back, {fullName}";
 
             var activeStudents = _studentService.GetAll().Count(s => s.Status == "ACTIVE");
             var activeTeachers = _teacherService.GetAll().Count(t => t.Status == "ACTIVE");
 
             var semester = _semesterService.GetActive();
             var ongoingClasses = 0;
-            var phaseText = "No active semester";
             if (semester != null)
             {
                 ongoingClasses = _classService.GetBySemesterId(semester.SemesterId)
                     .Count(c => c.Status == "ONGOING");
-                var phase = _semesterService.GetActivePhase();
-                phaseText = $"{semester.Name} — {phase}";
+                tbSemester.Text = semester.Name;
+                tbPhase.Text = _semesterService.GetActivePhase().ToString();
+                chipSemester.Visibility = Visibility.Visible;
+                chipPhase.Visibility = Visibility.Visible;
             }
-            tbSubHeader.Text = phaseText;
+            else
+            {
+                tbSemester.Text = "No active semester";
+                chipSemester.Visibility = Visibility.Visible;
+                chipPhase.Visibility = Visibility.Collapsed;
+            }
 
             var firstDayOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);

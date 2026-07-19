@@ -29,7 +29,7 @@ public partial class StaffDashboardControl : UserControl, IDashboardControl
         {
             var staff = _staffService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id);
             var department = staff?.Department;
-            tbHeader.Text = $"Staff — {staff?.FullName ?? _currentUser.Username}";
+            tbHeader.Text = $"Welcome back, {staff?.FullName ?? _currentUser.Username}";
 
             panelTiles.Children.Clear();
 

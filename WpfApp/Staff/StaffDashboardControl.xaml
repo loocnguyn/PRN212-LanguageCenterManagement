@@ -1,20 +1,46 @@
 <UserControl x:Class="WpfApp.StaffDashboardControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              Background="{StaticResource BackgroundBrush}">
-    <Grid Margin="20">
+    <Grid Margin="24,20,24,20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" x:Name="tbHeader" FontSize="20" FontWeight="Bold" Margin="0,0,0,4"/>
-        <TextBlock Grid.Row="1" x:Name="tbSubHeader" FontSize="13"
-                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+        <!-- Gradient hero banner -->
+        <Border Grid.Row="0" CornerRadius="14" Padding="26,22" Margin="0,0,0,22">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#0078D4" Offset="0"/>
+                    <GradientStop Color="#038387" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Effect>
+                <DropShadowEffect Color="#33038387" BlurRadius="18" ShadowDepth="3" Direction="270"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="STAFF DASHBOARD" Foreground="#CFE9EA" FontSize="12" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="tbHeader" Foreground="White" FontSize="27" FontWeight="Bold" Margin="0,4,0,0"/>
+                    <TextBlock x:Name="tbSubHeader" Foreground="#EAF6F7" FontSize="13" Margin="0,8,0,0"/>
+                </StackPanel>
+                <ui:SymbolIcon Grid.Column="1" Symbol="PeopleTeam24" FontSize="96"
+                               Foreground="#33FFFFFF" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            </Grid>
+        </Border>
 
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
-            <WrapPanel x:Name="panelTiles"/>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock Text="OVERVIEW" FontSize="11" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextSecondaryBrush}" Margin="2,0,0,10"/>
+                <WrapPanel x:Name="panelTiles"/>
+            </StackPanel>
         </ScrollViewer>
     </Grid>
 </UserControl>
