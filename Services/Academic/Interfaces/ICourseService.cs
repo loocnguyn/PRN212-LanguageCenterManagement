@@ -2,6 +2,8 @@
 
 namespace Services;
 
+// ICourseService — service contract for Course operations.
+
 public interface ICourseService
 {
     List<Course> GetAll();

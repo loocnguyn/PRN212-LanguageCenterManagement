@@ -2,6 +2,8 @@
 
 namespace DataAccessObjects;
 
+// AdminDAO — EF data access for Admin (CRUD + queries).
+
 public class AdminDAO
 {
     public static List<Admin> GetAll()

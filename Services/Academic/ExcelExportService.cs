@@ -2,6 +2,8 @@ using ClosedXML.Excel;
 
 namespace Services;
 
+// ExcelExportService — business-logic entry point for ExcelExport (mostly delegates to the repository).
+
 public class ExcelExportService : IExcelExportService
 {
     public void ExportToExcel(string filePath, string sheetName, IEnumerable<string> headers, IEnumerable<object?[]> rows)

@@ -3,6 +3,8 @@ using Repositories;
 
 namespace Services;
 
+// AttendanceService — business-logic entry point for Attendance (mostly delegates to the repository).
+
 public class AttendanceService : IAttendanceService
 {
     private readonly IAttendanceRepository _repo = new AttendanceRepository();

@@ -3,6 +3,8 @@ using Repositories;
 
 namespace Services;
 
+// SlotService — business-logic entry point for Slot (mostly delegates to the repository).
+
 public class SlotService : ISlotService
 {
     private readonly ISlotRepository _repo = new SlotRepository();

@@ -1,5 +1,7 @@
 namespace BusinessObjects;
 
+// InvoicePricingInfo — domain model.
+
 public class InvoicePricingInfo
 {
     public decimal OriginalAmount { get; set; }

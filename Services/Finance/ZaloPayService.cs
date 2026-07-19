@@ -7,6 +7,13 @@ using Microsoft.Extensions.Configuration;
 
 namespace Services;
 
+// ============================================================
+//  ZaloPayService — ZaloPay sandbox gateway for wallet top-ups.
+//  CONTENTS:
+//    1. Construction           — loads app id / keys from config
+//    2. CreateOrderAsync       — start a top-up order (returns a pay URL)
+//    3. QueryOrderStatusAsync  — poll whether an order was paid
+// ============================================================
 public class ZaloPayService : IZaloPayService
 {
     private readonly HttpClient _httpClient = new();

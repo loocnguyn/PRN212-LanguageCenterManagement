@@ -2,6 +2,8 @@ using BusinessObjects;
 
 namespace Services;
 
+// IUserService — service contract for User operations.
+
 public interface IUserService
 {
     List<User> GetAll();

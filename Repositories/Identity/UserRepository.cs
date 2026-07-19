@@ -3,6 +3,8 @@ using DataAccessObjects;
 
 namespace Repositories;
 
+// UserRepository — thin pass-through from the service layer to UserDAO.
+
 public class UserRepository : IUserRepository
 {
     public List<User> GetAll() => UserDAO.GetAll();

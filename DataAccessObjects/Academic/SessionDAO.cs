@@ -3,6 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
+// ============================================================
+//  SessionDAO — the dated class meetings (auto-generated from schedules).
+//  CONTENTS:
+//    1. CRUD       — GetAll/GetById/Save/Update/Delete
+//    2. BulkSave   — insert many generated sessions in one call
+//    3. Queries    — by class / by classes / with details; CountByClassId
+// ============================================================
 public class SessionDAO
 {
     public static List<Session> GetAll()

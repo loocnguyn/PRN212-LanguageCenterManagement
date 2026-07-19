@@ -2,6 +2,8 @@
 
 namespace Repositories;
 
+// IAttendanceRepository — repository contract for Attendance persistence.
+
 public interface IAttendanceRepository
 {
     List<Attendance> GetAll();

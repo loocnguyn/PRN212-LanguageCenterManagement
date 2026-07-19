@@ -3,6 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
+// ============================================================
+//  AttendanceDAO — student attendance, one row per (session, student).
+//  CONTENTS:
+//    1. CRUD      — GetAll/GetById/Save/Update/Delete
+//    2. Queries   — by session, by student
+//    3. Upsert    — mark-or-update a student's attendance for a session
+// ============================================================
 public class AttendanceDAO
 {
     public static List<Attendance> GetAll()

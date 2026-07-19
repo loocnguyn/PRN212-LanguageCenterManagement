@@ -4,6 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
+// ============================================================
+//  PaymentDAO — recorded tuition payments against invoices.
+//  CONTENTS:
+//    1. CRUD                     — GetAll/GetById/Save/Update/Delete
+//    2. GetPaymentsByDateRange   — feeds the revenue report
+//    3. RecordPayment            — persist a payment (updates invoice status)
+// ============================================================
 public class PaymentDAO
 {
     public static List<Payment> GetAll()

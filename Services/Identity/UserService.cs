@@ -3,6 +3,8 @@ using Repositories;
 
 namespace Services;
 
+// UserService — business-logic entry point for User (mostly delegates to the repository).
+
 public class UserService : IUserService
 {
     private readonly IUserRepository _repo = new UserRepository();

@@ -2,6 +2,8 @@
 
 namespace DataAccessObjects;
 
+// TeacherAttendanceDAO — EF data access for TeacherAttendance (CRUD + queries).
+
 public class TeacherAttendanceDAO
 {
     public static List<TeacherAttendance> GetAll()

@@ -3,6 +3,8 @@ using Repositories;
 
 namespace Services;
 
+// SemesterService — business-logic entry point for Semester (mostly delegates to the repository).
+
 public class SemesterService : ISemesterService
 {
     private readonly ISemesterRepository _repo = new SemesterRepository();

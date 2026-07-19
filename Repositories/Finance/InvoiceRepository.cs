@@ -3,6 +3,8 @@ using DataAccessObjects;
 
 namespace Repositories;
 
+// InvoiceRepository — thin pass-through from the service layer to InvoiceDAO.
+
 public class InvoiceRepository : IInvoiceRepository
 {
     public List<Invoice> GetAll() => InvoiceDAO.GetAll();

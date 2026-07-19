@@ -2,6 +2,8 @@ using BusinessObjects;
 
 namespace Services;
 
+// ITuitionDiscountService — service contract for TuitionDiscount operations.
+
 public interface ITuitionDiscountService
 {
     List<TuitionDiscount> GetAll();

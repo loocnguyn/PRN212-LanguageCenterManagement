@@ -2,6 +2,8 @@ using BusinessObjects;
 
 namespace Repositories;
 
+// ISemesterRepository — repository contract for Semester persistence.
+
 public interface ISemesterRepository
 {
     List<Semester> GetAll();

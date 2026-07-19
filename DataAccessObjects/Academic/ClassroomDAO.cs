@@ -2,6 +2,8 @@
 
 namespace DataAccessObjects;
 
+// ClassroomDAO — EF data access for Classroom (CRUD + queries).
+
 public class ClassroomDAO
 {
     public static List<Classroom> GetAll()

@@ -4,6 +4,7 @@ using Services;
 
 namespace WpfApp;
 
+// AuthorizationHelper — small role/ownership checks reused by windows to gate actions.
 public static class AuthorizationHelper
 {
     public static bool AuthorizeTeacherForClass(User currentUser, ITeacherService teacherService, Class cls, string actionName)

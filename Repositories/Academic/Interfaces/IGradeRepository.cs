@@ -2,6 +2,8 @@ using BusinessObjects;
 
 namespace Repositories;
 
+// IGradeRepository — repository contract for Grade persistence.
+
 public interface IGradeRepository
 {
     List<Grade> GetAll();

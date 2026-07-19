@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace BusinessObjects;
 
+// Semester — domain model.
+
 public partial class Semester
 {
     public int SemesterId { get; set; }

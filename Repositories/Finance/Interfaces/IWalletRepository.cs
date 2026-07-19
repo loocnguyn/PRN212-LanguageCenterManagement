@@ -2,6 +2,8 @@ using BusinessObjects;
 
 namespace Repositories;
 
+// IWalletRepository — repository contract for Wallet persistence.
+
 public interface IWalletRepository
 {
     decimal GetBalance(int studentId);

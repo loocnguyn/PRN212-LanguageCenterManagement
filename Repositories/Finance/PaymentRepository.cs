@@ -3,6 +3,8 @@ using DataAccessObjects;
 
 namespace Repositories;
 
+// PaymentRepository — thin pass-through from the service layer to PaymentDAO.
+
 public class PaymentRepository : IPaymentRepository
 {
     public List<Payment> GetAll() => PaymentDAO.GetAll();

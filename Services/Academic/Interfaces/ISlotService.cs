@@ -2,6 +2,8 @@ using BusinessObjects;
 
 namespace Services;
 
+// ISlotService — service contract for Slot operations.
+
 public interface ISlotService
 {
     List<Slot> GetAll();

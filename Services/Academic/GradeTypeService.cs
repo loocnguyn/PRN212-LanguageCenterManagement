@@ -4,6 +4,8 @@ using Repositories;
 
 namespace Services;
 
+// GradeTypeService — business-logic entry point for GradeType (mostly delegates to the repository).
+
 public class GradeTypeService : IGradeTypeService
 {
     private readonly IGradeTypeRepository _repo;

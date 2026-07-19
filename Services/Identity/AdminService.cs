@@ -3,6 +3,8 @@ using Repositories;
 
 namespace Services;
 
+// AdminService — business-logic entry point for Admin (mostly delegates to the repository).
+
 public class AdminService : IAdminService
 {
     private readonly IAdminRepository _repo = new AdminRepository();

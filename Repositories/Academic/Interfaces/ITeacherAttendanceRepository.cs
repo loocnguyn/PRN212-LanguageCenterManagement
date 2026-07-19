@@ -2,6 +2,8 @@
 
 namespace Repositories;
 
+// ITeacherAttendanceRepository — repository contract for TeacherAttendance persistence.
+
 public interface ITeacherAttendanceRepository
 {
     List<TeacherAttendance> GetAll();

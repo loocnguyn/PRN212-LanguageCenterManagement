@@ -2,6 +2,8 @@
 
 namespace Repositories;
 
+// IGradeTypeRepository — repository contract for GradeType persistence.
+
 public interface IGradeTypeRepository
 {
     List<GradeType> GetAll();

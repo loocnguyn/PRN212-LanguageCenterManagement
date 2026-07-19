@@ -2,6 +2,8 @@
 
 namespace Repositories;
 
+// IClassroomRepository — repository contract for Classroom persistence.
+
 public interface IClassroomRepository
 {
     List<Classroom> GetAll();

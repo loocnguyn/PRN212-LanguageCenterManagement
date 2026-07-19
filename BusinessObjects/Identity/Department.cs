@@ -2,6 +2,8 @@ using System.Collections.Generic;
 
 namespace BusinessObjects;
 
+// Department — domain model.
+
 public partial class Department
 {
     public int DepartmentId { get; set; }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace BusinessObjects;
 
+// Payment — domain model.
+
 public partial class Payment
 {
     public int PaymentId { get; set; }

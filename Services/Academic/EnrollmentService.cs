@@ -3,6 +3,15 @@ using Repositories;
 
 namespace Services;
 
+// ============================================================
+//  EnrollmentService — enrollment business rules (capacity, pricing, invoicing).
+//  CONTENTS:
+//    1. Construction & CRUD   — repos (DI-friendly ctor) + pass-through
+//    2. Queries               — by class, by student
+//    3. Enroll (+discount)    — public overloads -> EnrollInternal
+//    4. TransferClass / Drop  — move or withdraw a student
+//    5. LockEnrollmentsForSemester
+// ============================================================
 public class EnrollmentService : IEnrollmentService
 {
     private readonly IEnrollmentRepository _enrollmentRepo;

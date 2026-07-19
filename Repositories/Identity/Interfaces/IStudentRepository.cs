@@ -2,6 +2,8 @@
 
 namespace Repositories;
 
+// IStudentRepository — repository contract for Student persistence.
+
 public interface IStudentRepository
 {
     List<Student> GetAll();

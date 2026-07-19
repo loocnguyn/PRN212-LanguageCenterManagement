@@ -3,6 +3,8 @@ using Repositories;
 
 namespace Services;
 
+// ClassroomService — business-logic entry point for Classroom (mostly delegates to the repository).
+
 public class ClassroomService : IClassroomService
 {
     private readonly IClassroomRepository _repo = new ClassroomRepository();

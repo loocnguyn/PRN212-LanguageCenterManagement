@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
+// SemesterDAO — EF data access for Semester (CRUD + queries).
+
 public class SemesterDAO
 {
     public static List<Semester> GetAll()

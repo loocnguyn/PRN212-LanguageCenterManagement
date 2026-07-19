@@ -2,6 +2,8 @@
 
 namespace Services;
 
+// IAdminService — service contract for Admin operations.
+
 public interface IAdminService
 {
     List<Admin> GetAll();

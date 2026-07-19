@@ -3,6 +3,8 @@ using ClosedXML.Excel;
 
 namespace Services;
 
+// ExcelImportService — business-logic entry point for ExcelImport (mostly delegates to the repository).
+
 public class ExcelImportService : IExcelImportService
 {
     public List<StudentImportRow> ImportStudentsFromExcel(string filePath)

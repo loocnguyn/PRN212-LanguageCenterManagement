@@ -2,6 +2,11 @@ using BusinessObjects;
 
 namespace DataAccessObjects;
 
+// ============================================================
+//  CourseDAO — EF data access for the course catalog
+//  (name, level, language, session count, tuition fee).
+//  CONTENTS: CRUD only — GetAll / GetById / Save / Update / Delete.
+// ============================================================
 public class CourseDAO
 {
     public static List<Course> GetAll()

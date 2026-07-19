@@ -2,6 +2,8 @@ using BusinessObjects;
 
 namespace Repositories;
 
+// ISlotRepository — repository contract for Slot persistence.
+
 public interface ISlotRepository
 {
     List<Slot> GetAll();

@@ -2,6 +2,8 @@ using BusinessObjects;
 
 namespace Repositories;
 
+// IUserRepository — repository contract for User persistence.
+
 public interface IUserRepository
 {
     List<User> GetAll();

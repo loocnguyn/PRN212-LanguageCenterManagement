@@ -2,6 +2,8 @@
 
 namespace DataAccessObjects;
 
+// UserDAO — EF data access for User (CRUD + queries).
+
 public class UserDAO
 {
     public static List<User> GetAll()

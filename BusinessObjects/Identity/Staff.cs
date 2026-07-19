@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace BusinessObjects;
 
+// Staff — domain model.
+
 public partial class Staff
 {
     public int StaffId { get; set; }

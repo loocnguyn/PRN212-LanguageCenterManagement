@@ -3,6 +3,8 @@ using DataAccessObjects;
 
 namespace Repositories;
 
+// EnrollmentRepository — thin pass-through from the service layer to EnrollmentDAO.
+
 public class EnrollmentRepository : IEnrollmentRepository
 {
     public void EnrollWithInvoice(Enrollment enrollment, decimal tuitionFee, DateOnly dueDate, string note)

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace BusinessObjects;
 
+// Course — domain model.
+
 public partial class Course
 {
     public int CourseId { get; set; }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace BusinessObjects;
 
+// Session — domain model.
+
 public partial class Session
 {
     public int SessionId { get; set; }

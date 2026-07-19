@@ -2,6 +2,8 @@ using BusinessObjects;
 
 namespace Services;
 
+// IGradeService — service contract for Grade operations.
+
 public interface IGradeService
 {
     List<Grade> GetAll();

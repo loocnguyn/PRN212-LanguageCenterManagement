@@ -3,6 +3,8 @@ using Repositories;
 
 namespace Services;
 
+// StudentService — business-logic entry point for Student (mostly delegates to the repository).
+
 public class StudentService : IStudentService
 {
     private readonly IStudentRepository _repo = new StudentRepository();

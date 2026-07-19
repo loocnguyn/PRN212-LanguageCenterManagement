@@ -2,6 +2,8 @@
 
 namespace Repositories;
 
+// ISessionRepository — repository contract for Session persistence.
+
 public interface ISessionRepository
 {
     List<Session> GetAll();

@@ -3,6 +3,8 @@ using DataAccessObjects;
 
 namespace Repositories;
 
+// SemesterRepository — thin pass-through from the service layer to SemesterDAO.
+
 public class SemesterRepository : ISemesterRepository
 {
     public List<Semester> GetAll() => SemesterDAO.GetAll();

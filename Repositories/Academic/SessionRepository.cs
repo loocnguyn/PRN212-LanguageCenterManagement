@@ -3,6 +3,8 @@ using DataAccessObjects;
 
 namespace Repositories;
 
+// SessionRepository — thin pass-through from the service layer to SessionDAO.
+
 public class SessionRepository : ISessionRepository
 {
     public List<Session> GetAll() => SessionDAO.GetAll();

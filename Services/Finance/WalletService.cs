@@ -3,6 +3,8 @@ using Repositories;
 
 namespace Services;
 
+// WalletService — business-logic entry point for Wallet (mostly delegates to the repository).
+
 public class WalletService : IWalletService
 {
     private readonly IWalletRepository _repo = new WalletRepository();

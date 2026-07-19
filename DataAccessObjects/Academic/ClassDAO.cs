@@ -3,6 +3,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
+// ============================================================
+//  ClassDAO — course offerings for a semester (a class = a run of a course).
+//  CONTENTS:
+//    1. CRUD                      — GetAll/GetById/Save/Update/Delete
+//    2. GetBySemesterId(+Details) — classes in a semester; Details eager-loads
+//                                   Course/Teacher/Classroom navigation props
+//    3. UpdateStatus              — set ONGOING/COMPLETED/CANCELLED
+// ============================================================
 public class ClassDAO
 {
     public static List<Class> GetAll()

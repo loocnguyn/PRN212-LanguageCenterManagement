@@ -2,6 +2,8 @@ using System;
 
 namespace BusinessObjects;
 
+// WalletTransaction — domain model.
+
 public partial class WalletTransaction
 {
     public int TransactionId { get; set; }

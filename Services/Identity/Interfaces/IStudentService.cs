@@ -2,6 +2,8 @@
 
 namespace Services;
 
+// IStudentService — service contract for Student operations.
+
 public interface IStudentService
 {
     List<Student> GetAll();

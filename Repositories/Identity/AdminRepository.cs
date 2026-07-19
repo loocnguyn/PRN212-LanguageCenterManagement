@@ -3,6 +3,8 @@ using DataAccessObjects;
 
 namespace Repositories;
 
+// AdminRepository — thin pass-through from the service layer to AdminDAO.
+
 public class AdminRepository : IAdminRepository
 {
     public List<Admin> GetAll() => AdminDAO.GetAll();

@@ -15,6 +15,13 @@ namespace Services;
 /// questions about that student's schedule, grades, and invoices without the service touching
 /// the database directly.
 /// </summary>
+// ============================================================
+//  AiAssistantService — asks Google Gemini a student's question with context.
+//  CONTENTS:
+//    1. Construction & config  — reads the API key from appsettings
+//    2. IsConfigured           — whether an API key is present
+//    3. AskAsync               — build prompt, call Gemini, parse the answer
+// ============================================================
 public class AiAssistantService : IAiAssistantService
 {
     private readonly HttpClient _httpClient = new();

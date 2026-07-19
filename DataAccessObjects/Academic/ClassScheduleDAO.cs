@@ -2,6 +2,8 @@
 
 namespace DataAccessObjects;
 
+// ClassScheduleDAO — EF data access for ClassSchedule (CRUD + queries).
+
 public class ClassScheduleDAO
 {
     public static List<ClassSchedule> GetAll()

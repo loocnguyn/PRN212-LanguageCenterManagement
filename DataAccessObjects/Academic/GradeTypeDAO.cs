@@ -2,6 +2,8 @@
 
 namespace DataAccessObjects;
 
+// GradeTypeDAO — EF data access for GradeType (CRUD + queries).
+
 public class GradeTypeDAO
 {
     public static List<GradeType> GetAll()

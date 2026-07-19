@@ -2,6 +2,8 @@
 
 namespace Services;
 
+// ITeacherAttendanceService — service contract for TeacherAttendance operations.
+
 public interface ITeacherAttendanceService
 {
     List<TeacherAttendance> GetAll();

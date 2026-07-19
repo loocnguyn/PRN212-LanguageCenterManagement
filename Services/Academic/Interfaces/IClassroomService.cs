@@ -2,6 +2,8 @@
 
 namespace Services;
 
+// IClassroomService — service contract for Classroom operations.
+
 public interface IClassroomService
 {
     List<Classroom> GetAll();

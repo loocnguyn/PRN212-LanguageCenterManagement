@@ -2,6 +2,8 @@ using BusinessObjects;
 
 namespace Repositories;
 
+// ITuitionDiscountRepository — repository contract for TuitionDiscount persistence.
+
 public interface ITuitionDiscountRepository
 {
     List<TuitionDiscount> GetAll();

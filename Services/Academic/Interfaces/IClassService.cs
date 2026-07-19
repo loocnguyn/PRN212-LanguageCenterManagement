@@ -2,6 +2,8 @@
 
 namespace Services;
 
+// IClassService — service contract for Class operations.
+
 public interface IClassService
 {
     List<Class> GetAll();

@@ -6,8 +6,20 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  MainWindow — the shell after login: top menu + hosted dashboard.
+//  CONTENTS:
+//    1. Fields & construction        — services, dashboard auto-refresh timer
+//    2. OpenRoleDashboard            — swap in the right dashboard control
+//    3. ApplyRoleVisibility          — show each role's top-level menus
+//    4. ApplyStaffDepartmentVisibility — academic vs finance staff menus
+//    5. LoadSemesterInfo             — status-bar/active-semester text
+//    6. Menu click handlers          — grouped ADMIN / STAFF / TEACHER /
+//                                      STUDENT / ALL; each opens a window
+// ============================================================
 public partial class MainWindow : Window
 {
+    // ---- 1. Fields & construction ------------------------------
     private readonly User _currentUser;
     private readonly IStaffService _staffService = new StaffService();
     private readonly IDepartmentService _departmentService = new DepartmentService();

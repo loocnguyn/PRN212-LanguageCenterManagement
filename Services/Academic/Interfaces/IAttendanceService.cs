@@ -2,6 +2,8 @@
 
 namespace Services;
 
+// IAttendanceService — service contract for Attendance operations.
+
 public interface IAttendanceService
 {
     List<Attendance> GetAll();

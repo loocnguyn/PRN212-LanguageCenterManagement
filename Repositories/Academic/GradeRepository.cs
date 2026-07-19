@@ -3,6 +3,8 @@ using DataAccessObjects;
 
 namespace Repositories;
 
+// GradeRepository — thin pass-through from the service layer to GradeDAO.
+
 public class GradeRepository : IGradeRepository
 {
     public List<Grade> GetAll() => GradeDAO.GetAll();

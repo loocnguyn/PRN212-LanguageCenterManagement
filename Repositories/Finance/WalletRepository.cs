@@ -3,6 +3,8 @@ using DataAccessObjects;
 
 namespace Repositories;
 
+// WalletRepository — thin pass-through from the service layer to WalletDAO.
+
 public class WalletRepository : IWalletRepository
 {
     public decimal GetBalance(int studentId) => WalletTransactionDAO.GetBalance(studentId);

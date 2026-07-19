@@ -2,6 +2,8 @@ using BusinessObjects;
 
 namespace DataAccessObjects;
 
+// SlotDAO — EF data access for Slot (CRUD + queries).
+
 public class SlotDAO
 {
     public static List<Slot> GetAll()

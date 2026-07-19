@@ -3,6 +3,8 @@ using DataAccessObjects;
 
 namespace Repositories;
 
+// TuitionDiscountRepository — thin pass-through from the service layer to TuitionDiscountDAO.
+
 public class TuitionDiscountRepository : ITuitionDiscountRepository
 {
     public List<TuitionDiscount> GetAll() => TuitionDiscountDAO.GetAll();

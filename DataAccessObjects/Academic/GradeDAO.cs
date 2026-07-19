@@ -3,6 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
+// ============================================================
+//  GradeDAO — per-enrollment grade rows (one per grade component).
+//  CONTENTS:
+//    1. CRUD      — GetAll/GetById/Save/Update/Delete
+//    2. Queries   — by enrollment, by many enrollments, by student
+//    3. Upsert    — insert-or-update a student's grade for a component
+// ============================================================
 public class GradeDAO
 {
     public static List<Grade> GetAll()

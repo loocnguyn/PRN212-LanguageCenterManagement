@@ -2,6 +2,8 @@
 
 namespace Repositories;
 
+// IAdminRepository — repository contract for Admin persistence.
+
 public interface IAdminRepository
 {
     List<Admin> GetAll();

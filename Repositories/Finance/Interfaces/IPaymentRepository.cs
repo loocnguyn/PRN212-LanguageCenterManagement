@@ -2,6 +2,8 @@ using BusinessObjects;
 
 namespace Repositories;
 
+// IPaymentRepository — repository contract for Payment persistence.
+
 public interface IPaymentRepository
 {
     List<Payment> GetAll();

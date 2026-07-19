@@ -6,6 +6,19 @@ using Services;
 
 namespace WpfApp;
 
+// ============================================================
+//  AccountDetailWindow — the Add/Edit dialog for one user account.
+//  One dialog serves every role; the visible fields change with the
+//  selected role. On Add the role is chosen (or preset+locked); on
+//  Edit the role/username are read-only.
+//  CONTENTS:
+//    1. Fields & construction   — edit vs add vs preset-role modes
+//    2. LoadProfileFields       — fill fields from the role's profile table
+//    3. Role field visibility   — ShowFieldsForRole / HideAll / Show
+//    4. Save & validation       — validate, then create or update
+//    5. SaveProfile             — write the role-specific profile row
+//    6. Helpers                 — SelectComboItem, Cancel
+// ============================================================
 public partial class AccountDetailWindow : Window
 {
     private readonly IUserService _service = new UserService();
@@ -42,6 +55,7 @@ public partial class AccountDetailWindow : Window
         }
     }
 
+    // ---- 2. Load profile fields (edit mode) --------------------
     private void LoadProfileFields(User user)
     {
         ShowFieldsForRole(user.Role);
@@ -108,6 +122,7 @@ public partial class AccountDetailWindow : Window
         if (role != null) ShowFieldsForRole(role);
     }
 
+    // ---- 3. Role-driven field visibility -----------------------
     private void ShowFieldsForRole(string role)
     {
         HideAllProfileFields();
@@ -147,6 +162,7 @@ public partial class AccountDetailWindow : Window
         foreach (var c in controls) c.Visibility = Visibility.Visible;
     }
 
+    // ---- 4. Save & validation ----------------------------------
     private void BtnSave_Click(object sender, RoutedEventArgs e)
     {
         var username = txtUsername.Text.Trim().ToLower();
@@ -249,6 +265,7 @@ public partial class AccountDetailWindow : Window
         DialogResult = true;
     }
 
+    // ---- 5. Save the role-specific profile row -----------------
     private void SaveProfile(int userId, string role, string fullName, string phone, string email, bool isNew)
     {
         switch (role)

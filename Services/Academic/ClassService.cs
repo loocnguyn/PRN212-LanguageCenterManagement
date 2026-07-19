@@ -3,6 +3,8 @@ using Repositories;
 
 namespace Services;
 
+// ClassService — business-logic entry point for Class (mostly delegates to the repository).
+
 public class ClassService : IClassService
 {
     private readonly IClassRepository _repo = new ClassRepository();

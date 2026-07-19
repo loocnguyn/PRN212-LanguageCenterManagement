@@ -2,6 +2,8 @@
 
 namespace Repositories;
 
+// IEnrollmentRepository — repository contract for Enrollment persistence.
+
 public interface IEnrollmentRepository
 {
     void EnrollWithInvoice(Enrollment enrollment, decimal tuitionFee, DateOnly dueDate, string note);

@@ -2,6 +2,8 @@
 
 namespace Services;
 
+// IGradeTypeService — service contract for GradeType operations.
+
 public interface IGradeTypeService
 {
     List<GradeType> GetAll();

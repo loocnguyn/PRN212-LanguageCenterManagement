@@ -4,6 +4,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
+// ============================================================
+//  InvoiceDAO — tuition invoices + the early-payment discount rules.
+//  CONTENTS:
+//    1. CRUD                     — GetAll/GetById/Save/Update/Delete
+//    2. Search                   — by keyword / status
+//    3. Discount lifecycle       — ApplyExpiredEarlyDiscounts,
+//                                  LockEarlyDiscountIfPaidOnTime
+//    4. Ownership / open-invoice — guards for a student/enrollment
+//    5. Payment helpers          — GetPaidAmount, HasPayments,
+//                                  CancelOpenByEnrollmentId
+// ============================================================
 public class InvoiceDAO
 {
     public static List<Invoice> GetAll()

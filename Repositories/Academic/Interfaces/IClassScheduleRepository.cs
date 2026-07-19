@@ -2,6 +2,8 @@
 
 namespace Repositories;
 
+// IClassScheduleRepository — repository contract for ClassSchedule persistence.
+
 public interface IClassScheduleRepository
 {
     List<ClassSchedule> GetAll();

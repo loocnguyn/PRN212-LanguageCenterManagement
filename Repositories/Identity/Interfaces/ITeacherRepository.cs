@@ -2,6 +2,8 @@
 
 namespace Repositories;
 
+// ITeacherRepository — repository contract for Teacher persistence.
+
 public interface ITeacherRepository
 {
     List<Teacher> GetAll();

@@ -2,6 +2,8 @@
 
 namespace Services;
 
+// IStaffService — service contract for Staff operations.
+
 public interface IStaffService
 {
     List<Staff> GetAll();

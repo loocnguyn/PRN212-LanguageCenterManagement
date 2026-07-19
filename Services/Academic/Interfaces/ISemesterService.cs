@@ -2,6 +2,8 @@ using BusinessObjects;
 
 namespace Services;
 
+// ISemesterService — service contract for Semester operations.
+
 public interface ISemesterService
 {
     List<Semester> GetAll();

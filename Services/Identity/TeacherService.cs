@@ -3,6 +3,8 @@ using Repositories;
 
 namespace Services;
 
+// TeacherService — business-logic entry point for Teacher (mostly delegates to the repository).
+
 public class TeacherService : ITeacherService
 {
     private readonly ITeacherRepository _repo = new TeacherRepository();

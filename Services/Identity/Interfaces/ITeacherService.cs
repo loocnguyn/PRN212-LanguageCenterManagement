@@ -2,6 +2,8 @@
 
 namespace Services;
 
+// ITeacherService — service contract for Teacher operations.
+
 public interface ITeacherService
 {
     List<Teacher> GetAll();

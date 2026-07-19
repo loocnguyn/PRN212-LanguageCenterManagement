@@ -2,6 +2,8 @@
 
 namespace Repositories;
 
+// IInvoiceRepository — repository contract for Invoice persistence.
+
 public interface IInvoiceRepository
 {
     List<Invoice> GetAll();

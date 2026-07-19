@@ -2,6 +2,8 @@
 
 namespace Services;
 
+// IEnrollmentService — service contract for Enrollment operations.
+
 public interface IEnrollmentService
 {
     List<Enrollment> GetAll();

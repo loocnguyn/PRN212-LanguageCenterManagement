@@ -5,6 +5,15 @@ using System.Data;
 
 namespace DataAccessObjects;
 
+// ============================================================
+//  EnrollmentDAO — links students to classes, plus the money side.
+//  CONTENTS:
+//    1. EnrollWithInvoice  — transactional: create enrollment + its invoice
+//    2. CRUD               — GetAll/GetById/Save/Update/Delete
+//    3. TransferClass      — move a student to another class in one tx
+//    4. Queries            — by class, by student, by student+class
+//    5. Lifecycle helpers  — lock enrollments, count by class
+// ============================================================
 public class EnrollmentDAO
 {
     public static void EnrollWithInvoice(

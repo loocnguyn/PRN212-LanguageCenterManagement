@@ -2,6 +2,8 @@
 
 namespace Repositories;
 
+// IClassRepository — repository contract for Class persistence.
+
 public interface IClassRepository
 {
     List<Class> GetAll();

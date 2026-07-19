@@ -2,6 +2,8 @@
 
 namespace Services;
 
+// IClassScheduleService — service contract for ClassSchedule operations.
+
 public interface IClassScheduleService
 {
     List<ClassSchedule> GetAll();

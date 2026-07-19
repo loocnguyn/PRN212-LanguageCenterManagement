@@ -2,6 +2,8 @@ using BusinessObjects;
 
 namespace Services;
 
+// IPaymentService — service contract for Payment operations.
+
 public interface IPaymentService
 {
     List<Payment> GetAll();

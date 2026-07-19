@@ -3,6 +3,8 @@ using DataAccessObjects;
 
 namespace Repositories;
 
+// StaffRepository — thin pass-through from the service layer to StaffDAO.
+
 public class StaffRepository : IStaffRepository
 {
     public List<Staff> GetAll() => StaffDAO.GetAll();

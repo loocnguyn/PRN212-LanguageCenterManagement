@@ -2,6 +2,8 @@
 
 namespace Services;
 
+// IInvoiceService — service contract for Invoice operations.
+
 public interface IInvoiceService
 {
     List<Invoice> GetAll();

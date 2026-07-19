@@ -2,6 +2,8 @@
 
 namespace DataAccessObjects;
 
+// StaffDAO — EF data access for Staff (CRUD + queries).
+
 public class StaffDAO
 {
     public static List<Staff> GetAll()

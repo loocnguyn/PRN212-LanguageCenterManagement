@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace BusinessObjects;
 
+// Admin — domain model.
+
 public partial class Admin
 {
     public int AdminId { get; set; }

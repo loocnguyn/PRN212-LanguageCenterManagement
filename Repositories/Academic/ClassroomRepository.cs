@@ -3,6 +3,8 @@ using DataAccessObjects;
 
 namespace Repositories;
 
+// ClassroomRepository — thin pass-through from the service layer to ClassroomDAO.
+
 public class ClassroomRepository : IClassroomRepository
 {
     public List<Classroom> GetAll() => ClassroomDAO.GetAll();

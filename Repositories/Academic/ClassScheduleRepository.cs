@@ -3,6 +3,8 @@ using DataAccessObjects;
 
 namespace Repositories;
 
+// ClassScheduleRepository — thin pass-through from the service layer to ClassScheduleDAO.
+
 public class ClassScheduleRepository : IClassScheduleRepository
 {
     public List<ClassSchedule> GetAll() => ClassScheduleDAO.GetAll();

@@ -3,6 +3,8 @@ using Repositories;
 
 namespace Services;
 
+// TuitionDiscountService — business-logic entry point for TuitionDiscount (mostly delegates to the repository).
+
 public class TuitionDiscountService : ITuitionDiscountService
 {
     private readonly ITuitionDiscountRepository _repo;

@@ -3,6 +3,8 @@ using Repositories;
 
 namespace Services;
 
+// PaymentService — business-logic entry point for Payment (mostly delegates to the repository).
+
 public class PaymentService : IPaymentService
 {
     private readonly IPaymentRepository _repo = new PaymentRepository();

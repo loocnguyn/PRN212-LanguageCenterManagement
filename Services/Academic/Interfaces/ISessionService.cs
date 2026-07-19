@@ -2,6 +2,8 @@
 
 namespace Services;
 
+// ISessionService — service contract for Session operations.
+
 public interface ISessionService
 {
     List<Session> GetAll();

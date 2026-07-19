@@ -3,6 +3,8 @@ using Repositories;
 
 namespace Services;
 
+// InvoiceService — business-logic entry point for Invoice (mostly delegates to the repository).
+
 public class InvoiceService : IInvoiceService
 {
     private readonly IInvoiceRepository _repo = new InvoiceRepository();

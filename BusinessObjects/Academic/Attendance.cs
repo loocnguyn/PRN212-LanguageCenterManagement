@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace BusinessObjects;
 
+// Attendance — domain model.
+
 public partial class Attendance
 {
     public int AttendanceId { get; set; }

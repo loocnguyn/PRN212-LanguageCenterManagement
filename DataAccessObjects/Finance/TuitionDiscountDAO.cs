@@ -3,6 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
+// ============================================================
+//  TuitionDiscountDAO — discount codes (percent/fixed, validity window).
+//  CONTENTS:
+//    1. Queries          — GetAll, GetActive(date), Search, GetById
+//    2. CRUD             — Save/Update, DeleteOrDeactivate
+//    3. IsCodeTaken      — uniqueness check for a discount code
+// ============================================================
 public class TuitionDiscountDAO
 {
     public static List<TuitionDiscount> GetAll()

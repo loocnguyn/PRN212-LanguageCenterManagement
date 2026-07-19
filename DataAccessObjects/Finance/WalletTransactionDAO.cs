@@ -4,6 +4,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
+// ============================================================
+//  WalletTransactionDAO — the student wallet ledger (top-ups & spends).
+//  CONTENTS:
+//    1. GetBalance            — sum of the student's ledger rows
+//    2. Top-up flow           — CreatePendingTopUp / CompleteTopUp / FailTopUp
+//    3. PayInvoiceFromWallet  — spend wallet balance on an invoice (tx)
+//    4. CRUD & lookups        — by id / student / provider order id
+// ============================================================
 public class WalletTransactionDAO
 {
     public static decimal GetBalance(int studentId)

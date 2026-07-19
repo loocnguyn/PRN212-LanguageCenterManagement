@@ -3,6 +3,8 @@ using Repositories;
 
 namespace Services;
 
+// StaffService — business-logic entry point for Staff (mostly delegates to the repository).
+
 public class StaffService : IStaffService
 {
     private readonly IStaffRepository _repo = new StaffRepository();

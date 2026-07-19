@@ -2,6 +2,8 @@
 
 namespace Repositories;
 
+// IStaffRepository — repository contract for Staff persistence.
+
 public interface IStaffRepository
 {
     List<Staff> GetAll();

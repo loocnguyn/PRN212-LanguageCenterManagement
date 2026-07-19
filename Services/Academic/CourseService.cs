@@ -3,6 +3,8 @@ using Repositories;
 
 namespace Services;
 
+// CourseService — business-logic entry point for Course (mostly delegates to the repository).
+
 public class CourseService : ICourseService
 {
     private readonly ICourseRepository _repo = new CourseRepository();

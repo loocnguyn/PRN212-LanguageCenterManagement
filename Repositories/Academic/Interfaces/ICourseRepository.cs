@@ -2,6 +2,8 @@
 
 namespace Repositories;
 
+// ICourseRepository — repository contract for Course persistence.
+
 public interface ICourseRepository
 {
     List<Course> GetAll();

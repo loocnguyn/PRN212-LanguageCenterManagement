@@ -2,6 +2,8 @@
 
 namespace DataAccessObjects;
 
+// StudentDAO — EF data access for Student (CRUD + queries).
+
 public class StudentDAO
 {
     public static List<Student> GetAll()

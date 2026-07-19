@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace BusinessObjects;
 
+// ClassSchedule — domain model.
+
 public partial class ClassSchedule
 {
     public int ScheduleId { get; set; }

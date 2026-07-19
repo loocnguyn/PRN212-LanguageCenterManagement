@@ -3,6 +3,8 @@ using Repositories;
 
 namespace Services;
 
+// GradeService — business-logic entry point for Grade (mostly delegates to the repository).
+
 public class GradeService : IGradeService
 {
     private readonly IGradeRepository _repo = new GradeRepository();

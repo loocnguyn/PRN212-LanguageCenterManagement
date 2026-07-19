@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace BusinessObjects;
 
+// TuitionDiscount — domain model.
+
 public partial class TuitionDiscount
 {
     public int DiscountId { get; set; }
