@@ -17,7 +17,15 @@ public partial class DeactivatedAccountsWindow : Window
 
     private void LoadData()
     {
-        dgUsers.ItemsSource = _service.GetAll().Where(u => !u.IsActive).ToList();
+        var deactivated = _service.GetAll().Where(u => !u.IsActive).ToList();
+        dgUsers.ItemsSource = deactivated;
+        emptyState.Visibility = deactivated.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void DgUsers_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (dgUsers.SelectedItem is User u)
+            new AccountViewWindow(u) { Owner = this }.ShowDialog();
     }
 
     private void BtnActivate_Click(object sender, RoutedEventArgs e)

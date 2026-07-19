@@ -1,124 +1,142 @@
 <Window x:Class="WpfApp.MyProfileWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="My Profile" Height="560" Width="460"
-        WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="12"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        xmlns:local="clr-namespace:WpfApp"
+        Title="My Profile" Height="600" Width="480"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        Background="{StaticResource BackgroundBrush}">
 
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="My Profile" FontSize="18" FontWeight="Bold"/>
-            <TextBlock Grid.Column="1" x:Name="tbRoleBadge"
-                       VerticalAlignment="Center"
-                       FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
-        </Grid>
+    <Window.Resources>
+        <local:InitialsConverter x:Key="Initials"/>
+    </Window.Resources>
 
-        <TabControl Grid.Row="2">
-            <TabItem Header="Profile Info">
-                <Grid Margin="0,16,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="120"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+    <DockPanel>
+        <!-- Role-colored header with avatar -->
+        <Border x:Name="header" DockPanel.Dock="Top" Background="{StaticResource PrimaryBrush}" Padding="20,18">
+            <StackPanel Orientation="Horizontal">
+                <Border Width="60" Height="60" CornerRadius="30" Background="White" Margin="0,0,16,0">
+                    <TextBlock x:Name="txtAvatar" Foreground="{StaticResource PrimaryBrush}"
+                               Text="{Binding Text, ElementName=txtUsername, Converter={StaticResource Initials}}"
+                               FontSize="22" FontWeight="Bold"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Text, ElementName=txtFullName}" Foreground="White"
+                               FontSize="19" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding Text, ElementName=txtUsername, StringFormat='@{0}'}"
+                               Foreground="#EAF3FF" FontSize="13" Margin="0,2,0,0"/>
+                    <Border CornerRadius="10" Padding="10,2" Background="#33FFFFFF"
+                            HorizontalAlignment="Left" Margin="0,6,0,0">
+                        <TextBlock x:Name="tbRoleBadge" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+        </Border>
 
-                    <!-- Username (always visible, read-only) -->
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Username" VerticalAlignment="Center" Margin="0,0,0,10"/>
-                    <TextBox   Grid.Row="0" Grid.Column="1" x:Name="txtUsername" Height="30"
-                               VerticalContentAlignment="Center" Padding="4,0" Margin="0,0,0,10" IsReadOnly="True"/>
+        <!-- Footer buttons -->
+        <Border DockPanel.Dock="Bottom" Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource BorderBrush2}" BorderThickness="0,1,0,0" Padding="16,12">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Save"   Style="{StaticResource PillButton}"       Width="100" Margin="0,0,8,0" Click="BtnSave_Click"/>
+                <Button Content="Cancel" Style="{StaticResource PillButtonSubtle}" Width="100" Click="BtnCancel_Click"/>
+            </StackPanel>
+        </Border>
 
-                    <!-- FullName (always visible, read-only) -->
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Full Name" VerticalAlignment="Center" Margin="0,0,0,10"/>
-                    <TextBox   Grid.Row="1" Grid.Column="1" x:Name="txtFullName" Height="30"
-                               VerticalContentAlignment="Center" Padding="4,0" Margin="0,0,0,10" IsReadOnly="True"/>
+        <!-- Body -->
+        <Border Style="{StaticResource Card}" Margin="16">
+            <TabControl BorderThickness="0" Background="Transparent">
+                <TabItem Header="Profile Info">
+                    <Grid Margin="0,16,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                    <!-- Phone (editable) -->
-                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Phone" VerticalAlignment="Center" Margin="0,0,0,10"/>
-                    <TextBox   Grid.Row="2" Grid.Column="1" x:Name="txtPhone" Height="30"
-                               VerticalContentAlignment="Center" Padding="4,0" Margin="0,0,0,10"/>
+                        <!-- Username (always visible, read-only) -->
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Username" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                        <TextBox   Grid.Row="0" Grid.Column="1" x:Name="txtUsername" Height="32"
+                                   VerticalContentAlignment="Center" Padding="6,0" Margin="0,0,0,10" IsReadOnly="True"/>
 
-                    <!-- Email (editable) -->
-                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Email" VerticalAlignment="Center" Margin="0,0,0,10"/>
-                    <TextBox   Grid.Row="3" Grid.Column="1" x:Name="txtEmail" Height="30"
-                               VerticalContentAlignment="Center" Padding="4,0" Margin="0,0,0,10"/>
+                        <!-- FullName (always visible, read-only) -->
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Full Name" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                        <TextBox   Grid.Row="1" Grid.Column="1" x:Name="txtFullName" Height="32"
+                                   VerticalContentAlignment="Center" Padding="6,0" Margin="0,0,0,10" IsReadOnly="True"/>
 
-                    <!-- Student: Address -->
-                    <TextBlock Grid.Row="4" Grid.Column="0" x:Name="lblAddress" Text="Address" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
-                    <TextBox   Grid.Row="4" Grid.Column="1" x:Name="txtAddress" Height="30"
-                               VerticalContentAlignment="Center" Padding="4,0" Margin="0,0,0,10" Visibility="Collapsed"/>
+                        <!-- Phone (editable) -->
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Phone" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                        <TextBox   Grid.Row="2" Grid.Column="1" x:Name="txtPhone" Height="32"
+                                   VerticalContentAlignment="Center" Padding="6,0" Margin="0,0,0,10"/>
 
-                    <!-- Student/Teacher/Staff: Gender -->
-                    <TextBlock Grid.Row="5" Grid.Column="0" x:Name="lblGender" Text="Gender" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
-                    <ComboBox  Grid.Row="5" Grid.Column="1" x:Name="cmbGender" Height="30" Margin="0,0,0,10" Visibility="Collapsed">
-                        <ComboBoxItem Content="Male"/>
-                        <ComboBoxItem Content="Female"/>
-                    </ComboBox>
+                        <!-- Email (editable) -->
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Email" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                        <TextBox   Grid.Row="3" Grid.Column="1" x:Name="txtEmail" Height="32"
+                                   VerticalContentAlignment="Center" Padding="6,0" Margin="0,0,0,10"/>
 
-                    <!-- Teacher: Specialization -->
-                    <TextBlock Grid.Row="6" Grid.Column="0" x:Name="lblSpec" Text="Specialization" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
-                    <ComboBox  Grid.Row="6" Grid.Column="1" x:Name="cmbSpec" Height="30" Margin="0,0,0,10" Visibility="Collapsed">
-                        <ComboBoxItem Content="English"/>
-                        <ComboBoxItem Content="Japanese"/>
-                        <ComboBoxItem Content="Korean"/>
-                        <ComboBoxItem Content="Chinese"/>
-                        <ComboBoxItem Content="French"/>
-                        <ComboBoxItem Content="German"/>
-                    </ComboBox>
+                        <!-- Student: Address -->
+                        <TextBlock Grid.Row="4" Grid.Column="0" x:Name="lblAddress" Text="Address" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
+                        <TextBox   Grid.Row="4" Grid.Column="1" x:Name="txtAddress" Height="32"
+                                   VerticalContentAlignment="Center" Padding="6,0" Margin="0,0,0,10" Visibility="Collapsed"/>
 
-                    <!-- Staff: Department -->
-                    <TextBlock Grid.Row="6" Grid.Column="0" x:Name="lblDept" Text="Department" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
-                    <ComboBox  Grid.Row="6" Grid.Column="1" x:Name="cmbDept" Height="30" Margin="0,0,0,10" Visibility="Collapsed">
-                        <ComboBoxItem Content="Academic Setup"/>
-                        <ComboBoxItem Content="Finance"/>
-                    </ComboBox>
-                </Grid>
-            </TabItem>
+                        <!-- Student/Teacher/Staff: Gender -->
+                        <TextBlock Grid.Row="5" Grid.Column="0" x:Name="lblGender" Text="Gender" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
+                        <ComboBox  Grid.Row="5" Grid.Column="1" x:Name="cmbGender" Height="32" Margin="0,0,0,10" Visibility="Collapsed">
+                            <ComboBoxItem Content="Male"/>
+                            <ComboBoxItem Content="Female"/>
+                        </ComboBox>
 
-            <TabItem Header="Security">
-                <Grid Margin="0,16,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="120"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                        <!-- Teacher: Specialization -->
+                        <TextBlock Grid.Row="6" Grid.Column="0" x:Name="lblSpec" Text="Specialization" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
+                        <ComboBox  Grid.Row="6" Grid.Column="1" x:Name="cmbSpec" Height="32" Margin="0,0,0,10" Visibility="Collapsed">
+                            <ComboBoxItem Content="English"/>
+                            <ComboBoxItem Content="Japanese"/>
+                            <ComboBoxItem Content="Korean"/>
+                            <ComboBoxItem Content="Chinese"/>
+                            <ComboBoxItem Content="French"/>
+                            <ComboBoxItem Content="German"/>
+                        </ComboBox>
 
-                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
-                               Text="Change your password (leave blank to keep it unchanged)"
-                               TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,14"/>
+                        <!-- Staff: Department -->
+                        <TextBlock Grid.Row="6" Grid.Column="0" x:Name="lblDept" Text="Department" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
+                        <ComboBox  Grid.Row="6" Grid.Column="1" x:Name="cmbDept" Height="32" Margin="0,0,0,10" Visibility="Collapsed">
+                            <ComboBoxItem Content="Academic Setup"/>
+                            <ComboBoxItem Content="Finance"/>
+                        </ComboBox>
+                    </Grid>
+                </TabItem>
 
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Old Password" VerticalAlignment="Center" Margin="0,0,0,10"/>
-                    <PasswordBox Grid.Row="1" Grid.Column="1" x:Name="pwdOld" Height="30" Padding="4,0" Margin="0,0,0,10"/>
+                <TabItem Header="Security">
+                    <Grid Margin="0,16,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Row="2" Grid.Column="0" Text="New Password" VerticalAlignment="Center" Margin="0,0,0,10"/>
-                    <PasswordBox Grid.Row="2" Grid.Column="1" x:Name="pwdNew" Height="30" Padding="4,0" Margin="0,0,0,10"/>
-                </Grid>
-            </TabItem>
-        </TabControl>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                                   Text="Change your password (leave blank to keep it unchanged)"
+                                   TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,14"/>
 
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
-            <Button Content="Save"   Width="90" Height="32" Margin="0,0,8,0" Click="BtnSave_Click"/>
-            <Button Content="Cancel" Width="90" Height="32" Click="BtnCancel_Click"/>
-        </StackPanel>
-    </Grid>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Old Password" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                        <PasswordBox Grid.Row="1" Grid.Column="1" x:Name="pwdOld" Height="32" Padding="6,0" Margin="0,0,0,10"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="New Password" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                        <PasswordBox Grid.Row="2" Grid.Column="1" x:Name="pwdNew" Height="32" Padding="6,0" Margin="0,0,0,10"/>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Border>
+    </DockPanel>
 </Window>

@@ -32,6 +32,8 @@ public partial class MyProfileWindow : Window
         {
             txtUsername.Text = _currentUser.Username;
             tbRoleBadge.Text = _currentUser.Role;
+            header.Background = RoleBrush(_currentUser.Role);
+            txtAvatar.Foreground = RoleBrush(_currentUser.Role);
 
             switch (_currentUser.Role)
             {
@@ -191,6 +193,14 @@ public partial class MyProfileWindow : Window
             MessageBox.Show($"Error saving profile: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
+
+    private System.Windows.Media.Brush RoleBrush(string role) => role switch
+    {
+        "ADMIN" => (System.Windows.Media.Brush)FindResource("RoleAdminBrush"),
+        "TEACHER" => (System.Windows.Media.Brush)FindResource("RoleTeacherBrush"),
+        "STUDENT" => (System.Windows.Media.Brush)FindResource("RoleStudentBrush"),
+        _ => (System.Windows.Media.Brush)FindResource("RoleStaffBrush"),
+    };
 
     private void BtnCancel_Click(object sender, RoutedEventArgs e) => Close();
 }
