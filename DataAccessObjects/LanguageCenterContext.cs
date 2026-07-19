@@ -66,6 +66,8 @@ public partial class LanguageCenterContext : DbContext
 
     public virtual DbSet<Student> Students { get; set; }
 
+    public virtual DbSet<StudentReward> StudentRewards { get; set; }
+
     public virtual DbSet<Teacher> Teachers { get; set; }
 
     public virtual DbSet<TeacherAttendance> TeacherAttendances { get; set; }
@@ -240,6 +242,28 @@ public partial class LanguageCenterContext : DbContext
             entity.Property(e => e.SlotNo).HasColumnName("slot_no");
             entity.Property(e => e.StartTime).HasColumnName("start_time");
             entity.Property(e => e.EndTime).HasColumnName("end_time");
+        });
+
+        modelBuilder.Entity<StudentReward>(entity =>
+        {
+            entity.HasKey(e => e.RewardId);
+            entity.ToTable("StudentRewards");
+            // A student can only be rewarded once per course per semester.
+            entity.HasIndex(e => new { e.StudentId, e.SemesterId, e.CourseId }).IsUnique();
+            entity.Property(e => e.RewardId).HasColumnName("reward_id");
+            entity.Property(e => e.StudentId).HasColumnName("student_id");
+            entity.Property(e => e.SemesterId).HasColumnName("semester_id");
+            entity.Property(e => e.CourseId).HasColumnName("course_id");
+            entity.Property(e => e.AverageScore).HasColumnType("decimal(4, 2)").HasColumnName("average_score");
+            entity.Property(e => e.DiscountId).HasColumnName("discount_id");
+            entity.Property(e => e.AwardedAt).HasColumnType("datetime").HasColumnName("awarded_at");
+
+            entity.HasOne(d => d.Student).WithMany()
+                .HasForeignKey(d => d.StudentId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+            entity.HasOne(d => d.Discount).WithMany()
+                .HasForeignKey(d => d.DiscountId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Department>(entity =>

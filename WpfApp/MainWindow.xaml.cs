@@ -167,6 +167,8 @@ public partial class MainWindow : Window
         => new ClassManagementWindow().Show();
     private void MenuRevenueReport_Click(object sender, RoutedEventArgs e)
         => new RevenueReportWindow().Show();
+    private void MenuRewardReview_Click(object sender, RoutedEventArgs e)
+        => new RewardReviewWindow().Show();
     private void MenuTuitionDiscounts_Click(object sender, RoutedEventArgs e)
         => new TuitionDiscountManagementWindow().Show();
 
