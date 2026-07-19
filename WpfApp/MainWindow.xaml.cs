@@ -48,6 +48,10 @@ public partial class MainWindow : Window
                 menuClasses.Visibility  = Visibility.Visible;
                 menuReports.Visibility  = Visibility.Visible;
                 menuDiscounts.Visibility = Visibility.Visible;
+                // Admin is a superset of both Staff departments: academic setup (Students/Enrollment)
+                // and finance (Debt List/Invoice/Payment) are both available on top of Admin's own menus.
+                menuStudents.Visibility = Visibility.Visible;
+                menuFinance.Visibility = Visibility.Visible;
                 break;
             case "STAFF":
                 ApplyStaffDepartmentVisibility();

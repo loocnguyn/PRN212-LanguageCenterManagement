@@ -77,7 +77,7 @@
                 </MenuItem>
             </MenuItem>
 
-            <!-- STAFF (Academic Setup department) only -->
+            <!-- ADMIN, and STAFF (Academic Setup department) -->
             <MenuItem Header="Students" x:Name="menuStudents" Visibility="Collapsed">
                 <MenuItem.Icon><ui:SymbolIcon Symbol="PeopleTeam24"/></MenuItem.Icon>
                 <MenuItem Header="Student Management" Click="MenuStudents_Click">
@@ -88,7 +88,7 @@
                 </MenuItem>
             </MenuItem>
 
-            <!-- STAFF (Finance department) only -->
+            <!-- ADMIN, and STAFF (Finance department) -->
             <MenuItem Header="Finance" x:Name="menuFinance" Visibility="Collapsed">
                 <MenuItem.Icon><ui:SymbolIcon Symbol="ReceiptMoney24"/></MenuItem.Icon>
                 <MenuItem Header="Debt List"          Click="MenuDebtList_Click">

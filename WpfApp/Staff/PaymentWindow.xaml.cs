@@ -35,8 +35,9 @@ public partial class PaymentWindow : Window
 
             if (staff == null)
             {
+                // Admins have no Staff profile; payments they record are stored with a null StaffId.
                 _currentStaffId = null;
-                txtStaff.Text = "No staff profile found for current user";
+                txtStaff.Text = $"{_currentUser.Username} ({_currentUser.Role})";
                 return;
             }
 
@@ -217,12 +218,6 @@ public partial class PaymentWindow : Window
                 MessageBox.Show("Số tiền thanh toán không được lớn hơn số tiền còn lại.");
                 return;
             }
-            if (_currentStaffId is not int staffId)
-            {
-                MessageBox.Show("Không tìm thấy nhân viên đang đăng nhập để ghi nhận thanh toán.");
-                return;
-            }
-
             var method = (cmbMethod.SelectedItem as ComboBoxItem)?.Content?.ToString();
             if (string.IsNullOrWhiteSpace(method))
             {
@@ -233,7 +228,7 @@ public partial class PaymentWindow : Window
             _payService.RecordPayment(new Payment
             {
                 InvoiceId = item.InvoiceId,
-                StaffId = staffId,
+                StaffId = _currentStaffId,
                 AmountPaid = amountPaid,
                 PaymentMethod = method,
                 Note = string.IsNullOrWhiteSpace(txtNote.Text) ? null : txtNote.Text.Trim()
