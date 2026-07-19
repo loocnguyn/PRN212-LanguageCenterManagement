@@ -10,7 +10,11 @@ public class ClassDAO
         try
         {
             using var context = new LanguageCenterContext();
-            return context.Classes.ToList();
+            return context.Classes
+                .Include(c => c.Course)
+                .Include(c => c.Teacher)
+                .Include(c => c.Classroom)
+                .ToList();
         }
         catch (Exception ex)
         {
