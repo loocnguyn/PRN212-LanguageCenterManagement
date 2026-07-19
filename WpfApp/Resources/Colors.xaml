@@ -26,4 +26,10 @@
     <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}"/>
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}"/>
 
+    <!-- Per-role accent colors (used for role badges and avatar bubbles) -->
+    <SolidColorBrush x:Key="RoleAdminBrush"   Color="#D13438"/>
+    <SolidColorBrush x:Key="RoleStaffBrush"   Color="#0078D4"/>
+    <SolidColorBrush x:Key="RoleTeacherBrush" Color="#107C10"/>
+    <SolidColorBrush x:Key="RoleStudentBrush" Color="#8764B8"/>
+
 </ResourceDictionary>

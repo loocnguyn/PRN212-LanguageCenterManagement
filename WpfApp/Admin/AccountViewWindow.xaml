@@ -1,0 +1,45 @@
+<Window x:Class="WpfApp.AccountViewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Account Details" Height="600" Width="460"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Background="{StaticResource BackgroundBrush}">
+    <DockPanel>
+        <!-- Colored header with avatar -->
+        <Border x:Name="header" DockPanel.Dock="Top" Background="{StaticResource PrimaryBrush}" Padding="20,18">
+            <StackPanel Orientation="Horizontal">
+                <Border Width="64" Height="64" CornerRadius="32" Background="White" Margin="0,0,16,0">
+                    <TextBlock x:Name="txtAvatar" Foreground="{StaticResource PrimaryBrush}"
+                               FontSize="24" FontWeight="Bold"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock x:Name="txtHeaderName" Foreground="White" FontSize="20" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="txtHeaderUser" Foreground="#EAF3FF" FontSize="13" Margin="0,2,0,0"/>
+                    <Border x:Name="rolePill" CornerRadius="10" Padding="10,2" Background="#33FFFFFF"
+                            HorizontalAlignment="Left" Margin="0,6,0,0">
+                        <TextBlock x:Name="txtHeaderRole" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="16">
+                <!-- Account section -->
+                <TextBlock Text="ACCOUNT" FontSize="11" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextSecondaryBrush}" Margin="4,0,0,6"/>
+                <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+                    <StackPanel x:Name="accountPanel"/>
+                </Border>
+
+                <!-- Profile section -->
+                <TextBlock x:Name="profileHeader" Text="PROFILE" FontSize="11" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextSecondaryBrush}" Margin="4,0,0,6"/>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel x:Name="profilePanel"/>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

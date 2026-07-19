@@ -1,53 +1,171 @@
 <Window x:Class="WpfApp.AccountManagementWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Account Management" Height="620" Width="1000"
-        WindowStartupLocation="CenterScreen">
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        xmlns:local="clr-namespace:WpfApp"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        Title="Account Management" Height="680" Width="1040"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}">
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-            <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-            <TextBox x:Name="txtSearch" Width="200" Height="30" VerticalContentAlignment="Center" Padding="4,0"/>
-            <Button Content="Search" Width="70" Height="30" Margin="6,0,0,0" Click="BtnSearch_Click"/>
-            <TextBlock Text="Role:" VerticalAlignment="Center" Margin="16,0,6,0"/>
-            <ComboBox x:Name="cmbFilterRole" Width="140" Height="32" SelectionChanged="CmbFilterRole_Changed" HorizontalContentAlignment="Left" Padding="8,4" VerticalContentAlignment="Center">
-                <ComboBoxItem Content="All" IsSelected="True"/>
-                <ComboBoxItem Content="ADMIN"/>
-                <ComboBoxItem Content="STAFF"/>
-                <ComboBoxItem Content="TEACHER"/>
-                <ComboBoxItem Content="STUDENT"/>
-            </ComboBox>
-        </StackPanel>
+    <Window.Resources>
+        <local:InitialsConverter x:Key="Initials"/>
 
-        <DataGrid Grid.Row="1" x:Name="dgUsers"
-                  AutoGenerateColumns="False" IsReadOnly="True"
-                  SelectionMode="Single">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="ID"         Binding="{Binding Id}"                                          Width="50"/>
-                <DataGridTextColumn Header="Username"   Binding="{Binding Username}"                                    Width="150"/>
-                <DataGridTextColumn Header="Role"       Binding="{Binding Role}"                                        Width="100"/>
-                <DataGridTextColumn Header="Created At" Binding="{Binding CreatedAt, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Width="150"/>
-            </DataGrid.Columns>
-        </DataGrid>
+        <!-- Colored role badge (pill). Default color = Staff; DataTriggers recolor per role. -->
+        <DataTemplate x:Key="RoleBadgeTemplate">
+            <Border x:Name="badge" CornerRadius="10" Padding="10,3" HorizontalAlignment="Left"
+                    Background="{StaticResource RoleStaffBrush}">
+                <TextBlock Text="{Binding Role}" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+            </Border>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Role}" Value="ADMIN">
+                    <Setter TargetName="badge" Property="Background" Value="{StaticResource RoleAdminBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Role}" Value="TEACHER">
+                    <Setter TargetName="badge" Property="Background" Value="{StaticResource RoleTeacherBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Role}" Value="STUDENT">
+                    <Setter TargetName="badge" Property="Background" Value="{StaticResource RoleStudentBrush}"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
 
-        <Grid Grid.Row="2" Margin="0,8,0,0">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                <Button Content="«" Width="32" Height="32" Margin="0,0,4,0" Click="BtnFirst_Click"/>
-                <Button Content="‹" Width="32" Height="32" Margin="0,0,4,0" Click="BtnPrev_Click"/>
-                <TextBlock x:Name="txtPage" VerticalAlignment="Center" Margin="4,0"/>
-                <Button Content="›" Width="32" Height="32" Margin="4,0,4,0" Click="BtnNext_Click"/>
-                <Button Content="»" Width="32" Height="32" Click="BtnLast_Click"/>
+        <!-- Avatar bubble + username + id. Bubble color matches the role. -->
+        <DataTemplate x:Key="AccountCellTemplate">
+            <StackPanel Orientation="Horizontal">
+                <Border x:Name="avatar" Width="36" Height="36" CornerRadius="18"
+                        Background="{StaticResource RoleStaffBrush}" Margin="0,0,12,0">
+                    <TextBlock Text="{Binding Username, Converter={StaticResource Initials}}"
+                               Foreground="White" FontWeight="SemiBold" FontSize="13"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Username}" FontWeight="SemiBold" FontSize="14"/>
+                    <TextBlock Text="{Binding Id, StringFormat='Account #{0}'}"
+                               FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                </StackPanel>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Add"        Width="90"  Height="32" Margin="0,0,8,0" Click="BtnAdd_Click"/>
-                <Button Content="Edit"       Width="90"  Height="32" Margin="0,0,8,0" Click="BtnEdit_Click"/>
-                <Button Content="Deactivate" Width="100" Height="32" Click="BtnDelete_Click"/>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Role}" Value="ADMIN">
+                    <Setter TargetName="avatar" Property="Background" Value="{StaticResource RoleAdminBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Role}" Value="TEACHER">
+                    <Setter TargetName="avatar" Property="Background" Value="{StaticResource RoleTeacherBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Role}" Value="STUDENT">
+                    <Setter TargetName="avatar" Property="Background" Value="{StaticResource RoleStudentBrush}"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </Window.Resources>
+
+    <DockPanel>
+        <!-- Header band -->
+        <Border DockPanel.Dock="Top" Background="{StaticResource PrimaryBrush}" Padding="20,14">
+            <StackPanel Orientation="Horizontal">
+                <ui:SymbolIcon Symbol="PeopleTeam24" Foreground="White" FontSize="26" Margin="0,0,12,0"/>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Account Management" Foreground="White" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock Text="Create, review and manage all system accounts"
+                               Foreground="#DCEBFF" FontSize="12"/>
+                </StackPanel>
             </StackPanel>
+        </Border>
+
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Stat cards -->
+            <UniformGrid Grid.Row="0" Rows="1" Columns="5" Margin="0,0,0,14">
+                <Border Style="{StaticResource Card}" Margin="0,0,10,0">
+                    <StackPanel>
+                        <TextBlock x:Name="statTotal" Text="0" FontSize="26" FontWeight="Bold"
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock Text="Total accounts" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Margin="0,0,10,0">
+                    <StackPanel>
+                        <TextBlock x:Name="statAdmin" Text="0" FontSize="26" FontWeight="Bold"
+                                   Foreground="{StaticResource RoleAdminBrush}"/>
+                        <TextBlock Text="Admins" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Margin="0,0,10,0">
+                    <StackPanel>
+                        <TextBlock x:Name="statStaff" Text="0" FontSize="26" FontWeight="Bold"
+                                   Foreground="{StaticResource RoleStaffBrush}"/>
+                        <TextBlock Text="Staff" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Margin="0,0,10,0">
+                    <StackPanel>
+                        <TextBlock x:Name="statTeacher" Text="0" FontSize="26" FontWeight="Bold"
+                                   Foreground="{StaticResource RoleTeacherBrush}"/>
+                        <TextBlock Text="Teachers" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock x:Name="statStudent" Text="0" FontSize="26" FontWeight="Bold"
+                                   Foreground="{StaticResource RoleStudentBrush}"/>
+                        <TextBlock Text="Students" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- Search / filter toolbar -->
+            <Border Grid.Row="1" Style="{StaticResource Card}" Padding="12" Margin="0,0,0,14">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBox x:Name="txtSearch" Width="220" Height="32" VerticalContentAlignment="Center" Padding="6,0"/>
+                    <Button Content="Search" Style="{StaticResource PillButton}" Width="84" Margin="8,0,0,0" Click="BtnSearch_Click"/>
+                    <TextBlock Text="Role:" VerticalAlignment="Center" Margin="20,0,6,0"/>
+                    <ComboBox x:Name="cmbFilterRole" Width="150" Height="32" SelectionChanged="CmbFilterRole_Changed"
+                              HorizontalContentAlignment="Left" Padding="8,4" VerticalContentAlignment="Center">
+                        <ComboBoxItem Content="All" IsSelected="True"/>
+                        <ComboBoxItem Content="ADMIN"/>
+                        <ComboBoxItem Content="STAFF"/>
+                        <ComboBoxItem Content="TEACHER"/>
+                        <ComboBoxItem Content="STUDENT"/>
+                    </ComboBox>
+                </StackPanel>
+            </Border>
+
+            <!-- Accounts grid -->
+            <Border Grid.Row="2" Style="{StaticResource Card}" Padding="0">
+                <DataGrid x:Name="dgUsers" AutoGenerateColumns="False" IsReadOnly="True"
+                          SelectionMode="Single" RowHeight="52" BorderThickness="0"
+                          Background="Transparent" MouseDoubleClick="DgUsers_MouseDoubleClick">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Account" Width="*" CellTemplate="{StaticResource AccountCellTemplate}"/>
+                        <DataGridTemplateColumn Header="Role" Width="140" CellTemplate="{StaticResource RoleBadgeTemplate}"/>
+                        <DataGridTextColumn Header="Created At"
+                                            Binding="{Binding CreatedAt, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Width="180"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <!-- Footer: pager + actions -->
+            <Grid Grid.Row="3" Margin="0,14,0,0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <Button Content="«" Style="{StaticResource PagerButton}" Margin="0,0,4,0" Click="BtnFirst_Click"/>
+                    <Button Content="‹" Style="{StaticResource PagerButton}" Margin="0,0,4,0" Click="BtnPrev_Click"/>
+                    <TextBlock x:Name="txtPage" VerticalAlignment="Center" Margin="8,0"/>
+                    <Button Content="›" Style="{StaticResource PagerButton}" Margin="4,0,4,0" Click="BtnNext_Click"/>
+                    <Button Content="»" Style="{StaticResource PagerButton}" Click="BtnLast_Click"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="View"       Style="{StaticResource PillButtonSubtle}"  Width="90"  Margin="0,0,8,0" Click="BtnView_Click"/>
+                    <Button Content="Add"        Style="{StaticResource PillButton}"        Width="90"  Margin="0,0,8,0" Click="BtnAdd_Click"/>
+                    <Button Content="Edit"       Style="{StaticResource PillButtonSuccess}" Width="90"  Margin="0,0,8,0" Click="BtnEdit_Click"/>
+                    <Button Content="Deactivate" Style="{StaticResource PillButtonDanger}"  Width="110" Click="BtnDelete_Click"/>
+                </StackPanel>
+            </Grid>
         </Grid>
-    </Grid>
+    </DockPanel>
 </Window>

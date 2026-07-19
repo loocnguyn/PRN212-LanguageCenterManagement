@@ -25,7 +25,17 @@ public partial class AccountManagementWindow : Window
     {
         _all = _service.GetAll().Where(u => u.IsActive).ToList();
         _page = 1;
+        UpdateStats();
         ApplyFilter();
+    }
+
+    private void UpdateStats()
+    {
+        statTotal.Text = _all.Count.ToString();
+        statAdmin.Text = _all.Count(u => u.Role == "ADMIN").ToString();
+        statStaff.Text = _all.Count(u => u.Role == "STAFF").ToString();
+        statTeacher.Text = _all.Count(u => u.Role == "TEACHER").ToString();
+        statStudent.Text = _all.Count(u => u.Role == "STUDENT").ToString();
     }
 
     private void ApplyFilter()
@@ -79,6 +89,27 @@ public partial class AccountManagementWindow : Window
     {
         new DeactivatedAccountsWindow() { Owner = this }.ShowDialog();
         LoadData();
+    }
+
+    private void DgUsers_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (dgUsers.SelectedItem is User) ShowSelectedAccount();
+    }
+
+    private void BtnView_Click(object sender, RoutedEventArgs e)
+    {
+        if (dgUsers.SelectedItem is not User)
+        {
+            MessageBox.Show("Please select an account to view.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+        ShowSelectedAccount();
+    }
+
+    private void ShowSelectedAccount()
+    {
+        if (dgUsers.SelectedItem is not User u) return;
+        new AccountViewWindow(u) { Owner = this }.ShowDialog();
     }
 
     private void BtnAdd_Click(object sender, RoutedEventArgs e)
