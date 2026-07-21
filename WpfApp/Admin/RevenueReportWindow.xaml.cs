@@ -53,7 +53,8 @@ public partial class RevenueReportWindow : Window
             RefreshAdvancedFilterOptions();
             _items = _baseItems.Where(MatchesAdvancedFilter).ToList();
 
-            dgPayments.ItemsSource = _items;
+            pager.Reset();
+            BindPage();
             lblTotalRevenue.Text = FormatMoney(_items.Sum(x => x.AmountPaid));
             lblTotalPayments.Text = _items.Count.ToString();
             lblCashTotal.Text = FormatMoney(SumByMethod(_items, "Cash"));
@@ -66,6 +67,14 @@ public partial class RevenueReportWindow : Window
             MessageBox.Show($"Không thể tạo báo cáo doanh thu: {GetFullMessage(ex)}", "Lỗi");
         }
     }
+
+    private void BindPage()
+    {
+        dgPayments.ItemsSource = pager.Slice(_items);
+        emptyState.Visibility = _items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void Pager_PageChanged(object sender, EventArgs e) => BindPage();
 
     private void BtnThisMonth_Click(object sender, RoutedEventArgs e)
     {
@@ -111,13 +120,14 @@ public partial class RevenueReportWindow : Window
         txtAmountMax.Clear();
         _baseItems.Clear();
         _items.Clear();
-        dgPayments.ItemsSource = null;
-        lblTotalRevenue.Text = "";
-        lblTotalPayments.Text = "";
-        lblCashTotal.Text = "";
-        lblTransferTotal.Text = "";
-        lblCardTotal.Text = "";
-        lblWalletTotal.Text = "";
+        pager.Reset();
+        BindPage();
+        lblTotalRevenue.Text = "0";
+        lblTotalPayments.Text = "0";
+        lblCashTotal.Text = "0";
+        lblTransferTotal.Text = "0";
+        lblCardTotal.Text = "0";
+        lblWalletTotal.Text = "0";
     }
 
     private void SetThisMonth()
@@ -211,7 +221,7 @@ public partial class RevenueReportWindow : Window
         SemesterName = payment.Invoice.Enrollment?.Class?.Semester?.Name ?? "",
         CourseName = payment.Invoice.Enrollment?.Class?.Course?.Name ?? "",
         ClassName = payment.Invoice.Enrollment?.Class?.Name ?? "",
-        TeacherName = payment.Invoice.Enrollment?.Class?.Teacher?.FullName ?? "",
+        TeacherName = payment.Invoice.Enrollment?.Class?.PrimaryTeacher?.FullName ?? "",
         AmountPaid = payment.AmountPaid,
         PaymentMethod = payment.PaymentMethod,
         PaidAt = payment.PaidAt,

@@ -1,0 +1,34 @@
+<Window x:Class="WpfApp.LanguageDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Language" Height="240" Width="440"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Background="{StaticResource BackgroundBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="90"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Name" VerticalAlignment="Center" Margin="0,0,0,12"/>
+        <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtName" Height="34" Margin="0,0,0,12"/>
+
+        <CheckBox Grid.Row="1" Grid.Column="1" x:Name="chkActive" Content="Active"
+                  IsChecked="True" Margin="0,0,0,4"/>
+        <TextBlock Grid.Row="2" Grid.Column="1" FontSize="11" TextWrapping="Wrap"
+                   Foreground="{StaticResource TextSecondaryBrush}"
+                   Text="Inactive languages stay on existing courses but are hidden when creating new ones."/>
+
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal"
+                    HorizontalAlignment="Right" VerticalAlignment="Bottom">
+            <Button Content="Save"   Style="{StaticResource PillButton}"       Width="90" Margin="0,0,8,0" Click="BtnSave_Click"/>
+            <Button Content="Cancel" Style="{StaticResource PillButtonSubtle}" Width="90" Click="BtnCancel_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

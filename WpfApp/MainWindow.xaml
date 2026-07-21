@@ -58,6 +58,15 @@
                 <MenuItem Header="Course Management"   Click="MenuCourses_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="Book24"/></MenuItem.Icon>
                 </MenuItem>
+                <!-- The catalogue courses are built from: languages, then each
+                     language's levels. -->
+                <MenuItem Header="Languages" Click="MenuLanguages_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="LocalLanguage24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Levels" Click="MenuLevels_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="ArrowSortUp24"/></MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
                 <MenuItem Header="Classroom Management" Click="MenuClassrooms_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="Building24"/></MenuItem.Icon>
                 </MenuItem>
@@ -68,18 +77,18 @@
 
             <MenuItem Header="Classes" x:Name="menuClasses" Visibility="Collapsed">
                 <MenuItem.Icon><ui:SymbolIcon Symbol="ClipboardTask24"/></MenuItem.Icon>
-                <MenuItem Header="Class Management" Click="MenuClasses_Click">
-                    <MenuItem.Icon><ui:SymbolIcon Symbol="ClipboardTask24"/></MenuItem.Icon>
+                <!-- Classes and enrollment now live inside a semester: Semesters ->
+                     pick one -> Classes -> pick one -> Enrollments. A class cannot
+                     exist without a semester, so there is no standalone entry point. -->
+                <MenuItem Header="Classes &amp; Enrollment (via Semesters)" Click="MenuSemesters_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="CalendarLtr24"/></MenuItem.Icon>
                 </MenuItem>
+                <Separator/>
                 <MenuItem Header="Class Schedule Management" Click="MenuClassSchedules_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="CalendarLtr24"/></MenuItem.Icon>
                 </MenuItem>
                 <MenuItem Header="Slot Time Setting" Click="MenuSlotSetting_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="Clock24"/></MenuItem.Icon>
-                </MenuItem>
-                <Separator/>
-                <MenuItem Header="Enrollment" Click="MenuEnrollment_Click">
-                    <MenuItem.Icon><ui:SymbolIcon Symbol="PersonAdd24"/></MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
 

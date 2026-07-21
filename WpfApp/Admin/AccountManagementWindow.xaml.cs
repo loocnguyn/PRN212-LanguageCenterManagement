@@ -8,9 +8,9 @@ namespace WpfApp;
 // ============================================================
 //  AccountManagementWindow — list & manage all active accounts.
 //  CONTENTS:
-//    1. Fields & construction  — paging state, current user
+//    1. Fields & construction  — current user
 //    2. Load / stats / filter  — load actives, role counts, search+role filter
-//    3. Paging                 — first / prev / next / last
+//    3. Paging                 — PagerBar slices the filtered list
 //    4. Row actions            — view / add / edit / deactivate
 //  View->AccountViewWindow, Add/Edit->AccountDetailWindow.
 // ============================================================
@@ -20,8 +20,6 @@ public partial class AccountManagementWindow : Window
     private readonly User _currentUser;
     private List<User> _all = new();
     private List<User> _filtered = new();
-    private int _page = 1;
-    private const int PageSize = 20;
 
     public AccountManagementWindow(User currentUser)
     {
@@ -33,7 +31,7 @@ public partial class AccountManagementWindow : Window
     private void LoadData()
     {
         _all = _service.GetAll().Where(u => u.IsActive).ToList();
-        _page = 1;
+        pager.Reset();
         UpdateStats();
         ApplyFilter();
     }
@@ -59,38 +57,17 @@ public partial class AccountManagementWindow : Window
             .Where(u => role == "All" || string.IsNullOrEmpty(role) || u.Role == role)
             .ToList();
 
-        var totalPages = Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)PageSize));
-        if (_page > totalPages) _page = totalPages;
-
-        dgUsers.ItemsSource = _filtered.Skip((_page - 1) * PageSize).Take(PageSize).ToList();
-        txtPage.Text = $"Page {_page} / {totalPages}";
+        dgUsers.ItemsSource = pager.Slice(_filtered);
     }
 
-    private void BtnSearch_Click(object sender, RoutedEventArgs e) { _page = 1; ApplyFilter(); }
+    private void Pager_PageChanged(object sender, EventArgs e) => ApplyFilter();
+
+    private void BtnSearch_Click(object sender, RoutedEventArgs e) { pager.Reset(); ApplyFilter(); }
 
     private void CmbFilterRole_Changed(object sender, SelectionChangedEventArgs e)
     {
         if (dgUsers == null) return;
-        _page = 1;
-        ApplyFilter();
-    }
-
-    private void BtnFirst_Click(object sender, RoutedEventArgs e) { _page = 1; ApplyFilter(); }
-
-    private void BtnPrev_Click(object sender, RoutedEventArgs e)
-    {
-        if (_page > 1) { _page--; ApplyFilter(); }
-    }
-
-    private void BtnNext_Click(object sender, RoutedEventArgs e)
-    {
-        var totalPages = Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)PageSize));
-        if (_page < totalPages) { _page++; ApplyFilter(); }
-    }
-
-    private void BtnLast_Click(object sender, RoutedEventArgs e)
-    {
-        _page = Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)PageSize));
+        pager.Reset();
         ApplyFilter();
     }
 

@@ -20,6 +20,7 @@ public partial class StaffManagementWindow : Window
     private readonly IUserService _userService = new UserService();
     private readonly IDepartmentService _departmentService = new DepartmentService();
     private List<StaffRow> _all = new();
+    private List<StaffRow> _filtered = new();
 
     public StaffManagementWindow() { InitializeComponent(); LoadDeptFilter(); LoadData(); }
 
@@ -49,17 +50,27 @@ public partial class StaffManagementWindow : Window
         var kw = txtSearch.Text.Trim().ToLower();
         var dept = cmbFilterDept.SelectedItem as string;
 
-        dgStaff.ItemsSource = _all
+        _filtered = _all
             .Where(r => string.IsNullOrEmpty(kw)
                         || r.FullName.ToLower().Contains(kw)
                         || (r.Phone ?? "").Contains(kw)
                         || r.Username.ToLower().Contains(kw))
             .Where(r => dept is null or "All" || r.Department == dept)
             .ToList();
+
+        dgStaff.ItemsSource = pager.Slice(_filtered);
     }
 
-    private void BtnSearch_Click(object sender, RoutedEventArgs e) => ApplyFilter();
-    private void CmbFilterDept_Changed(object sender, SelectionChangedEventArgs e) => ApplyFilter();
+    private void Pager_PageChanged(object sender, EventArgs e) => ApplyFilter();
+
+    private void BtnSearch_Click(object sender, RoutedEventArgs e) { pager.Reset(); ApplyFilter(); }
+
+    private void CmbFilterDept_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (dgStaff == null) return;
+        pager.Reset();
+        ApplyFilter();
+    }
 
     private void DgStaff_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {

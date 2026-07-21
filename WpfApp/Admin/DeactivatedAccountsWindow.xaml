@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:WpfApp"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:ctl="clr-namespace:WpfApp.Controls"
         Title="Deactivated Accounts" Height="560" Width="760"
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource BackgroundBrush}">
@@ -90,9 +91,13 @@
                 </Grid>
             </Border>
 
-            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
-                <Button Content="Activate" Style="{StaticResource PillButtonSuccess}" Width="110" Click="BtnActivate_Click"/>
-            </StackPanel>
+            <!-- Footer: pager + actions -->
+            <Grid Grid.Row="1" Margin="0,14,0,0">
+                <ctl:PagerBar x:Name="pager" HorizontalAlignment="Left" PageChanged="Pager_PageChanged"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Activate" Style="{StaticResource PillButtonSuccess}" Width="110" Click="BtnActivate_Click"/>
+                </StackPanel>
+            </Grid>
         </Grid>
     </DockPanel>
 </Window>

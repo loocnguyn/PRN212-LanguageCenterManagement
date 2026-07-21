@@ -37,13 +37,16 @@ public partial class ClassScheduleManagementWindow : Window
     private void ApplyFilter()
     {
         var kw = txtSearch.Text.Trim().ToLower();
-        dgClasses.ItemsSource = string.IsNullOrEmpty(kw)
+        var filtered = string.IsNullOrEmpty(kw)
             ? _all
             : _all.Where(r => r.ClassName.ToLower().Contains(kw)).ToList();
+        dgClasses.ItemsSource = pager.Slice(filtered);
     }
 
-    private void BtnSearch_Click(object sender, RoutedEventArgs e) => ApplyFilter();
-    private void BtnReset_Click(object sender, RoutedEventArgs e) { txtSearch.Text = ""; ApplyFilter(); }
+    private void Pager_PageChanged(object sender, EventArgs e) => ApplyFilter();
+
+    private void BtnSearch_Click(object sender, RoutedEventArgs e) { pager.Reset(); ApplyFilter(); }
+    private void BtnReset_Click(object sender, RoutedEventArgs e) { txtSearch.Text = ""; pager.Reset(); ApplyFilter(); }
 
     private void DgClasses_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         => ManageSelected();

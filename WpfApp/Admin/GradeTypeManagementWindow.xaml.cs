@@ -1,24 +1,26 @@
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 using BusinessObjects;
 using Services;
 
 namespace WpfApp;
 
 // ============================================================
-//  GradeTypeManagementWindow — per-course grade components & weights.
+//  GradeTypeManagementWindow — course picker for grading structures.
+//  Lists the available courses with how their grade components add up,
+//  then opens CourseGradingStructureWindow for the chosen one.
 //  CONTENTS:
-//    1. Construction & loading   — course picker, grade-type grid
-//    2. UpdateTotalIndicator     — progress bar/status for total weight
-//    3. Add / edit / delete      — GradeTypeDialog; enforce 100% total
+//    1. Fields & load      — courses + their component count / total weight
+//    2. Filter & paging    — search, active-only toggle, PagerBar
+//    3. Configure          — open the per-course editor, refresh on close
+//    4. CourseRow          — grid-facing view model (status badge fields)
 // ============================================================
 public partial class GradeTypeManagementWindow : Window
 {
     private readonly ICourseService _courseService = new CourseService();
     private readonly IGradeTypeService _gradeTypeService = new GradeTypeService();
 
-    private static readonly Brush AmberBrush = new SolidColorBrush(Color.FromRgb(0xC0, 0x80, 0x00));
+    private List<CourseRow> _all = new();
+    private List<CourseRow> _filtered = new();
 
     public GradeTypeManagementWindow()
     {
@@ -26,149 +28,113 @@ public partial class GradeTypeManagementWindow : Window
         LoadCourses();
     }
 
+    // ---- 1. Load -----------------------------------------------
     private void LoadCourses()
     {
-        cmbCourse.ItemsSource = _courseService.GetAll();
-        if (cmbCourse.Items.Count > 0) cmbCourse.SelectedIndex = 0;
+        // One GetAll for the grade types, then group in memory — avoids a
+        // per-course service round trip while building the list.
+        var byCourse = _gradeTypeService.GetAll()
+            .GroupBy(g => g.CourseId)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        _all = _courseService.GetAll()
+            .Select(c => new CourseRow(c, byCourse.GetValueOrDefault(c.CourseId) ?? new List<GradeType>()))
+            .OrderBy(r => r.Name)
+            .ToList();
+
+        UpdateStats();
+        ApplyFilter();
     }
 
-    private Course? SelectedCourse => cmbCourse.SelectedItem as Course;
-
-    private void CmbCourse_SelectionChanged(object sender, SelectionChangedEventArgs e) => LoadGradeTypes();
-
-    private void LoadGradeTypes()
+    private void UpdateStats()
     {
-        if (SelectedCourse is not Course course)
+        statTotal.Text = _all.Count.ToString();
+        statBalanced.Text = _all.Count(r => r.StatusKind == "Balanced").ToString();
+        statIncomplete.Text = _all.Count(r => r.StatusKind is "Incomplete" or "Over").ToString();
+        statNotSetUp.Text = _all.Count(r => r.ComponentCount == 0).ToString();
+    }
+
+    // ---- 2. Filter & paging ------------------------------------
+    private void ApplyFilter()
+    {
+        if (dgCourses == null) return;
+
+        var kw = txtSearch.Text.Trim().ToLower();
+        var onlyActive = chkOnlyActive.IsChecked == true;
+
+        _filtered = _all
+            .Where(r => !onlyActive || r.IsActive)
+            .Where(r => string.IsNullOrEmpty(kw)
+                        || r.Name.ToLower().Contains(kw)
+                        || r.Code.ToLower().Contains(kw))
+            .ToList();
+
+        dgCourses.ItemsSource = pager.Slice(_filtered);
+        emptyState.Visibility = _filtered.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void Pager_PageChanged(object sender, EventArgs e) => ApplyFilter();
+
+    private void BtnSearch_Click(object sender, RoutedEventArgs e) { pager.Reset(); ApplyFilter(); }
+
+    private void BtnReset_Click(object sender, RoutedEventArgs e)
+    {
+        txtSearch.Text = "";
+        chkOnlyActive.IsChecked = true;
+        pager.Reset();
+        ApplyFilter();
+    }
+
+    private void ChkOnlyActive_Click(object sender, RoutedEventArgs e) { pager.Reset(); ApplyFilter(); }
+
+    // ---- 3. Configure ------------------------------------------
+    private void DgCourses_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (dgCourses.SelectedItem is CourseRow) ConfigureSelected();
+    }
+
+    private void BtnConfigure_Click(object sender, RoutedEventArgs e) => ConfigureSelected();
+
+    private void ConfigureSelected()
+    {
+        if (dgCourses.SelectedItem is not CourseRow row)
         {
-            dgGradeTypes.ItemsSource = null;
-            emptyState.Visibility = Visibility.Collapsed;
-            UpdateTotalIndicator(0);
+            MessageBox.Show("Please select a course to configure.", "Info",
+                MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 
-        var gradeTypes = _gradeTypeService.GetByCourseId(course.CourseId);
-        dgGradeTypes.ItemsSource = gradeTypes;
-        emptyState.Visibility = gradeTypes.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        UpdateTotalIndicator(_gradeTypeService.GetTotalWeightPercent(course.CourseId));
+        new CourseGradingStructureWindow(row.Course) { Owner = this }.ShowDialog();
+        LoadCourses(); // weights may have changed
     }
 
-    private void UpdateTotalIndicator(decimal total)
+    // ---- 4. CourseRow (grid-facing view model) -----------------
+    private sealed record CourseRow(Course Course, List<GradeType> GradeTypes)
     {
-        pbWeight.Value = (double)Math.Min(100, total);
+        public string Name => Course.Name;
+        public string Code => Course.Code;
+        public string Language => Course.LanguageName;
+        public string Level => Course.LevelName;
+        public bool IsActive => Course.IsActive;
 
-        if (total == 100)
-        {
-            tbStatus.Text = "✓ Balanced (100%)";
-            tbStatus.Foreground = (Brush)FindResource("SecondaryBrush");
-            pbWeight.Foreground = (Brush)FindResource("SecondaryBrush");
-        }
-        else if (total < 100)
-        {
-            tbStatus.Text = $"{total:0.##}% / 100%  —  {100 - total:0.##}% remaining";
-            tbStatus.Foreground = AmberBrush;
-            pbWeight.Foreground = AmberBrush;
-        }
-        else
-        {
-            tbStatus.Text = $"{total:0.##}% / 100%  —  over by {total - 100:0.##}%";
-            tbStatus.Foreground = (Brush)FindResource("DangerBrush");
-            pbWeight.Foreground = (Brush)FindResource("DangerBrush");
-        }
-    }
+        public int ComponentCount => GradeTypes.Count;
+        public decimal TotalWeight => GradeTypes.Sum(g => g.WeightPercent);
 
-    private void BtnAdd_Click(object sender, RoutedEventArgs e)
-    {
-        if (SelectedCourse is not Course course)
+        public string TotalWeightText => ComponentCount == 0 ? "—" : $"{TotalWeight:0.##}%";
+
+        /// <summary>Drives the badge colour via DataTrigger; keep in sync with StatusText.</summary>
+        public string StatusKind => ComponentCount switch
         {
-            MessageBox.Show("Please select a course first.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-            return;
-        }
+            0 => "NotSetUp",
+            _ => TotalWeight == 100 ? "Balanced" : TotalWeight < 100 ? "Incomplete" : "Over"
+        };
 
-        var remaining = 100 - _gradeTypeService.GetTotalWeightPercent(course.CourseId);
-        var dlg = new GradeTypeDialog(remaining) { Owner = this };
-        if (dlg.ShowDialog() != true) return;
-
-        var newTotal = _gradeTypeService.GetTotalWeightPercent(course.CourseId) + dlg.Result.WeightPercent;
-        if (newTotal > 100)
+        public string StatusText => StatusKind switch
         {
-            MessageBox.Show($"Total weight would exceed 100% (would be {newTotal:0.##}%).", "Validation",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
-
-        dlg.Result.CourseId = course.CourseId;
-        try
-        {
-            _gradeTypeService.Save(dlg.Result);
-            LoadGradeTypes();
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Error adding grade component: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-    }
-
-    private void BtnEdit_Click(object sender, RoutedEventArgs e) => EditSelected();
-
-    private void DgGradeTypes_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
-    {
-        if (dgGradeTypes.SelectedItem is GradeType) EditSelected();
-    }
-
-    private void EditSelected()
-    {
-        if (SelectedCourse is not Course course) return;
-        if (dgGradeTypes.SelectedItem is not GradeType gradeType)
-        {
-            MessageBox.Show("Please select a grade component to edit.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-            return;
-        }
-
-        var remaining = 100 - _gradeTypeService.GetTotalWeightPercent(course.CourseId, gradeType.GradeTypeId);
-        var dlg = new GradeTypeDialog(remaining, gradeType) { Owner = this };
-        if (dlg.ShowDialog() != true) return;
-
-        var newTotal = _gradeTypeService.GetTotalWeightPercent(course.CourseId, gradeType.GradeTypeId) + dlg.Result.WeightPercent;
-        if (newTotal > 100)
-        {
-            MessageBox.Show($"Total weight would exceed 100% (would be {newTotal:0.##}%).", "Validation",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
-
-        try
-        {
-            _gradeTypeService.Update(dlg.Result);
-            LoadGradeTypes();
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Error updating grade component: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-    }
-
-    private void BtnDelete_Click(object sender, RoutedEventArgs e)
-    {
-        if (dgGradeTypes.SelectedItem is not GradeType gradeType)
-        {
-            MessageBox.Show("Please select a grade component to delete.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-            return;
-        }
-
-        var confirm = MessageBox.Show($"Delete grade component \"{gradeType.Name}\"?", "Confirm",
-            MessageBoxButton.YesNo, MessageBoxImage.Warning);
-        if (confirm != MessageBoxResult.Yes) return;
-
-        try
-        {
-            _gradeTypeService.Delete(gradeType.GradeTypeId);
-            LoadGradeTypes();
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show(
-                $"Cannot delete this grade component — it may already have grades recorded against it.\n\n{ex.Message}",
-                "Cannot Delete", MessageBoxButton.OK, MessageBoxImage.Warning);
-        }
+            "Balanced" => "✓ Balanced",
+            "Incomplete" => $"{100 - TotalWeight:0.##}% missing",
+            "Over" => $"Over by {TotalWeight - 100:0.##}%",
+            _ => "Not set up"
+        };
     }
 }

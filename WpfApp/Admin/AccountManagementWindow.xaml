@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:WpfApp"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:ctl="clr-namespace:WpfApp.Controls"
         Title="Account Management" Height="680" Width="1040"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource BackgroundBrush}">
@@ -122,10 +123,10 @@
             <Border Grid.Row="1" Style="{StaticResource Card}" Padding="12" Margin="0,0,0,14">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBox x:Name="txtSearch" Width="220" Height="32" VerticalContentAlignment="Center" Padding="6,0"/>
+                    <TextBox x:Name="txtSearch" Width="220" Height="34" VerticalContentAlignment="Center" Padding="6,0"/>
                     <Button Content="Search" Style="{StaticResource PillButton}" Width="84" Margin="8,0,0,0" Click="BtnSearch_Click"/>
                     <TextBlock Text="Role:" VerticalAlignment="Center" Margin="20,0,6,0"/>
-                    <ComboBox x:Name="cmbFilterRole" Width="150" Height="32" SelectionChanged="CmbFilterRole_Changed"
+                    <ComboBox x:Name="cmbFilterRole" Width="150" Height="34" SelectionChanged="CmbFilterRole_Changed"
                               HorizontalContentAlignment="Left" Padding="8,4" VerticalContentAlignment="Center">
                         <ComboBoxItem Content="All" IsSelected="True"/>
                         <ComboBoxItem Content="ADMIN"/>
@@ -152,13 +153,7 @@
 
             <!-- Footer: pager + actions -->
             <Grid Grid.Row="3" Margin="0,14,0,0">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                    <Button Content="«" Style="{StaticResource PagerButton}" Margin="0,0,4,0" Click="BtnFirst_Click"/>
-                    <Button Content="‹" Style="{StaticResource PagerButton}" Margin="0,0,4,0" Click="BtnPrev_Click"/>
-                    <TextBlock x:Name="txtPage" VerticalAlignment="Center" Margin="8,0"/>
-                    <Button Content="›" Style="{StaticResource PagerButton}" Margin="4,0,4,0" Click="BtnNext_Click"/>
-                    <Button Content="»" Style="{StaticResource PagerButton}" Click="BtnLast_Click"/>
-                </StackPanel>
+                <ctl:PagerBar x:Name="pager" HorizontalAlignment="Left" PageChanged="Pager_PageChanged"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="View"       Style="{StaticResource PillButtonInfo}"     Width="90"  Margin="0,0,8,0" Click="BtnView_Click"/>
                     <Button Content="Add"        Style="{StaticResource PillButton}"        Width="90"  Margin="0,0,8,0" Click="BtnAdd_Click"/>

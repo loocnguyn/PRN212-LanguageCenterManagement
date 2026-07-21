@@ -20,6 +20,7 @@ public partial class RewardReviewWindow : Window
     private readonly ISemesterService _semesterService = new SemesterService();
     private readonly ICourseService _courseService = new CourseService();
     private readonly IRewardService _rewardService = new RewardService();
+    private List<RewardCandidate> _candidates = new();
 
     public RewardReviewWindow()
     {
@@ -40,16 +41,22 @@ public partial class RewardReviewWindow : Window
         }
         if (!TryParseThreshold(out var threshold)) return;
 
-        var candidates = _rewardService.GetCandidates(semesterId, courseId, threshold);
-        dgCandidates.ItemsSource = candidates;
-        emptyState.Visibility = candidates.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        if (candidates.Count == 0) emptyState.Text = "No students found for this course in this semester.";
+        _candidates = _rewardService.GetCandidates(semesterId, courseId, threshold);
+        pager.Reset();
+        BindPage();
 
-        var eligible = candidates.Count(c => c.IsEligible && !c.AlreadyRewarded);
-        var rewarded = candidates.Count(c => c.AlreadyRewarded);
-        tbSummary.Text = $"{candidates.Count} student(s) · {eligible} newly eligible · {rewarded} already rewarded";
+        emptyState.Visibility = _candidates.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        if (_candidates.Count == 0) emptyState.Text = "No students found for this course in this semester.";
+
+        var eligible = _candidates.Count(c => c.IsEligible && !c.AlreadyRewarded);
+        var rewarded = _candidates.Count(c => c.AlreadyRewarded);
+        tbSummary.Text = $"{_candidates.Count} student(s) · {eligible} newly eligible · {rewarded} already rewarded";
         btnGrant.IsEnabled = eligible > 0;
     }
+
+    private void BindPage() => dgCandidates.ItemsSource = pager.Slice(_candidates);
+
+    private void Pager_PageChanged(object sender, EventArgs e) => BindPage();
 
     // ---- 3. Grant ----------------------------------------------
     private void BtnGrant_Click(object sender, RoutedEventArgs e)

@@ -9,16 +9,22 @@ namespace WpfApp;
 //  DepartmentManagementWindow — CRUD for staff departments.
 //  CONTENTS:
 //    1. Construction & load   — departments into the grid
-//    2. Add / edit / delete   — DepartmentDialog; delete selected
-//    3. TrySave               — friendly error on duplicate name
+//    2. Paging                — PagerBar slices the list
+//    3. Add / edit / delete   — DepartmentDialog; delete selected
+//    4. TrySave               — friendly error on duplicate name
 // ============================================================
 public partial class DepartmentManagementWindow : Window
 {
     private readonly IDepartmentService _service = new DepartmentService();
+    private List<Department> _all = new();
 
     public DepartmentManagementWindow() { InitializeComponent(); LoadData(); }
 
-    private void LoadData() => dgDepartments.ItemsSource = _service.GetAll();
+    private void LoadData() { _all = _service.GetAll(); BindPage(); }
+
+    private void BindPage() => dgDepartments.ItemsSource = pager.Slice(_all);
+
+    private void Pager_PageChanged(object sender, EventArgs e) => BindPage();
 
     private void BtnAdd_Click(object sender, RoutedEventArgs e)
     {

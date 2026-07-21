@@ -10,22 +10,30 @@ namespace WpfApp;
 //  CONTENTS:
 //    1. Fields & load    — all classrooms into the grid
 //    2. Search / reset   — filter by keyword
-//    3. Add / edit / delete — open ClassroomDialog; delete selected
+//    3. Paging           — PagerBar slices the filtered list
+//    4. Add / edit / delete — open ClassroomDialog; delete selected
 // ============================================================
 public partial class ClassroomManagementWindow : Window
 {
     private readonly IClassroomService _service = new ClassroomService();
     private List<Classroom> _all = new();
+    private List<Classroom> _filtered = new();
 
     public ClassroomManagementWindow() { InitializeComponent(); LoadData(); }
-    private void LoadData() { _all = _service.GetAll(); dgClassrooms.ItemsSource = _all; }
-    private void BtnSearch_Click(object sender, RoutedEventArgs e)
+    private void LoadData() { _all = _service.GetAll(); pager.Reset(); ApplyFilter(); }
+
+    private void ApplyFilter()
     {
         var kw = txtSearch.Text.Trim().ToLower();
-        dgClassrooms.ItemsSource = string.IsNullOrEmpty(kw) ? _all
+        _filtered = string.IsNullOrEmpty(kw) ? _all
             : _all.Where(r => r.Name.ToLower().Contains(kw)).ToList();
+        dgClassrooms.ItemsSource = pager.Slice(_filtered);
     }
-    private void BtnReset_Click(object sender, RoutedEventArgs e) { txtSearch.Text = ""; dgClassrooms.ItemsSource = _all; }
+
+    private void Pager_PageChanged(object sender, EventArgs e) => ApplyFilter();
+
+    private void BtnSearch_Click(object sender, RoutedEventArgs e) { pager.Reset(); ApplyFilter(); }
+    private void BtnReset_Click(object sender, RoutedEventArgs e) { txtSearch.Text = ""; pager.Reset(); ApplyFilter(); }
     private void DgClassrooms_SelectionChanged(object sender, SelectionChangedEventArgs e) { }
     private void BtnAdd_Click(object sender, RoutedEventArgs e)
     {

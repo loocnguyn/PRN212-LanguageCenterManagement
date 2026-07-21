@@ -1,19 +1,26 @@
 using System.Windows;
+using System.Windows.Controls;
 using BusinessObjects;
 using Services;
 
 namespace WpfApp;
 
 // ============================================================
-//  CourseDetailWindow — Add/Edit a course (code, level, tuition…).
+//  CourseDetailWindow — add or edit a course.
 //  CONTENTS:
-//    1. Construction    — add vs edit; prefill fields
-//    2. Save            — validate then create/update the course
-//    3. Helpers         — SelectComboItem, Cancel
+//    1. Construction        — add vs edit; prefill and cascade
+//    2. Language -> Level   — levels are scoped to the chosen language
+//    3. Save                — validate then create/update
+//
+//  Language and level are picked from the centre's catalogue rather than typed,
+//  so a course can never claim a level that language does not offer ("N5" for
+//  English). A new course is always created active — the checkbox only appears
+//  when editing, since deactivating is a later decision.
 // ============================================================
 public partial class CourseDetailWindow : Window
 {
     private readonly ICourseService _service = new CourseService();
+    private readonly ICatalogueService _catalogue = new CatalogueService();
     private readonly Course? _editCourse;
 
     public CourseDetailWindow(Course? course = null)
@@ -21,116 +28,141 @@ public partial class CourseDetailWindow : Window
         InitializeComponent();
         _editCourse = course;
 
-        if (course != null)
-        {
-            Title = "Edit Course";
-            txtCode.Text = course.Code;
-            txtName.Text = course.Name;
-            SelectComboItem(cmbLevel, course.Level);
-            SelectComboItem(cmbLanguage, course.Language);
-            txtDuration.Text = course.DurationSessions.ToString();
-            txtFee.Text = course.TuitionFee.ToString("0.##");
-            txtDescription.Text = course.Description ?? "";
-            chkActive.IsChecked = course.IsActive;
-        }
+        cmbLanguage.ItemsSource = _catalogue.GetLanguages();
+
+        if (course == null) return;
+
+        Title = "Edit Course";
+        tbTitle.Text = $"Edit “{course.Name}”";
+
+        txtCode.Text = course.Code;
+        txtName.Text = course.Name;
+        txtDuration.Text = course.DurationSessions.ToString();
+        txtFee.Text = course.TuitionFee.ToString("0.##");
+        txtDescription.Text = course.Description ?? "";
+
+        // Deactivating is only meaningful for an existing course.
+        lblActive.Visibility = Visibility.Visible;
+        chkActive.Visibility = Visibility.Visible;
+        chkActive.IsChecked = course.IsActive;
+
+        // Setting the language fires the cascade, which fills cmbLevel.
+        cmbLanguage.SelectedValue = course.LanguageId;
+        if (course.LevelId.HasValue) cmbLevel.SelectedValue = course.LevelId.Value;
     }
 
-    private static void SelectComboItem(System.Windows.Controls.ComboBox cmb, string? value)
+    // ---- 2. Language -> Level cascade --------------------------
+    private void CmbLanguage_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (value == null) return;
-        foreach (var item in cmb.Items)
+        if (cmbLevel == null) return; // fires once during InitializeComponent
+
+        if (cmbLanguage.SelectedValue is not int languageId)
         {
-            if (item is System.Windows.Controls.ComboBoxItem ci && ci.Content.ToString() == value)
-            {
-                cmb.SelectedItem = ci;
-                return;
-            }
+            cmbLevel.ItemsSource = null;
+            tbLevelHint.Text = "Pick a language first.";
+            return;
         }
+
+        var levels = _catalogue.GetLevels(languageId);
+        cmbLevel.ItemsSource = levels;
+        cmbLevel.SelectedIndex = -1;
+
+        tbLevelHint.Text = levels.Count == 0
+            ? "This language has no levels defined yet — the course can be saved without one."
+            : "Optional.";
     }
 
+    // ---- 3. Save -----------------------------------------------
     private void BtnSave_Click(object sender, RoutedEventArgs e)
     {
         var code = txtCode.Text.Trim();
         var name = txtName.Text.Trim();
-        var level = (cmbLevel.SelectedItem as System.Windows.Controls.ComboBoxItem)?.Content.ToString();
-        var language = (cmbLanguage.SelectedItem as System.Windows.Controls.ComboBoxItem)?.Content.ToString();
-        var durationText = txtDuration.Text.Trim();
-        var feeText = txtFee.Text.Trim();
         var description = txtDescription.Text.Trim();
-        var isActive = chkActive.IsChecked ?? true;
 
-        // Validation
         if (string.IsNullOrEmpty(code))
         {
-            MessageBox.Show("Code is required.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+            Warn("Code is required.");
             return;
         }
         if (string.IsNullOrEmpty(name))
         {
-            MessageBox.Show("Name is required.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+            Warn("Name is required.");
             return;
         }
-        if (string.IsNullOrEmpty(language))
+        if (cmbLanguage.SelectedValue is not int languageId)
         {
-            MessageBox.Show("Language is required.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+            Warn("Language is required.");
             return;
         }
-        if (!int.TryParse(durationText, out var duration) || duration <= 0)
+        if (!int.TryParse(txtDuration.Text.Trim(), out var duration) || duration <= 0)
         {
-            MessageBox.Show("Duration Sessions must be a positive integer.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+            Warn("Duration must be a positive whole number of sessions.");
             return;
         }
-        if (!decimal.TryParse(feeText, out var fee) || fee < 0)
+        if (!decimal.TryParse(txtFee.Text.Trim(), out var fee) || fee < 0)
         {
-            MessageBox.Show("Tuition Fee must be a valid non-negative number.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+            Warn("Tuition fee must be a non-negative number.");
             return;
         }
 
-        if (_editCourse == null)
+        var levelId = cmbLevel.SelectedValue as int?;
+
+        var duplicate = _service.GetAll().Any(c =>
+            c.Code.Equals(code, System.StringComparison.OrdinalIgnoreCase)
+            && (_editCourse == null || c.CourseId != _editCourse.CourseId));
+        if (duplicate)
         {
-            // Check duplicate code
-            if (_service.GetAll().Any(c => c.Code.Equals(code, System.StringComparison.OrdinalIgnoreCase)))
+            Warn("Course code already exists.");
+            return;
+        }
+
+        try
+        {
+            if (_editCourse == null)
             {
-                MessageBox.Show("Course code already exists.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                _service.Save(new Course
+                {
+                    Code = code,
+                    Name = name,
+                    LanguageId = languageId,
+                    LevelId = levelId,
+                    DurationSessions = duration,
+                    TuitionFee = fee,
+                    Description = description,
+                    IsActive = true, // new courses start active
+                    CreatedAt = System.DateTime.Now
+                });
+            }
+            else
+            {
+                _editCourse.Code = code;
+                _editCourse.Name = name;
+                _editCourse.LanguageId = languageId;
+                _editCourse.LevelId = levelId;
+                _editCourse.DurationSessions = duration;
+                _editCourse.TuitionFee = fee;
+                _editCourse.Description = description;
+                _editCourse.IsActive = chkActive.IsChecked ?? true;
+
+                // Detach the navigations so EF does not try to re-insert the
+                // catalogue rows that were loaded on this instance.
+                _editCourse.Language = null!;
+                _editCourse.Level = null;
+
+                _service.Update(_editCourse);
             }
 
-            var course = new Course
-            {
-                Code = code,
-                Name = name,
-                Level = level,
-                Language = language,
-                DurationSessions = duration,
-                TuitionFee = fee,
-                Description = description,
-                IsActive = isActive,
-                CreatedAt = System.DateTime.Now
-            };
-            _service.Save(course);
+            DialogResult = true;
         }
-        else
+        catch (System.Exception ex)
         {
-            // Check duplicate code (excluding self)
-            if (_service.GetAll().Any(c => c.Code.Equals(code, System.StringComparison.OrdinalIgnoreCase) && c.CourseId != _editCourse.CourseId))
-            {
-                MessageBox.Show("Course code already exists.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            _editCourse.Code = code;
-            _editCourse.Name = name;
-            _editCourse.Level = level;
-            _editCourse.Language = language;
-            _editCourse.DurationSessions = duration;
-            _editCourse.TuitionFee = fee;
-            _editCourse.Description = description;
-            _editCourse.IsActive = isActive;
-            _service.Update(_editCourse);
+            MessageBox.Show($"Could not save the course:\n{ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
         }
-
-        DialogResult = true;
     }
+
+    private static void Warn(string message) =>
+        MessageBox.Show(message, "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
 
     private void BtnCancel_Click(object sender, RoutedEventArgs e) => DialogResult = false;
 }

@@ -1,78 +1,136 @@
 <Window x:Class="WpfApp.ClassDetailWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Add Class" Height="540" Width="480"
-        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="120"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        Title="Class" Height="780" Width="640"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Background="{StaticResource BackgroundBrush}">
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Background="{StaticResource PrimaryBrush}" Padding="20,14">
+            <StackPanel Orientation="Horizontal">
+                <ui:SymbolIcon Symbol="ClipboardTask24" Foreground="White" FontSize="24" Margin="0,0,12,0"/>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock x:Name="tbTitle" Text="New Class" Foreground="White"
+                               FontSize="16" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="tbSubtitle" Foreground="#DCEBFF" FontSize="12"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
 
-        <!-- Name -->
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="Class Name" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtName" Height="30" VerticalContentAlignment="Center" Padding="4,0" Margin="0,0,0,10"/>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <Grid Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-        <!-- Course -->
-        <TextBlock Grid.Row="1" Grid.Column="0" Text="Course" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <ComboBox Grid.Row="1" Grid.Column="1" x:Name="cmbCourse" Height="30" Margin="0,0,0,10"
-                  DisplayMemberPath="Name" SelectedValuePath="CourseId"
-                  HorizontalContentAlignment="Left" Padding="4,3" VerticalContentAlignment="Center"/>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Class name" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtName" Height="34" Margin="0,0,0,10"/>
 
-        <!-- Teacher -->
-        <TextBlock Grid.Row="2" Grid.Column="0" Text="Teacher" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <ComboBox Grid.Row="2" Grid.Column="1" x:Name="cmbTeacher" Height="30" Margin="0,0,0,10"
-                  DisplayMemberPath="FullName" SelectedValuePath="TeacherId"
-                  HorizontalContentAlignment="Left" Padding="4,3" VerticalContentAlignment="Center"/>
+                <!-- Course is chosen only at creation: the class freezes a copy of it,
+                     and swapping it later would desync that copy from invoices already issued. -->
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Course" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
+                    <ComboBox x:Name="cmbCourse" Height="34"
+                              SelectedValuePath="CourseId"
+                              SelectionChanged="CmbCourse_SelectionChanged">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <Run Text="{Binding Code}" FontWeight="SemiBold"/>
+                                    <Run Text="  —  "/>
+                                    <Run Text="{Binding Name}"/>
+                                </TextBlock>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Border x:Name="snapshotPreview" Style="{StaticResource Card}" Padding="10" Margin="0,8,0,0"
+                            Visibility="Collapsed">
+                        <StackPanel>
+                            <TextBlock x:Name="tbSnapshotTitle" FontWeight="SemiBold" FontSize="12"/>
+                            <TextBlock x:Name="tbSnapshotBody" FontSize="11" TextWrapping="Wrap"
+                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
 
-        <!-- Classroom -->
-        <TextBlock Grid.Row="3" Grid.Column="0" Text="Classroom" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <ComboBox Grid.Row="3" Grid.Column="1" x:Name="cmbClassroom" Height="30" Margin="0,0,0,10"
-                  DisplayMemberPath="Name" SelectedValuePath="ClassroomId"
-                  HorizontalContentAlignment="Left" Padding="4,3" VerticalContentAlignment="Center"/>
+                <!-- Tick everyone who teaches this class, then mark one as primary —
+                     reports and finance filters attribute the class to the primary. -->
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Teachers" VerticalAlignment="Top" Margin="0,6,0,10"/>
+                <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,0,0,10">
+                    <Border Style="{StaticResource Card}" Padding="0">
+                        <ListBox x:Name="lstTeachers" Height="150" BorderThickness="0"
+                                 Background="Transparent" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="4,3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                  VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding FullName}" FontSize="13"/>
+                                            <TextBlock Text="{Binding Detail}" FontSize="11"
+                                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        </StackPanel>
+                                        <RadioButton Grid.Column="2" GroupName="PrimaryTeacher"
+                                                     Content="Primary" VerticalAlignment="Center"
+                                                     IsChecked="{Binding IsPrimary, Mode=TwoWay}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+                    <TextBlock FontSize="11" Margin="0,4,0,0" Foreground="{StaticResource TextSecondaryBrush}"
+                               Text="Tick each teacher, then mark exactly one as primary."/>
+                </StackPanel>
 
-        <!-- Max Students -->
-        <TextBlock Grid.Row="4" Grid.Column="0" Text="Max Students" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <TextBox Grid.Row="4" Grid.Column="1" x:Name="txtMaxStudents" Height="30" VerticalContentAlignment="Center" Padding="4,0" Margin="0,0,0,10"/>
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Classroom" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                <ComboBox Grid.Row="3" Grid.Column="1" x:Name="cmbClassroom" Height="34" Margin="0,0,0,10"
+                          DisplayMemberPath="Name" SelectedValuePath="ClassroomId"/>
 
-        <!-- Start Date -->
-        <TextBlock Grid.Row="5" Grid.Column="0" Text="Start Date" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <DatePicker Grid.Row="5" Grid.Column="1" x:Name="dpStartDate" Height="30" Margin="0,0,0,10"/>
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="Max students" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                <TextBox Grid.Row="4" Grid.Column="1" x:Name="txtMaxStudents" Height="34" Margin="0,0,0,10"/>
 
-        <!-- End Date -->
-        <TextBlock Grid.Row="6" Grid.Column="0" Text="End Date" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <DatePicker Grid.Row="6" Grid.Column="1" x:Name="dpEndDate" Height="30" Margin="0,0,0,10"/>
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="Runs from" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,10">
+                    <DatePicker x:Name="dpStartDate" Width="150" Height="34"/>
+                    <TextBlock Text="to" VerticalAlignment="Center" Margin="10,0"/>
+                    <DatePicker x:Name="dpEndDate" Width="150" Height="34"/>
+                </StackPanel>
 
-        <!-- Status -->
-        <TextBlock Grid.Row="7" Grid.Column="0" Text="Status" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <ComboBox Grid.Row="7" Grid.Column="1" x:Name="cmbStatus" Height="30" Margin="0,0,0,10"
-                  HorizontalContentAlignment="Left" Padding="4,3" VerticalContentAlignment="Center">
-            <ComboBoxItem Content="UPCOMING"/>
-            <ComboBoxItem Content="ONGOING"/>
-            <ComboBoxItem Content="COMPLETED"/>
-            <ComboBoxItem Content="CANCELLED"/>
-        </ComboBox>
+                <TextBlock Grid.Row="6" Grid.Column="0" Text="Status" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                <ComboBox Grid.Row="6" Grid.Column="1" x:Name="cmbStatus" Height="34" Margin="0,0,0,10">
+                    <ComboBoxItem Content="UPCOMING" IsSelected="True"/>
+                    <ComboBoxItem Content="ONGOING"/>
+                    <ComboBoxItem Content="COMPLETED"/>
+                    <ComboBoxItem Content="CANCELLED"/>
+                </ComboBox>
 
-        <!-- Buttons -->
-        <StackPanel Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2"
-                    Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
-            <Button Content="Save" Width="90" Height="32" Margin="0,0,8,0" Click="BtnSave_Click"/>
-            <Button Content="Cancel" Width="90" Height="32" Click="BtnCancel_Click"/>
-        </StackPanel>
-    </Grid>
-    </ScrollViewer>
+                <StackPanel Grid.Row="7" Grid.ColumnSpan="2"
+                            Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+                    <Button Content="Save"   Style="{StaticResource PillButton}"       Width="90" Margin="0,0,8,0" Click="BtnSave_Click"/>
+                    <Button Content="Cancel" Style="{StaticResource PillButtonSubtle}" Width="90" Click="BtnCancel_Click"/>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </DockPanel>
 </Window>

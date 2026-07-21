@@ -1,218 +1,174 @@
 using System.Windows;
-using System.Windows.Controls;
 using BusinessObjects;
 using Services;
 
 namespace WpfApp;
 
 // ============================================================
-//  SemesterWindow — manage semesters (dates, phases, active flag).
+//  SemesterWindow — list of semesters; editing happens in SemesterDialog.
 //  CONTENTS:
-//    1. Fields & load        — grid + form state
-//    2. Form helpers         — clear, auto setup-end on start change, select
-//    3. Add / edit / delete  — validate then persist
-//    4. SetActive            — make one semester the active one
-//    5. ValidateForm         — build a Semester or report errors
+//    1. Fields & load     — semesters + class counts into the grid
+//    2. Current banner    — which semester contains today, and its phase
+//    3. Add / edit / delete — SemesterDialog; delete surfaces the service guard
+//    4. SemesterRow       — grid-facing view model (status badge fields)
+//
+//  There is no "set active" action: the current semester is derived from
+//  today's date (see Semester.IsActive), so activeness is not something the
+//  admin toggles. Overlap is what would make that ambiguous, and
+//  SemesterService rejects it on save.
 // ============================================================
 public partial class SemesterWindow : Window
 {
     private readonly ISemesterService _service = new SemesterService();
     private readonly IClassService _classService = new ClassService();
-    private List<Semester> _all = new();
-    private bool _isLoading;
-    private bool _isEditing;
 
-    public SemesterWindow() { InitializeComponent(); LoadData(); }
+    private List<SemesterRow> _all = new();
 
+    public SemesterWindow()
+    {
+        InitializeComponent();
+        LoadData();
+    }
+
+    // ---- 1. Load -----------------------------------------------
     private void LoadData()
     {
-        _isLoading = true;
-        _all = _service.GetAll();
-        dgSemesters.ItemsSource = _all;
-        _isLoading = false;
+        _all = _service.GetAll()
+            .Select(s => new SemesterRow(s, _classService.GetBySemesterId(s.SemesterId).Count))
+            .ToList();
+
+        emptyState.Visibility = _all.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        UpdateCurrentBanner();
+        BindPage();
     }
 
-    private void ClearForm()
-    {
-        _isEditing = false;
-        txtName.Text = "";
-        dpStartDate.SelectedDate = null;
-        dpSetupEndDate.SelectedDate = null;
-        dpEndDate.SelectedDate = null;
-        chkActive.IsChecked = false;
-    }
+    private void BindPage() => dgSemesters.ItemsSource = pager.Slice(_all);
 
-    private void DpStartDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_isLoading) return;
-        _isEditing = true;
-        if (dpStartDate.SelectedDate is DateTime start)
-        {
-            var startOnly = DateOnly.FromDateTime(start);
-            var setupEnd = startOnly.AddDays(14);
-            var end = setupEnd.AddDays(56);
-            dpSetupEndDate.SelectedDate = setupEnd.ToDateTime(TimeOnly.MinValue);
-            dpEndDate.SelectedDate = end.ToDateTime(TimeOnly.MinValue);
-        }
-    }
+    private void Pager_PageChanged(object sender, EventArgs e) => BindPage();
 
-    private void DgSemesters_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    // ---- 2. Current banner -------------------------------------
+    private void UpdateCurrentBanner()
     {
-        if (_isEditing)
-        {
-            var discard = MessageBox.Show("You have unsaved changes. Discard them?", "Unsaved Changes",
-                MessageBoxButton.YesNo, MessageBoxImage.Warning);
-            if (discard != MessageBoxResult.Yes)
-            {
-                _isEditing = false;
-                _isLoading = true;
-                dgSemesters.SelectedItem = null;
-                _isLoading = false;
-                return;
-            }
-        }
-        if (dgSemesters.SelectedItem is not Semester s) return;
-        _isEditing = false;
-        _isLoading = true;
-        txtName.Text = s.Name;
-        dpStartDate.SelectedDate = s.StartDate.ToDateTime(TimeOnly.MinValue);
-        dpSetupEndDate.SelectedDate = s.SetupEndDate?.ToDateTime(TimeOnly.MinValue);
-        dpEndDate.SelectedDate = s.EndDate.ToDateTime(TimeOnly.MinValue);
-        chkActive.IsChecked = s.IsActive;
-        _isLoading = false;
-    }
+        var current = _service.GetActive();
 
-    private void BtnAdd_Click(object sender, RoutedEventArgs e)
-    {
-        if (!ValidateForm(out var semester)) return;
-        try
+        if (current == null)
         {
-            _service.Save(semester);
-            _isEditing = false;
-            LoadData();
-            ClearForm();
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Error adding semester: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-    }
-
-    private void BtnEdit_Click(object sender, RoutedEventArgs e)
-    {
-        if (dgSemesters.SelectedItem is not Semester existing)
-        {
-            MessageBox.Show("Please select a semester to edit.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            // Legitimate state: today sits in a gap between two semesters.
+            tbCurrent.Text = "None — today falls between semesters";
+            phaseBadge.Visibility = Visibility.Collapsed;
             return;
         }
-        if (!ValidateForm(out var semester)) return;
-        semester.SemesterId = existing.SemesterId;
-        try
+
+        tbCurrent.Text = current.Name;
+        tbPhase.Text = _service.GetPhase(current) switch
         {
-            _service.Update(semester);
-            _isEditing = false;
-            LoadData();
-            ClearForm();
-        }
-        catch (Exception ex)
+            Phase.SETUP => "SETUP",
+            Phase.LEARNING => "TEACHING",
+            _ => "COMPLETED"
+        };
+        phaseBadge.Visibility = Visibility.Visible;
+    }
+
+    // ---- 3. Row actions ----------------------------------------
+    private void BtnAdd_Click(object sender, RoutedEventArgs e)
+    {
+        if (new SemesterDialog { Owner = this }.ShowDialog() == true) LoadData();
+    }
+
+    /// <summary>Double-click drills into the semester's classes — the common action.</summary>
+    private void DgSemesters_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (dgSemesters.SelectedItem is SemesterRow) OpenClasses();
+    }
+
+    private void BtnClasses_Click(object sender, RoutedEventArgs e) => OpenClasses();
+
+    private void OpenClasses()
+    {
+        if (dgSemesters.SelectedItem is not SemesterRow row)
         {
-            MessageBox.Show($"Error updating semester: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show("Please select a semester to open its classes.", "Info",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
         }
+
+        new SemesterClassesWindow(row.Semester.SemesterId) { Owner = this }.ShowDialog();
+        LoadData(); // class counts may have changed
+    }
+
+    private void BtnEdit_Click(object sender, RoutedEventArgs e) => EditSelected();
+
+    private void EditSelected()
+    {
+        if (dgSemesters.SelectedItem is not SemesterRow row)
+        {
+            MessageBox.Show("Please select a semester to edit.", "Info",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        if (new SemesterDialog(row.Semester) { Owner = this }.ShowDialog() == true) LoadData();
     }
 
     private void BtnDelete_Click(object sender, RoutedEventArgs e)
     {
-        if (dgSemesters.SelectedItem is not Semester s)
+        if (dgSemesters.SelectedItem is not SemesterRow row)
         {
-            MessageBox.Show("Please select a semester to delete.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-            return;
-        }
-        if (s.IsActive)
-        {
-            MessageBox.Show("Cannot delete the active semester.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("Please select a semester to delete.", "Info",
+                MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 
-        // Pre-check: prevent FK violation with a clear message
-        var classes = _classService.GetBySemesterId(s.SemesterId);
-        if (classes.Any())
-        {
-            MessageBox.Show(
-                $"Cannot delete semester '{s.Name}' because it has {classes.Count} class(es).\nRemove all classes and their enrollments first.",
-                "Cannot Delete", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
-
-        var confirm = MessageBox.Show($"Delete semester '{s.Name}'?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+        var confirm = MessageBox.Show($"Delete semester \"{row.Name}\"?", "Confirm",
+            MessageBoxButton.YesNo, MessageBoxImage.Warning);
         if (confirm != MessageBoxResult.Yes) return;
+
         try
         {
-            _service.Delete(s.SemesterId);
+            _service.Delete(row.Semester.SemesterId);
             LoadData();
-            ClearForm();
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Service guard (e.g. the semester still has classes) — message is user-facing.
+            MessageBox.Show(ex.Message, "Cannot delete", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Error deleting semester: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"Error deleting semester: {ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
-    private void BtnSetActive_Click(object sender, RoutedEventArgs e)
+    // ---- 4. SemesterRow (grid-facing view model) ---------------
+    private sealed record SemesterRow(Semester Semester, int ClassCount)
     {
-        if (dgSemesters.SelectedItem is not Semester s)
-        {
-            MessageBox.Show("Please select a semester to set as active.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-            return;
-        }
-        try
-        {
-            _service.SetActive(s.SemesterId);
-            _isEditing = false;
-            LoadData();
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Error setting active semester: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-    }
+        public string Name => Semester.Name;
+        public DateOnly SetupEndDate => Semester.SetupEndDate;
 
-    private bool ValidateForm(out Semester semester)
-    {
-        semester = null!;
-        if (string.IsNullOrWhiteSpace(txtName.Text))
+        /// <summary>First day of teaching — the day after setup ends.</summary>
+        public DateOnly TeachingFrom => Semester.SetupEndDate.AddDays(1);
+
+        public string RangeText => $"{Semester.StartDate:dd/MM/yyyy} – {Semester.EndDate:dd/MM/yyyy}";
+
+        /// <summary>Drives the badge colour via DataTrigger; keep in sync with StatusText.</summary>
+        public string StatusKind
         {
-            MessageBox.Show("Name is required.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return false;
-        }
-        if (dpStartDate.SelectedDate is not DateTime start || dpEndDate.SelectedDate is not DateTime end)
-        {
-            MessageBox.Show("Start Date and End Date are required.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return false;
-        }
-        if (start > end)
-        {
-            MessageBox.Show("Start Date cannot be later than End Date.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return false;
-        }
-        if (dpSetupEndDate.SelectedDate is DateTime setupEndDt)
-        {
-            var se = DateOnly.FromDateTime(setupEndDt);
-            var startOnly = DateOnly.FromDateTime(start);
-            var endOnly = DateOnly.FromDateTime(end);
-            if (se < startOnly || se > endOnly)
+            get
             {
-                MessageBox.Show("Setup End Date must be between Start Date and End Date.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return false;
+                var today = DateOnly.FromDateTime(DateTime.Today);
+                if (today < Semester.StartDate) return "Upcoming";
+                if (today > Semester.EndDate) return "Completed";
+                return today <= Semester.SetupEndDate ? "Setup" : "Teaching";
             }
         }
-        semester = new Semester
+
+        public string StatusText => StatusKind switch
         {
-            Name = txtName.Text.Trim(),
-            StartDate = DateOnly.FromDateTime(start),
-            EndDate = DateOnly.FromDateTime(end),
-            SetupEndDate = dpSetupEndDate.SelectedDate is DateTime setupEnd ? DateOnly.FromDateTime(setupEnd) : null,
-            IsActive = chkActive.IsChecked ?? false
+            "Upcoming" => "Upcoming",
+            "Setup" => "● Setup",
+            "Teaching" => "● Teaching",
+            _ => "Completed"
         };
-        return true;
     }
 }

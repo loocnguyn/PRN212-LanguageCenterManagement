@@ -22,15 +22,15 @@
                    FontSize="16" FontWeight="SemiBold" Margin="0,0,0,16"/>
 
         <TextBlock Grid.Row="1" Grid.Column="0" Text="Slot number" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <TextBox   Grid.Row="1" Grid.Column="1" x:Name="txtSlotNo" Height="32"
+        <TextBox   Grid.Row="1" Grid.Column="1" x:Name="txtSlotNo" Height="34"
                    VerticalContentAlignment="Center" Padding="6,0" Margin="0,0,0,10"/>
 
         <TextBlock Grid.Row="2" Grid.Column="0" Text="Start (HH:mm)" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <TextBox   Grid.Row="2" Grid.Column="1" x:Name="txtStart" Height="32"
+        <TextBox   Grid.Row="2" Grid.Column="1" x:Name="txtStart" Height="34"
                    VerticalContentAlignment="Center" Padding="6,0" Margin="0,0,0,10"/>
 
         <TextBlock Grid.Row="3" Grid.Column="0" Text="End (HH:mm)" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <TextBox   Grid.Row="3" Grid.Column="1" x:Name="txtEnd" Height="32"
+        <TextBox   Grid.Row="3" Grid.Column="1" x:Name="txtEnd" Height="34"
                    VerticalContentAlignment="Center" Padding="6,0" Margin="0,0,0,10"/>
 
         <StackPanel Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">

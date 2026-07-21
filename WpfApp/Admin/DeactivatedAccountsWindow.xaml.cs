@@ -15,6 +15,7 @@ namespace WpfApp;
 public partial class DeactivatedAccountsWindow : Window
 {
     private readonly IUserService _service = new UserService();
+    private List<User> _all = new();
 
     public DeactivatedAccountsWindow()
     {
@@ -24,10 +25,14 @@ public partial class DeactivatedAccountsWindow : Window
 
     private void LoadData()
     {
-        var deactivated = _service.GetAll().Where(u => !u.IsActive).ToList();
-        dgUsers.ItemsSource = deactivated;
-        emptyState.Visibility = deactivated.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        _all = _service.GetAll().Where(u => !u.IsActive).ToList();
+        emptyState.Visibility = _all.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        BindPage();
     }
+
+    private void BindPage() => dgUsers.ItemsSource = pager.Slice(_all);
+
+    private void Pager_PageChanged(object sender, EventArgs e) => BindPage();
 
     private void DgUsers_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {

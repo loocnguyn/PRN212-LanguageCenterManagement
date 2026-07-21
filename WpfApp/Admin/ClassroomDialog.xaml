@@ -14,13 +14,13 @@
         </Grid.ColumnDefinitions>
 
         <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" VerticalAlignment="Center" Margin="0,6"/>
-        <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtName" Height="28" VerticalContentAlignment="Center" Margin="0,4"/>
+        <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtName" Height="34" VerticalContentAlignment="Center" Margin="0,4"/>
 
         <TextBlock Grid.Row="1" Grid.Column="0" Text="Capacity:" VerticalAlignment="Center" Margin="0,6"/>
-        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtCapacity" Height="28" VerticalContentAlignment="Center" Margin="0,4"/>
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtCapacity" Height="34" VerticalContentAlignment="Center" Margin="0,4"/>
 
         <TextBlock Grid.Row="2" Grid.Column="0" Text="Location:" VerticalAlignment="Center" Margin="0,6"/>
-        <TextBox Grid.Row="2" Grid.Column="1" x:Name="txtLocation" Height="28" VerticalContentAlignment="Center" Margin="0,4"/>
+        <TextBox Grid.Row="2" Grid.Column="1" x:Name="txtLocation" Height="34" VerticalContentAlignment="Center" Margin="0,4"/>
 
         <CheckBox Grid.Row="3" Grid.Column="1" x:Name="chkIsActive" Content="Active" VerticalAlignment="Center" Margin="0,8" IsChecked="True"/>
 

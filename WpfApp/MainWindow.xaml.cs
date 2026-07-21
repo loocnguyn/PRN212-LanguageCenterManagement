@@ -159,12 +159,14 @@ public partial class MainWindow : Window
         => new SemesterWindow().Show();
     private void MenuCourses_Click(object sender, RoutedEventArgs e)
         => new CourseManagementWindow().Show();
+    private void MenuLanguages_Click(object sender, RoutedEventArgs e)
+        => new LanguageManagementWindow().Show();
+    private void MenuLevels_Click(object sender, RoutedEventArgs e)
+        => new LevelManagementWindow().Show();
     private void MenuClassrooms_Click(object sender, RoutedEventArgs e)
         => new ClassroomManagementWindow().Show();
     private void MenuGradeTypeManagement_Click(object sender, RoutedEventArgs e)
         => new GradeTypeManagementWindow().Show();
-    private void MenuClasses_Click(object sender, RoutedEventArgs e)
-        => new ClassManagementWindow().Show();
     private void MenuRevenueReport_Click(object sender, RoutedEventArgs e)
         => new RevenueReportWindow().Show();
     private void MenuRewardReview_Click(object sender, RoutedEventArgs e)
@@ -175,8 +177,6 @@ public partial class MainWindow : Window
     // STAFF
     private void MenuStudents_Click(object sender, RoutedEventArgs e)
         => new StudentManagementWindow().Show();
-    private void MenuEnrollment_Click(object sender, RoutedEventArgs e)
-        => new EnrollmentWindow().Show();
     private void MenuDebtList_Click(object sender, RoutedEventArgs e)
         => new DebtListWindow().Show();
     private void MenuInvoice_Click(object sender, RoutedEventArgs e)

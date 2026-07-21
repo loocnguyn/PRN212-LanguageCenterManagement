@@ -13,6 +13,7 @@ namespace WpfApp;
 public partial class SlotSettingWindow : Window
 {
     private readonly ISlotService _service = new SlotService();
+    private List<Slot> _all = new();
 
     public SlotSettingWindow()
     {
@@ -20,7 +21,11 @@ public partial class SlotSettingWindow : Window
         LoadData();
     }
 
-    private void LoadData() => dgSlots.ItemsSource = _service.GetAll();
+    private void LoadData() { _all = _service.GetAll(); BindPage(); }
+
+    private void BindPage() => dgSlots.ItemsSource = pager.Slice(_all);
+
+    private void Pager_PageChanged(object sender, EventArgs e) => BindPage();
 
     private void BtnAdd_Click(object sender, RoutedEventArgs e)
     {

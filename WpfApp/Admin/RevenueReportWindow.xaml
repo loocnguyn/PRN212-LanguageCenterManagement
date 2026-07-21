@@ -1,136 +1,232 @@
 <Window x:Class="WpfApp.RevenueReportWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Revenue Report" Height="760" Width="1320"
-        WindowStartupLocation="CenterScreen">
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:ctl="clr-namespace:WpfApp.Controls"
+        Title="Revenue Report" Height="780" Width="1320"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}">
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-            <TextBlock Text="From:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-            <DatePicker x:Name="dpFrom" Width="130" Height="30"/>
-            <TextBlock Text="To:" VerticalAlignment="Center" Margin="12,0,6,0"/>
-            <DatePicker x:Name="dpTo" Width="130" Height="30"/>
-            <TextBlock Text="Method:" VerticalAlignment="Center" Margin="12,0,6,0"/>
-            <ComboBox x:Name="cmbMethod" Width="140" Height="32">
-                <ComboBoxItem Content="All" IsSelected="True"/>
-                <ComboBoxItem Content="Cash"/>
-                <ComboBoxItem Content="Transfer"/>
-                <ComboBoxItem Content="Card"/>
-                <ComboBoxItem Content="Wallet"/>
-            </ComboBox>
-            <Button Content="Generate" Width="100" Height="30" Margin="10,0,0,0"
-                    Click="BtnGenerate_Click"/>
-            <Button Content="Advanced" Width="90" Height="30" Margin="6,0,0,0"
-                    Click="BtnAdvanced_Click"/>
-            <Button Content="Clear" Width="80" Height="30" Margin="6,0,0,0"
-                    Click="BtnClear_Click"/>
-        </StackPanel>
+    <Window.Resources>
+        <DataTemplate x:Key="MethodBadgeTemplate">
+            <Border x:Name="badge" CornerRadius="10" Padding="10,3" HorizontalAlignment="Left"
+                    Background="{StaticResource TextSecondaryBrush}">
+                <TextBlock Text="{Binding PaymentMethod}" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+            </Border>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding PaymentMethod}" Value="Cash">
+                    <Setter TargetName="badge" Property="Background" Value="{StaticResource SecondaryBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding PaymentMethod}" Value="Transfer">
+                    <Setter TargetName="badge" Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding PaymentMethod}" Value="Card">
+                    <Setter TargetName="badge" Property="Background" Value="{StaticResource InfoBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding PaymentMethod}" Value="Wallet">
+                    <Setter TargetName="badge" Property="Background" Value="{StaticResource RoleStudentBrush}"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
 
-        <StackPanel Grid.Row="1" Margin="0,0,0,8">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Quick range:" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                <Button Content="This Month" Width="100" Height="28" Margin="0,0,6,0"
-                        Click="BtnThisMonth_Click"/>
-                <Button Content="Last Month" Width="100" Height="28" Margin="0,0,6,0"
-                        Click="BtnLastMonth_Click"/>
-                <Button Content="This Quarter" Width="110" Height="28"
-                        Click="BtnThisQuarter_Click"/>
+        <DataTemplate x:Key="RevStudentTemplate">
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="{Binding StudentName}" FontWeight="SemiBold" FontSize="13"/>
+                <TextBlock Text="{Binding StudentId, StringFormat='Student #{0}'}"
+                           FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
             </StackPanel>
+        </DataTemplate>
 
-            <Border x:Name="advancedPanel" Visibility="Collapsed" BorderBrush="#D0D7DE"
-                    BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,8,0,0">
+        <DataTemplate x:Key="RevCourseTemplate">
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="{Binding CourseName}" FontSize="13"/>
+                <TextBlock FontSize="11" Foreground="{StaticResource TextSecondaryBrush}">
+                    <Run Text="{Binding ClassName, Mode=OneWay}"/>
+                    <Run Text=" · "/>
+                    <Run Text="{Binding SemesterName, Mode=OneWay}"/>
+                </TextBlock>
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
+
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Background="{StaticResource InfoDarkBrush}" Padding="20,14">
+            <StackPanel Orientation="Horizontal">
+                <ui:SymbolIcon Symbol="DataTrending24" Foreground="White" FontSize="26" Margin="0,0,12,0"/>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Revenue Report" Foreground="White" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock Text="Payments collected over a date range, broken down by method"
+                               Foreground="#CFEDEF" FontSize="12"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Range + filters -->
+            <Border Grid.Row="0" Style="{StaticResource Card}" Padding="12" Margin="0,0,0,14">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="From:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <DatePicker x:Name="dpFrom" Width="130" Height="34"/>
+                        <TextBlock Text="To:" VerticalAlignment="Center" Margin="14,0,6,0"/>
+                        <DatePicker x:Name="dpTo" Width="130" Height="34"/>
+                        <TextBlock Text="Method:" VerticalAlignment="Center" Margin="14,0,6,0"/>
+                        <ComboBox x:Name="cmbMethod" Width="140" Height="34" VerticalContentAlignment="Center">
+                            <ComboBoxItem Content="All" IsSelected="True"/>
+                            <ComboBoxItem Content="Cash"/>
+                            <ComboBoxItem Content="Transfer"/>
+                            <ComboBoxItem Content="Card"/>
+                            <ComboBoxItem Content="Wallet"/>
+                        </ComboBox>
+                        <Button Content="Generate" Style="{StaticResource PillButton}" Width="100"
+                                Margin="14,0,0,0" Click="BtnGenerate_Click"/>
+                        <Button Content="Advanced" Style="{StaticResource PillButtonInfo}" Width="100"
+                                Margin="8,0,0,0" Click="BtnAdvanced_Click"/>
+                        <Button Content="Clear" Style="{StaticResource PillButtonSubtle}" Width="84"
+                                Margin="8,0,0,0" Click="BtnClear_Click"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                        <TextBlock Text="Quick range:" VerticalAlignment="Center" Margin="0,0,10,0"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <Button Content="This Month" Style="{StaticResource PillButtonSubtle}" Width="110"
+                                Margin="0,0,8,0" Click="BtnThisMonth_Click"/>
+                        <Button Content="Last Month" Style="{StaticResource PillButtonSubtle}" Width="110"
+                                Margin="0,0,8,0" Click="BtnLastMonth_Click"/>
+                        <Button Content="This Quarter" Style="{StaticResource PillButtonSubtle}" Width="120"
+                                Click="BtnThisQuarter_Click"/>
+                    </StackPanel>
+
+                    <Border x:Name="advancedPanel" Visibility="Collapsed"
+                            Background="{StaticResource BackgroundBrush}"
+                            BorderBrush="{StaticResource BorderBrush2}"
+                            BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,12,0,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="85"/>
+                                <ColumnDefinition Width="130"/>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="130"/>
+                                <ColumnDefinition Width="55"/>
+                                <ColumnDefinition Width="130"/>
+                                <ColumnDefinition Width="65"/>
+                                <ColumnDefinition Width="130"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Semester:" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Row="0" Grid.Column="1" x:Name="cmbSemester" Height="34" VerticalContentAlignment="Center"/>
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Course:" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Row="0" Grid.Column="3" x:Name="cmbCourse" Height="34" VerticalContentAlignment="Center"/>
+                            <TextBlock Grid.Row="0" Grid.Column="4" Text="Class:" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Row="0" Grid.Column="5" x:Name="cmbClass" Height="34" VerticalContentAlignment="Center"/>
+                            <TextBlock Grid.Row="0" Grid.Column="6" Text="Teacher:" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Row="0" Grid.Column="7" x:Name="cmbTeacher" Height="34" VerticalContentAlignment="Center"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Staff:" Margin="0,10,0,0" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="cmbStaff" Height="34" Margin="0,10,0,0" VerticalContentAlignment="Center"/>
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="Student:" Margin="12,10,0,0" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="1" Grid.Column="3" x:Name="txtStudentSearch" Height="34" Margin="0,10,0,0" Padding="6,0" VerticalContentAlignment="Center"/>
+                            <TextBlock Grid.Row="1" Grid.Column="4" Text="Min:" Margin="12,10,0,0" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="1" Grid.Column="5" x:Name="txtAmountMin" Height="34" Margin="0,10,0,0" Padding="6,0" VerticalContentAlignment="Center"/>
+                            <TextBlock Grid.Row="1" Grid.Column="6" Text="Max:" Margin="12,10,0,0" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="1" Grid.Column="7" x:Name="txtAmountMax" Height="34" Margin="0,10,0,0" Padding="6,0" VerticalContentAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Summary cards -->
+            <UniformGrid Grid.Row="1" Rows="1" Columns="6" Margin="0,0,0,14">
+                <Border Style="{StaticResource Card}" Margin="0,0,8,0">
+                    <StackPanel>
+                        <TextBlock x:Name="lblTotalRevenue" Text="0" FontSize="20" FontWeight="Bold"
+                                   Foreground="{StaticResource SecondaryBrush}" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="Total revenue" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Margin="0,0,8,0">
+                    <StackPanel>
+                        <TextBlock x:Name="lblTotalPayments" Text="0" FontSize="20" FontWeight="Bold"
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock Text="Payments" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Margin="0,0,8,0">
+                    <StackPanel>
+                        <TextBlock x:Name="lblCashTotal" Text="0" FontSize="20" FontWeight="Bold"
+                                   Foreground="{StaticResource SecondaryBrush}" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="Cash" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Margin="0,0,8,0">
+                    <StackPanel>
+                        <TextBlock x:Name="lblTransferTotal" Text="0" FontSize="20" FontWeight="Bold"
+                                   Foreground="{StaticResource PrimaryBrush}" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="Transfer" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Margin="0,0,8,0">
+                    <StackPanel>
+                        <TextBlock x:Name="lblCardTotal" Text="0" FontSize="20" FontWeight="Bold"
+                                   Foreground="{StaticResource InfoBrush}" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="Card" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock x:Name="lblWalletTotal" Text="0" FontSize="20" FontWeight="Bold"
+                                   Foreground="{StaticResource RoleStudentBrush}" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="Wallet" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- Payments grid -->
+            <Border Grid.Row="2" Style="{StaticResource Card}" Padding="0">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="85"/>
-                        <ColumnDefinition Width="130"/>
-                        <ColumnDefinition Width="70"/>
-                        <ColumnDefinition Width="130"/>
-                        <ColumnDefinition Width="55"/>
-                        <ColumnDefinition Width="130"/>
-                        <ColumnDefinition Width="65"/>
-                        <ColumnDefinition Width="130"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                    <DataGrid x:Name="dgPayments" AutoGenerateColumns="False" IsReadOnly="True"
+                              SelectionMode="Single" RowHeight="48" BorderThickness="0"
+                              Background="Transparent">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Payment" Binding="{Binding PaymentId}" Width="80"/>
+                            <DataGridTextColumn Header="Invoice" Binding="{Binding InvoiceId}" Width="80"/>
+                            <DataGridTemplateColumn Header="Student" Width="180" CellTemplate="{StaticResource RevStudentTemplate}"/>
+                            <DataGridTemplateColumn Header="Course / class" Width="*" CellTemplate="{StaticResource RevCourseTemplate}"/>
+                            <DataGridTextColumn Header="Amount" Binding="{Binding AmountPaid, StringFormat='{}{0:N0} đ'}" Width="130"/>
+                            <DataGridTemplateColumn Header="Method" Width="110" CellTemplate="{StaticResource MethodBadgeTemplate}"/>
+                            <DataGridTextColumn Header="Paid At" Binding="{Binding PaidAt, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Width="140"/>
+                            <DataGridTextColumn Header="Staff" Binding="{Binding StaffName}" Width="150"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
 
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Semester:" VerticalAlignment="Center"/>
-                    <ComboBox Grid.Row="0" Grid.Column="1" x:Name="cmbSemester" Height="28"/>
-                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Course:" Margin="12,0,0,0" VerticalAlignment="Center"/>
-                    <ComboBox Grid.Row="0" Grid.Column="3" x:Name="cmbCourse" Height="28"/>
-                    <TextBlock Grid.Row="0" Grid.Column="4" Text="Class:" Margin="12,0,0,0" VerticalAlignment="Center"/>
-                    <ComboBox Grid.Row="0" Grid.Column="5" x:Name="cmbClass" Height="28"/>
-                    <TextBlock Grid.Row="0" Grid.Column="6" Text="Teacher:" Margin="12,0,0,0" VerticalAlignment="Center"/>
-                    <ComboBox Grid.Row="0" Grid.Column="7" x:Name="cmbTeacher" Height="28"/>
-
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Staff:" Margin="0,8,0,0" VerticalAlignment="Center"/>
-                    <ComboBox Grid.Row="1" Grid.Column="1" x:Name="cmbStaff" Height="28" Margin="0,8,0,0"/>
-                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Student:" Margin="12,8,0,0" VerticalAlignment="Center"/>
-                    <TextBox Grid.Row="1" Grid.Column="3" x:Name="txtStudentSearch" Height="28" Margin="0,8,0,0" Padding="4,0" VerticalContentAlignment="Center"/>
-                    <TextBlock Grid.Row="1" Grid.Column="4" Text="Min:" Margin="12,8,0,0" VerticalAlignment="Center"/>
-                    <TextBox Grid.Row="1" Grid.Column="5" x:Name="txtAmountMin" Height="28" Margin="0,8,0,0" Padding="4,0" VerticalContentAlignment="Center"/>
-                    <TextBlock Grid.Row="1" Grid.Column="6" Text="Max:" Margin="12,8,0,0" VerticalAlignment="Center"/>
-                    <TextBox Grid.Row="1" Grid.Column="7" x:Name="txtAmountMax" Height="28" Margin="0,8,0,0" Padding="4,0" VerticalContentAlignment="Center"/>
+                    <StackPanel x:Name="emptyState" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                Visibility="Collapsed">
+                        <ui:SymbolIcon Symbol="DataTrending24" FontSize="44"
+                                       Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="No payments in this range" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center" Margin="0,10,0,2"/>
+                        <TextBlock Text="Pick a wider date range, or clear the advanced filters."
+                                   FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
                 </Grid>
             </Border>
-        </StackPanel>
 
-        <GroupBox Grid.Row="2" Header="Summary" Padding="10" Margin="0,0,0,10">
-            <UniformGrid Columns="3" Rows="2">
-                <StackPanel Margin="0,0,10,10">
-                    <TextBlock Text="Total Revenue" FontWeight="Bold"/>
-                    <TextBlock x:Name="lblTotalRevenue" Foreground="Green" FontSize="16" TextWrapping="Wrap"/>
-                </StackPanel>
-                <StackPanel Margin="0,0,10,10">
-                    <TextBlock Text="Total Payments" FontWeight="Bold"/>
-                    <TextBlock x:Name="lblTotalPayments" FontSize="16" TextWrapping="Wrap"/>
-                </StackPanel>
-                <StackPanel Margin="0,0,10,10">
-                    <TextBlock Text="Cash" FontWeight="Bold"/>
-                    <TextBlock x:Name="lblCashTotal" FontSize="16" TextWrapping="Wrap"/>
-                </StackPanel>
-                <StackPanel Margin="0,0,10,10">
-                    <TextBlock Text="Transfer" FontWeight="Bold"/>
-                    <TextBlock x:Name="lblTransferTotal" FontSize="16" TextWrapping="Wrap"/>
-                </StackPanel>
-                <StackPanel Margin="0,0,10,10">
-                    <TextBlock Text="Card" FontWeight="Bold"/>
-                    <TextBlock x:Name="lblCardTotal" FontSize="16" TextWrapping="Wrap"/>
-                </StackPanel>
-                <StackPanel Margin="0,0,10,10">
-                    <TextBlock Text="Wallet" FontWeight="Bold"/>
-                    <TextBlock x:Name="lblWalletTotal" FontSize="16" TextWrapping="Wrap"/>
-                </StackPanel>
-            </UniformGrid>
-        </GroupBox>
-
-        <DataGrid Grid.Row="3" x:Name="dgPayments"
-                  AutoGenerateColumns="False" IsReadOnly="True">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Payment ID" Binding="{Binding PaymentId}" Width="80"/>
-                <DataGridTextColumn Header="Invoice ID" Binding="{Binding InvoiceId}" Width="80"/>
-                <DataGridTextColumn Header="Student ID" Binding="{Binding StudentId}" Width="80"/>
-                <DataGridTextColumn Header="Student" Binding="{Binding StudentName}" Width="145"/>
-                <DataGridTextColumn Header="Semester" Binding="{Binding SemesterName}" Width="120"/>
-                <DataGridTextColumn Header="Course" Binding="{Binding CourseName}" Width="150"/>
-                <DataGridTextColumn Header="Class" Binding="{Binding ClassName}" Width="110"/>
-                <DataGridTextColumn Header="Teacher" Binding="{Binding TeacherName}" Width="140"/>
-                <DataGridTextColumn Header="Amount Paid" Binding="{Binding AmountPaid}" Width="110"/>
-                <DataGridTextColumn Header="Method" Binding="{Binding PaymentMethod}" Width="100"/>
-                <DataGridTextColumn Header="Paid At" Binding="{Binding PaidAt}" Width="140"/>
-                <DataGridTextColumn Header="Invoice Status" Binding="{Binding InvoiceStatus}" Width="100"/>
-                <DataGridTextColumn Header="Staff ID" Binding="{Binding StaffId}" Width="75"/>
-                <DataGridTextColumn Header="Staff" Binding="{Binding StaffName}" Width="135"/>
-                <DataGridTextColumn Header="Note" Binding="{Binding Note}" Width="*"/>
-            </DataGrid.Columns>
-        </DataGrid>
-    </Grid>
+            <!-- Footer: pager -->
+            <Grid Grid.Row="3" Margin="0,14,0,0">
+                <ctl:PagerBar x:Name="pager" HorizontalAlignment="Left" PageChanged="Pager_PageChanged"/>
+            </Grid>
+        </Grid>
+    </DockPanel>
 </Window>
