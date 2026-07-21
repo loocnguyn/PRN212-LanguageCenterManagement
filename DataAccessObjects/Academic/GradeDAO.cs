@@ -16,7 +16,7 @@ public class GradeDAO
     {
         using var context = new LanguageCenterContext();
         return context.Grades
-            .Include(g => g.GradeType)
+            .Include(g => g.Component)
             .Include(g => g.Enrollment)
             .ToList();
     }
@@ -57,7 +57,7 @@ public class GradeDAO
         using var context = new LanguageCenterContext();
         return context.Grades
             .Where(g => g.EnrollmentId == enrollmentId)
-            .Include(g => g.GradeType)
+            .Include(g => g.Component)
             .ToList();
     }
 
@@ -70,7 +70,7 @@ public class GradeDAO
         using var context = new LanguageCenterContext();
         return context.Grades
             .Where(g => enrollmentIds.Contains(g.EnrollmentId))
-            .Include(g => g.GradeType)
+            .Include(g => g.Component)
             .ToList();
     }
 
@@ -78,7 +78,7 @@ public class GradeDAO
     {
         using var context = new LanguageCenterContext();
         var existing = context.Grades
-            .FirstOrDefault(g => g.EnrollmentId == entity.EnrollmentId && g.GradeTypeId == entity.GradeTypeId);
+            .FirstOrDefault(g => g.EnrollmentId == entity.EnrollmentId && g.ComponentId == entity.ComponentId);
         if (existing != null)
         {
             existing.Score = entity.Score;
@@ -98,7 +98,7 @@ public class GradeDAO
         using var context = new LanguageCenterContext();
         return context.Grades
             .Where(g => g.Enrollment.StudentId == studentId)
-            .Include(g => g.GradeType)
+            .Include(g => g.Component)
             .Include(g => g.Enrollment)
             .ThenInclude(e => e.Class)
             .ThenInclude(c => c.Course)

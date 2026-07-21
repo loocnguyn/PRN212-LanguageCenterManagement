@@ -304,7 +304,7 @@ public class EnrollmentDAO
             .Include(e => e.Class)
             .ThenInclude(c => c.Course)
             .Include(e => e.Class)
-            .ThenInclude(c => c.Teacher)
+            .ThenInclude(c => c.ClassTeachers).ThenInclude(ct => ct.Teacher)
             .Include(e => e.Class)
             .ThenInclude(c => c.Classroom)
             .Include(e => e.Class)

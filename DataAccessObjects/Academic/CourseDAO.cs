@@ -96,7 +96,7 @@ public class CourseDAO
         if (string.IsNullOrWhiteSpace(entity.Name))
             throw new ArgumentException("Course name is required.");
 
-        if (string.IsNullOrWhiteSpace(entity.Language))
+        if (entity.LanguageId <= 0)
             throw new ArgumentException("Course language is required.");
 
         if (entity.DurationSessions <= 0)

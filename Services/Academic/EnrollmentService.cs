@@ -18,12 +18,14 @@ public class EnrollmentService : IEnrollmentService
     private readonly IClassRepository _classRepo;
     private readonly IStudentRepository _studentRepo;
     private readonly IInvoiceRepository _invoiceRepo;
-    private readonly ICourseRepository _courseRepo;
     private readonly ITuitionDiscountRepository _discountRepo;
+
+    // No course repository: pricing comes from the class's frozen snapshot, so
+    // enrollment never needs to look at the course at all.
 
     public EnrollmentService() : this(
         new EnrollmentRepository(), new ClassRepository(), new StudentRepository(),
-        new InvoiceRepository(), new CourseRepository(), new TuitionDiscountRepository())
+        new InvoiceRepository(), new TuitionDiscountRepository())
     { }
 
     // Injectable overload — lets unit tests supply mocked repositories.
@@ -32,14 +34,12 @@ public class EnrollmentService : IEnrollmentService
         IClassRepository classRepo,
         IStudentRepository studentRepo,
         IInvoiceRepository invoiceRepo,
-        ICourseRepository courseRepo,
         ITuitionDiscountRepository? discountRepo = null)
     {
         _enrollmentRepo = enrollmentRepo;
         _classRepo = classRepo;
         _studentRepo = studentRepo;
         _invoiceRepo = invoiceRepo;
-        _courseRepo = courseRepo;
         _discountRepo = discountRepo ?? new TuitionDiscountRepository();
     }
 
@@ -64,11 +64,11 @@ public class EnrollmentService : IEnrollmentService
         var cls = _classRepo.GetById(classId)
             ?? throw new InvalidOperationException($"Class {classId} not found.");
 
-        var course = _courseRepo.GetById(cls.CourseId)
-            ?? throw new InvalidOperationException($"Course {cls.CourseId} not found.");
-        if (course.TuitionFee <= 0)
+        // Price comes from the class's frozen snapshot, NOT the course. Repricing a
+        // course must never change what already-enrolled students are charged.
+        if (cls.SnapTuitionFee <= 0)
             throw new InvalidOperationException(
-                $"Course '{course.Name}' does not have a valid tuition fee.");
+                $"Class '{cls.Name}' has no valid tuition fee recorded.");
 
         if (cls.Status != "UPCOMING" && cls.Status != "ACTIVE")
             throw new InvalidOperationException($"Class '{cls.Name}' is not open for enrollment (status: {cls.Status}).");
@@ -87,7 +87,7 @@ public class EnrollmentService : IEnrollmentService
                 // Reactivate the dropped enrollment
                 existing.Status = "ACTIVE";
                 existing.EnrolledDate = DateOnly.FromDateTime(DateTime.Today);
-                EnrollWithInvoice(existing, course.TuitionFee, cls.Name, discountId, useDiscountPricing);
+                EnrollWithInvoice(existing, cls.SnapTuitionFee, cls.Name, discountId, useDiscountPricing);
                 return;
             }
             throw new InvalidOperationException(
@@ -101,7 +101,7 @@ public class EnrollmentService : IEnrollmentService
             EnrolledDate = DateOnly.FromDateTime(DateTime.Today),
             Status = "ACTIVE"
         };
-        EnrollWithInvoice(enrollment, course.TuitionFee, cls.Name, discountId, useDiscountPricing);
+        EnrollWithInvoice(enrollment, cls.SnapTuitionFee, cls.Name, discountId, useDiscountPricing);
     }
 
     private void EnrollWithInvoice(
@@ -183,11 +183,10 @@ public class EnrollmentService : IEnrollmentService
             throw new InvalidOperationException(
                 $"Class '{newClass.Name}' is not open for enrollment (status: {newClass.Status}).");
 
-        var newCourse = _courseRepo.GetById(newClass.CourseId)
-            ?? throw new InvalidOperationException($"Course {newClass.CourseId} not found.");
-        if (newCourse.TuitionFee <= 0)
+        // Again the target CLASS's frozen price, not its course's current one.
+        if (newClass.SnapTuitionFee <= 0)
             throw new InvalidOperationException(
-                $"Course '{newCourse.Name}' does not have a valid tuition fee.");
+                $"Class '{newClass.Name}' has no valid tuition fee recorded.");
 
         var existing = _enrollmentRepo.GetByStudentAndClass(oldEnrollment.StudentId, newClassId);
         if (existing != null && existing.Status != "DROPPED")
@@ -201,7 +200,7 @@ public class EnrollmentService : IEnrollmentService
         _enrollmentRepo.TransferClass(
             oldEnrollmentId,
             newClassId,
-            newCourse.TuitionFee,
+            newClass.SnapTuitionFee,
             DateOnly.FromDateTime(DateTime.Today).AddMonths(1),
             $"Transferred to class {newClass.Name}");
     }

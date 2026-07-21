@@ -70,7 +70,7 @@ public class PaymentDAO
             .Include(x => x.Invoice)
                 .ThenInclude(x => x.Enrollment)
                 .ThenInclude(x => x!.Class)
-                .ThenInclude(x => x.Teacher)
+                .ThenInclude(x => x.ClassTeachers).ThenInclude(ct => ct.Teacher)
             .Include(x => x.Invoice)
                 .ThenInclude(x => x.Enrollment)
                 .ThenInclude(x => x!.Class)

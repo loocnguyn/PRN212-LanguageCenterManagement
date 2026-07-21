@@ -83,6 +83,10 @@ public class AttendanceDAO
             .Where(a => a.StudentId == studentId)
             .Include(a => a.Session).ThenInclude(s => s.Class).ThenInclude(c => c.Course)
             .Include(a => a.Session).ThenInclude(s => s.Class).ThenInclude(c => c.Semester)
+            // Class.TeacherNames walks this collection; without it the attendance
+            // summary would show a blank teacher for every class.
+            .Include(a => a.Session).ThenInclude(s => s.Class)
+                .ThenInclude(c => c.ClassTeachers).ThenInclude(ct => ct.Teacher)
             .ToList();
     }
 }

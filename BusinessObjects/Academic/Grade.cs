@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace BusinessObjects;
 
-// Grade — domain model.
+// Grade — one score for one enrollment against one of the CLASS's frozen
+// grading components (not the course's GradeType template — see ClassGradeComponent).
 
 public partial class Grade
 {
@@ -11,7 +12,7 @@ public partial class Grade
 
     public int EnrollmentId { get; set; }
 
-    public int GradeTypeId { get; set; }
+    public int ComponentId { get; set; }
 
     public decimal Score { get; set; }
 
@@ -23,5 +24,5 @@ public partial class Grade
 
     public virtual Enrollment Enrollment { get; set; } = null!;
 
-    public virtual GradeType GradeType { get; set; } = null!;
+    public virtual ClassGradeComponent Component { get; set; } = null!;
 }

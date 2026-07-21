@@ -38,6 +38,14 @@ public partial class LanguageCenterContext : DbContext
 
     public virtual DbSet<Class> Classes { get; set; }
 
+    public virtual DbSet<ClassTeacher> ClassTeachers { get; set; }
+
+    public virtual DbSet<ClassGradeComponent> ClassGradeComponents { get; set; }
+
+    public virtual DbSet<Language> Languages { get; set; }
+
+    public virtual DbSet<Level> Levels { get; set; }
+
     public virtual DbSet<ClassSchedule> ClassSchedules { get; set; }
 
     public virtual DbSet<Classroom> Classrooms { get; set; }
@@ -171,7 +179,7 @@ public partial class LanguageCenterContext : DbContext
 
             entity.HasIndex(e => e.Status, "idx_classes_status");
 
-            entity.HasIndex(e => e.TeacherId, "idx_classes_teacher");
+            entity.HasIndex(e => e.SemesterId, "idx_classes_semester");
 
             entity.Property(e => e.ClassId).HasColumnName("class_id");
             entity.Property(e => e.SemesterId).HasColumnName("semester_id");
@@ -192,7 +200,29 @@ public partial class LanguageCenterContext : DbContext
                 .HasMaxLength(20)
                 .HasDefaultValue("UPCOMING")
                 .HasColumnName("status");
-            entity.Property(e => e.TeacherId).HasColumnName("teacher_id");
+
+            // Frozen copy of the course — written once by ClassService.Create.
+            entity.Property(e => e.SnapCourseCode)
+                .HasMaxLength(20)
+                .HasColumnName("snap_course_code");
+            entity.Property(e => e.SnapCourseName)
+                .HasMaxLength(150)
+                .HasColumnName("snap_course_name");
+            entity.Property(e => e.SnapLanguage)
+                .HasMaxLength(50)
+                .HasColumnName("snap_language");
+            entity.Property(e => e.SnapLevel)
+                .HasMaxLength(50)
+                .HasColumnName("snap_level");
+            entity.Property(e => e.SnapDurationSessions).HasColumnName("snap_duration_sessions");
+            entity.Property(e => e.SnapTuitionFee)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("snap_tuition_fee");
+
+            // Computed from ClassTeachers in memory — not columns.
+            entity.Ignore(e => e.PrimaryTeacher);
+            entity.Ignore(e => e.Teachers);
+            entity.Ignore(e => e.TeacherNames);
 
             entity.HasOne(d => d.Semester).WithMany(p => p.Classes)
                 .HasForeignKey(d => d.SemesterId)
@@ -209,10 +239,103 @@ public partial class LanguageCenterContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Classes__course___38996AB5");
 
-            entity.HasOne(d => d.Teacher).WithMany(p => p.Classes)
+        });
+
+        modelBuilder.Entity<ClassTeacher>(entity =>
+        {
+            entity.HasKey(e => new { e.ClassId, e.TeacherId }).HasName("pk_class_teachers");
+
+            entity.ToTable("ClassTeachers");
+
+            entity.HasIndex(e => e.TeacherId, "idx_class_teachers_teacher");
+
+            entity.Property(e => e.ClassId).HasColumnName("class_id");
+            entity.Property(e => e.TeacherId).HasColumnName("teacher_id");
+            entity.Property(e => e.IsPrimary)
+                .HasDefaultValue(false)
+                .HasColumnName("is_primary");
+
+            entity.HasOne(d => d.Class).WithMany(p => p.ClassTeachers)
+                .HasForeignKey(d => d.ClassId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(d => d.Teacher).WithMany(p => p.ClassTeachers)
                 .HasForeignKey(d => d.TeacherId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Classes__teacher__398D8EEE");
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        modelBuilder.Entity<ClassGradeComponent>(entity =>
+        {
+            entity.HasKey(e => e.ComponentId);
+
+            entity.ToTable("ClassGradeComponents");
+
+            entity.HasIndex(e => e.ClassId, "idx_class_components_class");
+
+            entity.HasIndex(e => new { e.ClassId, e.Name }, "uq_class_component_name").IsUnique();
+
+            entity.Property(e => e.ComponentId).HasColumnName("component_id");
+            entity.Property(e => e.ClassId).HasColumnName("class_id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .HasColumnName("name");
+            entity.Property(e => e.WeightPercent)
+                .HasColumnType("decimal(5, 2)")
+                .HasColumnName("weight_percent");
+            entity.Property(e => e.Description)
+                .HasMaxLength(255)
+                .HasColumnName("description");
+            entity.Property(e => e.SortOrder)
+                .HasDefaultValue(0)
+                .HasColumnName("sort_order");
+
+            entity.HasOne(d => d.Class).WithMany(p => p.GradeComponents)
+                .HasForeignKey(d => d.ClassId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Language>(entity =>
+        {
+            entity.HasKey(e => e.LanguageId);
+
+            entity.ToTable("Languages");
+
+            entity.HasIndex(e => e.Name).IsUnique();
+
+            entity.Property(e => e.LanguageId).HasColumnName("language_id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .HasColumnName("name");
+            entity.Property(e => e.IsActive)
+                .HasDefaultValue(true)
+                .HasColumnName("is_active");
+        });
+
+        modelBuilder.Entity<Level>(entity =>
+        {
+            entity.HasKey(e => e.LevelId);
+
+            entity.ToTable("Levels");
+
+            entity.HasIndex(e => e.LanguageId, "idx_levels_language");
+
+            entity.HasIndex(e => new { e.LanguageId, e.Name }, "uq_level_language_name").IsUnique();
+
+            entity.Property(e => e.LevelId).HasColumnName("level_id");
+            entity.Property(e => e.LanguageId).HasColumnName("language_id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .HasColumnName("name");
+            entity.Property(e => e.SortOrder)
+                .HasDefaultValue(0)
+                .HasColumnName("sort_order");
+            entity.Property(e => e.IsActive)
+                .HasDefaultValue(true)
+                .HasColumnName("is_active");
+
+            entity.HasOne(d => d.Language).WithMany(p => p.Levels)
+                .HasForeignKey(d => d.LanguageId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<ClassSchedule>(entity =>
@@ -316,16 +439,23 @@ public partial class LanguageCenterContext : DbContext
             entity.Property(e => e.IsActive)
                 .HasDefaultValue(true)
                 .HasColumnName("is_active");
-            entity.Property(e => e.Language)
-                .HasMaxLength(50)
-                .HasDefaultValue("English")
-                .HasColumnName("language");
-            entity.Property(e => e.Level)
-                .HasMaxLength(50)
-                .HasColumnName("level");
+            entity.Property(e => e.LanguageId).HasColumnName("language_id");
+            entity.Property(e => e.LevelId).HasColumnName("level_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(150)
                 .HasColumnName("name");
+
+            // Null-safe display helpers over the navigations — not columns.
+            entity.Ignore(e => e.LanguageName);
+            entity.Ignore(e => e.LevelName);
+
+            entity.HasOne(d => d.Language).WithMany(p => p.Courses)
+                .HasForeignKey(d => d.LanguageId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(d => d.Level).WithMany(p => p.Courses)
+                .HasForeignKey(d => d.LevelId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
             entity.Property(e => e.TuitionFee)
                 .HasColumnType("decimal(18, 2)")
                 .HasColumnName("tuition_fee");
@@ -370,11 +500,11 @@ public partial class LanguageCenterContext : DbContext
         {
             entity.HasKey(e => e.GradeId).HasName("PK__Grades__3A8F732C60073A96");
 
-            entity.HasIndex(e => new { e.EnrollmentId, e.GradeTypeId }, "uq_grade").IsUnique();
+            entity.HasIndex(e => new { e.EnrollmentId, e.ComponentId }, "uq_grade").IsUnique();
 
             entity.Property(e => e.GradeId).HasColumnName("grade_id");
             entity.Property(e => e.EnrollmentId).HasColumnName("enrollment_id");
-            entity.Property(e => e.GradeTypeId).HasColumnName("grade_type_id");
+            entity.Property(e => e.ComponentId).HasColumnName("component_id");
             entity.Property(e => e.GradedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnName("graded_at");
@@ -394,10 +524,10 @@ public partial class LanguageCenterContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Grades__enrollme__5165187F");
 
-            entity.HasOne(d => d.GradeType).WithMany(p => p.Grades)
-                .HasForeignKey(d => d.GradeTypeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Grades__grade_ty__52593CB8");
+            // Grades attach to the CLASS's frozen component, never the course template.
+            entity.HasOne(d => d.Component).WithMany(p => p.Grades)
+                .HasForeignKey(d => d.ComponentId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<GradeType>(entity =>
@@ -763,9 +893,11 @@ public partial class LanguageCenterContext : DbContext
             entity.Property(e => e.StartDate).HasColumnName("start_date");
             entity.Property(e => e.EndDate).HasColumnName("end_date");
             entity.Property(e => e.SetupEndDate).HasColumnName("setup_end_date");
-            entity.Property(e => e.IsActive)
-                .HasDefaultValue(true)
-                .HasColumnName("is_active");
+
+            // Activeness is derived from the dates, not stored — see Semester.IsActive.
+            // The legacy is_active column is left in place for older databases but is
+            // no longer read or written (it has a DEFAULT, so inserts are unaffected).
+            entity.Ignore(e => e.IsActive);
         });
 
         modelBuilder.Entity<WalletTransaction>(entity =>

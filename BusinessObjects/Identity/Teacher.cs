@@ -27,7 +27,8 @@ public partial class Teacher
 
     public string Status { get; set; } = null!;
 
-    public virtual ICollection<Class> Classes { get; set; } = new List<Class>();
+    /// <summary>Assignments to classes; a class may have several teachers. See ClassTeacher.</summary>
+    public virtual ICollection<ClassTeacher> ClassTeachers { get; set; } = new List<ClassTeacher>();
 
     public virtual ICollection<TeacherAttendance> TeacherAttendances { get; set; } = new List<TeacherAttendance>();
 

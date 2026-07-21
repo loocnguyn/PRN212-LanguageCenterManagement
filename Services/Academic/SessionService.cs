@@ -45,9 +45,6 @@ public class SessionService : ISessionService
         var semester = _semesterRepo.GetById(cls.SemesterId)
             ?? throw new InvalidOperationException($"Semester {cls.SemesterId} not found.");
 
-        if (semester.SetupEndDate == null)
-            throw new InvalidOperationException($"Semester '{semester.Name}' has no SetupEndDate.");
-
         if (_sessionRepo.CountByClassId(classId) > 0)
             return; // already generated
 
@@ -57,7 +54,7 @@ public class SessionService : ISessionService
         foreach (var schedule in schedules)
         {
             var targetDay = MapDayOfWeek(schedule.DayOfWeek);
-            var startDate = semester.SetupEndDate.Value.AddDays(1);
+            var startDate = semester.SetupEndDate.AddDays(1);
             var firstSessionDate = FindFirstMatchingDay(startDate, targetDay);
 
             for (var date = firstSessionDate; date <= semester.EndDate; date = date.AddDays(7))
@@ -92,13 +89,12 @@ public class SessionService : ISessionService
         var semester = _semesterRepo.GetById(semesterId)
             ?? throw new InvalidOperationException($"Semester {semesterId} not found.");
 
-        if (semester.SetupEndDate == null)
-            throw new InvalidOperationException($"Semester '{semester.Name}' has no SetupEndDate.");
-
         var today = DateOnly.FromDateTime(DateTime.Today);
 
-        // Only generate if phase is LEARNING
-        if (today < semester.SetupEndDate.Value || today > semester.EndDate)
+        // Only generate if phase is LEARNING. The lower bound is exclusive to match
+        // SemesterService.GetPhase, which keeps SetupEndDate itself inside SETUP —
+        // teaching (and the first session) starts the day after.
+        if (today <= semester.SetupEndDate || today > semester.EndDate)
             return;
 
         var classes = _classRepo.GetBySemesterId(semesterId);

@@ -122,17 +122,17 @@ public class RewardService : IRewardService
 
     // ---- 5. Weighted-average formula ---------------------------
     // Same rule used on the student grade screens: normalize each component to /10, weight by
-    // GradeType.WeightPercent. Null when the student has no gradable component yet.
+    // the CLASS's frozen component weight. Null when the student has no gradable component yet.
     private static decimal? WeightedAverage(List<Grade> grades)
     {
         decimal totalWeighted = 0, totalWeight = 0;
         foreach (var g in grades)
         {
-            if (g.MaxScore > 0 && g.GradeType != null)
+            if (g.MaxScore > 0 && g.Component != null)
             {
                 var normalized = g.Score / g.MaxScore * 10m;
-                totalWeighted += normalized * g.GradeType.WeightPercent;
-                totalWeight += g.GradeType.WeightPercent;
+                totalWeighted += normalized * g.Component.WeightPercent;
+                totalWeight += g.Component.WeightPercent;
             }
         }
         return totalWeight > 0 ? Math.Round(totalWeighted / totalWeight, 2) : (decimal?)null;

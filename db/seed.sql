@@ -47,10 +47,54 @@ INSERT INTO Students (user_id, full_name, date_of_birth, gender, phone, email) V
 (7, N'Nguyen Mai Ly', '2004-01-30', 'Female', '0903000003', 'ly@mail.com');
 GO
 
-INSERT INTO Courses (code, name, level, language, duration_sessions, tuition_fee) VALUES
-('ENG-A1', N'English Beginner A1',     'A1', 'English',  40, 3500000),
-('ENG-B1', N'English Intermediate B1', 'B1', 'English',  60, 5000000),
-('JPN-N5', N'Japanese N5',             'N5', 'Japanese', 50, 4500000);
+-- ============================================================
+--  CATALOGUE — languages and their levels
+--
+--  Courses pick a language, then one of THAT language's levels, which is why
+--  levels are seeded per language rather than as one flat list. Each ladder
+--  uses the real framework for the language:
+--    English, German  — CEFR      (A1 → C2)
+--    Japanese         — JLPT      (N5 → N1, note N5 is the BEGINNER end)
+--    Chinese          — HSK       (1 → 6)
+--    Korean           — TOPIK
+--  sort_order is beginner-first so course dropdowns read in teaching order.
+-- ============================================================
+INSERT INTO Languages (name) VALUES
+(N'English'),    -- 1
+(N'German'),     -- 2
+(N'Japanese'),   -- 3
+(N'Chinese'),    -- 4
+(N'Korean');     -- 5
+GO
+
+INSERT INTO Levels (language_id, name, sort_order) VALUES
+-- English (CEFR) — level_id 1..6
+(1, N'A1', 1), (1, N'A2', 2), (1, N'B1', 3), (1, N'B2', 4), (1, N'C1', 5), (1, N'C2', 6),
+-- German (CEFR) — level_id 7..12
+(2, N'A1', 1), (2, N'A2', 2), (2, N'B1', 3), (2, N'B2', 4), (2, N'C1', 5), (2, N'C2', 6),
+-- Japanese (JLPT), easiest first — level_id 13..17
+(3, N'N5', 1), (3, N'N4', 2), (3, N'N3', 3), (3, N'N2', 4), (3, N'N1', 5),
+-- Chinese (HSK) — level_id 18..23
+(4, N'HSK 1', 1), (4, N'HSK 2', 2), (4, N'HSK 3', 3),
+(4, N'HSK 4', 4), (4, N'HSK 5', 5), (4, N'HSK 6', 6),
+-- Korean (TOPIK) — level_id 24..29
+(5, N'TOPIK 1', 1), (5, N'TOPIK 2', 2), (5, N'TOPIK 3', 3),
+(5, N'TOPIK 4', 4), (5, N'TOPIK 5', 5), (5, N'TOPIK 6', 6);
+GO
+
+-- level_id values follow the Levels insert above. Kept explicit rather than
+-- looked up so the ids stay predictable for the Classes seed further down.
+INSERT INTO Courses (code, name, language_id, level_id, duration_sessions, tuition_fee) VALUES
+('ENG-A1',  N'English Beginner A1',      1,  1, 40, 3500000),   -- course 1
+('ENG-B1',  N'English Intermediate B1',  1,  3, 60, 5000000),   -- course 2
+('JPN-N5',  N'Japanese N5',              3, 13, 50, 4500000),   -- course 3
+('ENG-B2',  N'English Upper-Int. B2',    1,  4, 60, 5800000),   -- course 4
+('GER-A1',  N'German Beginner A1',       2,  7, 45, 4200000),   -- course 5
+('GER-B1',  N'German Intermediate B1',   2,  9, 60, 5600000),   -- course 6
+('JPN-N4',  N'Japanese N4',              3, 14, 55, 5200000),   -- course 7
+('CHN-HSK1',N'Chinese HSK 1',            4, 18, 40, 3800000),   -- course 8
+('CHN-HSK3',N'Chinese HSK 3',            4, 20, 55, 5100000),   -- course 9
+('KOR-T1',  N'Korean TOPIK 1',           5, 24, 40, 3900000);   -- course 10
 GO
 
 INSERT INTO TuitionDiscounts
@@ -80,20 +124,41 @@ INSERT INTO Slots (slot_no, start_time, end_time) VALUES
 (6, '20:00', '22:15');
 GO
 
--- setup_end_date = start_date + 2 weeks (setup phase); learning phase runs setup_end_date..end_date
--- Fall 2025 (active) is dated around "today" so it's immediately in the LEARNING phase for testing
+-- setup_end_date = start_date + 2 weeks; the learning phase runs setup_end_date+1 .. end_date.
+-- There is no is_active column — the current semester is whichever one contains today, so
+-- "Fall 2025" is dated around today to land straight in the LEARNING phase for testing
 -- schedule generation without manually patching the DB.
-INSERT INTO Semesters (name, start_date, end_date, setup_end_date, is_active) VALUES
-(N'Summer 2025',   '2025-06-01', '2025-08-31', '2025-06-15', 0),
-(N'Fall 2025',     '2026-06-01', '2026-08-31', '2026-06-15', 1),
-(N'Spring 2026',   '2026-09-01', '2027-01-31', '2026-09-15', 0);
+-- These three ranges must stay non-overlapping, otherwise "the current semester" is ambiguous.
+INSERT INTO Semesters (name, start_date, setup_end_date, end_date) VALUES
+(N'Summer 2025',   '2025-06-01', '2025-06-15', '2025-08-31'),
+(N'Fall 2025',     '2026-06-01', '2026-06-15', '2026-08-31'),
+(N'Spring 2026',   '2026-09-01', '2026-09-15', '2027-01-31');
 GO
 
 -- All classes sit in the active semester (Fall 2025) so schedules/enrollments are testable immediately.
-INSERT INTO Classes (semester_id, course_id, teacher_id, classroom_id, name, max_students, start_date, end_date, status) VALUES
-(2, 1, 1, 1, 'A1-K01', 20, '2026-06-01', '2026-08-31', 'ONGOING'),
-(2, 2, 1, 2, 'B1-K01', 18, '2026-06-01', '2026-08-31', 'ONGOING'),
-(2, 3, 2, 3, 'N5-K01', 15, '2026-06-01', '2026-08-31', 'UPCOMING');
+-- snap_* mirror the Courses rows above at "creation time". In the app these are
+-- filled by ClassService from the course; here they are written out literally so
+-- the seed still demonstrates the freeze: edit a course's tuition_fee afterwards
+-- and these classes (and their invoices) keep the original price.
+INSERT INTO Classes
+    (semester_id, course_id, classroom_id, name, max_students, start_date, end_date, status,
+     snap_course_code, snap_course_name, snap_language, snap_level, snap_duration_sessions, snap_tuition_fee)
+VALUES
+(2, 1, 1, 'A1-K01', 20, '2026-06-01', '2026-08-31', 'ONGOING',
+ 'ENG-A1', N'English Beginner A1',     N'English',  'A1', 40, 3500000),
+(2, 2, 2, 'B1-K01', 18, '2026-06-01', '2026-08-31', 'ONGOING',
+ 'ENG-B1', N'English Intermediate B1', N'English',  'B1', 60, 5000000),
+(2, 3, 3, 'N5-K01', 15, '2026-06-01', '2026-08-31', 'UPCOMING',
+ 'JPN-N5', N'Japanese N5',             N'Japanese', 'N5', 50, 4500000);
+GO
+
+-- Class 1 is co-taught to exercise the multi-teacher path; the other two have a
+-- single teacher who is therefore also the primary one.
+INSERT INTO ClassTeachers (class_id, teacher_id, is_primary) VALUES
+(1, 1, 1),
+(1, 2, 0),
+(2, 1, 1),
+(3, 2, 1);
 GO
 
 -- day_of_week: 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat, 7=Sun
@@ -106,19 +171,21 @@ INSERT INTO ClassSchedules (class_id, day_of_week, start_time, end_time) VALUES
 (3, 6, '15:00', '17:15');   -- Slot 4, Sat
 GO
 
--- Each course gets its own grading structure (course_id order matches Courses insert above:
--- 1=ENG-A1, 2=ENG-B1, 3=JPN-N5). Every course starts with the same default weights;
--- they can be customized per-course later via GradeType Management.
-INSERT INTO GradeTypes (course_id, name, weight_percent, description) VALUES
-(1, 'Attendance', 10, 'Attendance and participation score'),
-(1, 'Midterm',    30, 'Midterm exam score'),
-(1, 'Final',      60, 'Final exam score'),
-(2, 'Attendance', 10, 'Attendance and participation score'),
-(2, 'Midterm',    30, 'Midterm exam score'),
-(2, 'Final',      60, 'Final exam score'),
-(3, 'Attendance', 10, 'Attendance and participation score'),
-(3, 'Midterm',    30, 'Midterm exam score'),
-(3, 'Final',      60, 'Final exam score');
+-- TEMPLATE only (course_id order matches Courses insert above: 1=ENG-A1, 2=ENG-B1,
+-- 3=JPN-N5). Nothing points at these rows — they are copied into a class's own
+-- ClassGradeComponents when the class is created. Editing them later changes what
+-- FUTURE classes inherit, never an existing class.
+-- EVERY course needs one: ClassService refuses to open a class for a course with
+-- no grading template, since the class would have nothing to snapshot and its
+-- grades would have nowhere to attach.
+INSERT INTO GradeTypes (course_id, name, weight_percent, description)
+SELECT c.course_id, v.name, v.weight_percent, v.description
+FROM   Courses c
+CROSS JOIN (VALUES
+    (N'Attendance', CAST(10 AS DECIMAL(5,2)), N'Attendance and participation score'),
+    (N'Midterm',    CAST(30 AS DECIMAL(5,2)), N'Midterm exam score'),
+    (N'Final',      CAST(60 AS DECIMAL(5,2)), N'Final exam score')
+) AS v(name, weight_percent, description);
 GO
 
 INSERT INTO Enrollments (student_id, class_id, enrolled_date, status) VALUES
@@ -152,7 +219,25 @@ GO
 -- Seeding them here would permanently block auto-generation for these classes
 -- (GenerateSessionsForClass skips a class once it already has any sessions).
 
-INSERT INTO Grades (enrollment_id, grade_type_id, score, max_score) VALUES
+-- The frozen per-class copy of the grading structure. In the app ClassService
+-- writes these from the course template; here they are literal so the seed works
+-- without running the app. component_id order: class 1 -> 1,2,3; class 2 -> 4,5,6;
+-- class 3 -> 7,8,9.
+INSERT INTO ClassGradeComponents (class_id, name, weight_percent, description, sort_order) VALUES
+(1, 'Attendance', 10, 'Attendance and participation score', 1),
+(1, 'Midterm',    30, 'Midterm exam score',                 2),
+(1, 'Final',      60, 'Final exam score',                   3),
+(2, 'Attendance', 10, 'Attendance and participation score', 1),
+(2, 'Midterm',    30, 'Midterm exam score',                 2),
+(2, 'Final',      60, 'Final exam score',                   3),
+(3, 'Attendance', 10, 'Attendance and participation score', 1),
+(3, 'Midterm',    30, 'Midterm exam score',                 2),
+(3, 'Final',      60, 'Final exam score',                   3);
+GO
+
+-- Enrollments 1 and 2 are both in class 1, so these reference class 1's
+-- components (1=Attendance, 2=Midterm).
+INSERT INTO Grades (enrollment_id, component_id, score, max_score) VALUES
 (1, 1, 9.0, 10),
 (1, 2, 7.5, 10),
 (2, 1, 8.0, 10);

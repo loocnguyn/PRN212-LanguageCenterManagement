@@ -100,18 +100,45 @@ GO
 -- 2. COURSE & CLASS MANAGEMENT
 -- ============================================================
 
+-- Languages and Levels are the centre's catalogue: a course is created by
+-- picking a language, then one of the levels defined for that language.
+-- Levels are per-language on purpose — "N5" only makes sense for Japanese,
+-- "B1" only for the CEFR languages.
+CREATE TABLE Languages (
+    language_id INT           IDENTITY(1,1) PRIMARY KEY,
+    name        NVARCHAR(50)  NOT NULL UNIQUE,
+    is_active   BIT           NOT NULL DEFAULT 1
+);
+GO
+
+CREATE TABLE Levels (
+    level_id    INT           IDENTITY(1,1) PRIMARY KEY,
+    language_id INT           NOT NULL REFERENCES Languages(language_id),
+    name        NVARCHAR(50)  NOT NULL,
+    sort_order  INT           NOT NULL DEFAULT 0,
+    is_active   BIT           NOT NULL DEFAULT 1,
+    CONSTRAINT uq_level_language_name UNIQUE (language_id, name)
+);
+GO
+
+CREATE INDEX idx_levels_language ON Levels(language_id);
+GO
+
 CREATE TABLE Courses (
     course_id         INT           IDENTITY(1,1) PRIMARY KEY,
     code              NVARCHAR(20)  NOT NULL UNIQUE,
     name              NVARCHAR(150) NOT NULL,
-    level             NVARCHAR(50)  NULL,
-    language          NVARCHAR(50)  NOT NULL DEFAULT 'English',
+    language_id       INT           NOT NULL REFERENCES Languages(language_id),
+    level_id          INT           NULL     REFERENCES Levels(level_id),
     duration_sessions INT           NOT NULL DEFAULT 0,
     tuition_fee       DECIMAL(18,2) NOT NULL DEFAULT 0,
     description       NVARCHAR(MAX) NULL,
     is_active         BIT           NOT NULL DEFAULT 1,
     created_at        DATETIME2     NOT NULL DEFAULT GETDATE()
 );
+GO
+
+CREATE INDEX idx_courses_language ON Courses(language_id);
 GO
 
 CREATE TABLE Classrooms (
@@ -123,22 +150,34 @@ CREATE TABLE Classrooms (
 );
 GO
 
+-- No is_active column by design: the current semester is the one containing
+-- today's date. chk_semester_setup keeps setup_end_date inside the semester so
+-- session generation (which starts at setup_end_date + 1) always has room.
+-- Non-overlap is enforced in SemesterService (SQL Server has no range-exclusion
+-- constraint), so always write semesters through the service, not raw SQL.
 CREATE TABLE Semesters (
-    semester_id INT           IDENTITY(1,1) PRIMARY KEY,
-    name        NVARCHAR(100) NOT NULL UNIQUE,
-    start_date  DATE          NOT NULL,
-    end_date    DATE          NOT NULL,
-    is_active   BIT           NOT NULL DEFAULT 1,
-    setup_end_date DATE          NULL,
-    CONSTRAINT chk_semester_dates CHECK (end_date > start_date)
+    semester_id    INT           IDENTITY(1,1) PRIMARY KEY,
+    name           NVARCHAR(100) NOT NULL UNIQUE,
+    start_date     DATE          NOT NULL,
+    setup_end_date DATE          NOT NULL,
+    end_date       DATE          NOT NULL,
+    CONSTRAINT chk_semester_dates CHECK (end_date > start_date),
+    CONSTRAINT chk_semester_setup CHECK (setup_end_date >= start_date AND setup_end_date < end_date)
 );
 GO
 
+-- A class SNAPSHOTS its course at creation time. course_id is kept only as a
+-- provenance pointer ("which course was this built from") — never read it for
+-- pricing, duration or naming. Editing a course afterwards must not change what
+-- enrolled students were charged or what they were promised, so every field the
+-- class actually runs on is copied into snap_* below and frozen. The grading
+-- structure is snapshotted the same way, into ClassGradeComponents.
+--
+-- No teacher_id here: a class can have several teachers, see ClassTeachers.
 CREATE TABLE Classes (
     class_id     INT           IDENTITY(1,1) PRIMARY KEY,
     semester_id  INT           NOT NULL REFERENCES Semesters(semester_id),
     course_id    INT           NOT NULL REFERENCES Courses(course_id),
-    teacher_id   INT           NOT NULL REFERENCES Teachers(teacher_id),
     classroom_id INT           NOT NULL REFERENCES Classrooms(classroom_id),
     name         NVARCHAR(100) NOT NULL,
     max_students INT           NOT NULL DEFAULT 30,
@@ -146,8 +185,37 @@ CREATE TABLE Classes (
     end_date     DATE          NULL,
     status       NVARCHAR(20)  NOT NULL DEFAULT 'UPCOMING'
                                CHECK (status IN ('UPCOMING', 'ONGOING', 'COMPLETED', 'CANCELLED')),
-    created_at   DATETIME2     NOT NULL DEFAULT GETDATE()
+    created_at   DATETIME2     NOT NULL DEFAULT GETDATE(),
+
+    -- Frozen copy of the course at creation time. Immutable.
+    snap_course_code       NVARCHAR(20)  NOT NULL,
+    snap_course_name       NVARCHAR(150) NOT NULL,
+    snap_language          NVARCHAR(50)  NOT NULL,
+    snap_level             NVARCHAR(50)  NULL,
+    snap_duration_sessions INT           NOT NULL,
+    snap_tuition_fee       DECIMAL(18,2) NOT NULL
 );
+GO
+
+CREATE INDEX idx_classes_semester ON Classes(semester_id);
+GO
+
+-- Teachers assigned to a class. Exactly one is flagged primary; reports and
+-- finance filters use that one, while the class screens show the full list.
+-- The filtered unique index enforces "at most one primary per class".
+CREATE TABLE ClassTeachers (
+    class_id   INT NOT NULL REFERENCES Classes(class_id) ON DELETE CASCADE,
+    teacher_id INT NOT NULL REFERENCES Teachers(teacher_id),
+    is_primary BIT NOT NULL DEFAULT 0,
+    CONSTRAINT pk_class_teachers PRIMARY KEY (class_id, teacher_id)
+);
+GO
+
+CREATE UNIQUE INDEX uq_class_one_primary
+    ON ClassTeachers(class_id) WHERE is_primary = 1;
+GO
+
+CREATE INDEX idx_class_teachers_teacher ON ClassTeachers(teacher_id);
 GO
 
 -- Configurable daily time slots (periods). Admins adjust these via Slot Time Setting;
@@ -188,6 +256,9 @@ CREATE TABLE Enrollments (
 );
 GO
 
+-- GradeTypes is the TEMPLATE held against a course. Admins edit it freely;
+-- it is only ever read when a class is created, to seed that class's own
+-- ClassGradeComponents. No grade points at it.
 CREATE TABLE GradeTypes (
     grade_type_id  INT           IDENTITY(1,1) PRIMARY KEY,
     course_id      INT           NOT NULL REFERENCES Courses(course_id),
@@ -201,15 +272,33 @@ GO
 CREATE INDEX idx_grade_types_course ON GradeTypes(course_id);
 GO
 
+-- The class's frozen grading structure, copied from the course's GradeTypes
+-- when the class is created. Immutable by design: grades are recorded against
+-- these rows, so changing a weight afterwards would silently restate results
+-- that have already been shown to students.
+CREATE TABLE ClassGradeComponents (
+    component_id   INT           IDENTITY(1,1) PRIMARY KEY,
+    class_id       INT           NOT NULL REFERENCES Classes(class_id) ON DELETE CASCADE,
+    name           NVARCHAR(100) NOT NULL,
+    weight_percent DECIMAL(5,2)  NOT NULL CHECK (weight_percent BETWEEN 0 AND 100),
+    description    NVARCHAR(255) NULL,
+    sort_order     INT           NOT NULL DEFAULT 0,
+    CONSTRAINT uq_class_component_name UNIQUE (class_id, name)
+);
+GO
+
+CREATE INDEX idx_class_components_class ON ClassGradeComponents(class_id);
+GO
+
 CREATE TABLE Grades (
     grade_id      INT           IDENTITY(1,1) PRIMARY KEY,
     enrollment_id INT           NOT NULL REFERENCES Enrollments(enrollment_id),
-    grade_type_id INT           NOT NULL REFERENCES GradeTypes(grade_type_id),
+    component_id  INT           NOT NULL REFERENCES ClassGradeComponents(component_id),
     score         DECIMAL(5,2)  NOT NULL CHECK (score >= 0),
     max_score     DECIMAL(5,2)  NOT NULL DEFAULT 10,
     graded_at     DATETIME2     NOT NULL DEFAULT GETDATE(),
     note          NVARCHAR(255) NULL,
-    CONSTRAINT uq_grade UNIQUE (enrollment_id, grade_type_id),
+    CONSTRAINT uq_grade UNIQUE (enrollment_id, component_id),
     CONSTRAINT chk_score CHECK (score <= max_score)
 );
 GO

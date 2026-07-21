@@ -8,11 +8,19 @@ public interface ISemesterService
 {
     List<Semester> GetAll();
     Semester? GetById(int id);
+
+    /// <summary>The semester containing today, or null when today falls between semesters.</summary>
     Semester? GetActive();
+
+    /// <summary>Validates then inserts. Throws InvalidOperationException with a user-facing message.</summary>
     void Save(Semester semester);
+
+    /// <summary>Validates then updates. Throws InvalidOperationException with a user-facing message.</summary>
     void Update(Semester semester);
+
+    /// <summary>Throws InvalidOperationException if the semester still has classes.</summary>
     void Delete(int id);
-    void SetActive(int semesterId);
+
     Phase GetPhase(Semester semester);
     Phase? GetActivePhase();
 }

@@ -4,6 +4,10 @@ using Microsoft.EntityFrameworkCore;
 namespace DataAccessObjects;
 
 // SemesterDAO — EF data access for Semester (CRUD + queries).
+//
+// Note: Semester.IsActive is a derived property and is NOT translatable to SQL.
+// Any "which semester is current" query must compare the date columns, as
+// GetActive does below.
 
 public class SemesterDAO
 {
@@ -19,10 +23,41 @@ public class SemesterDAO
         return context.Semesters.FirstOrDefault(s => s.SemesterId == id);
     }
 
+    /// <summary>The semester containing today, or null if today falls in a gap between semesters.</summary>
     public static Semester? GetActive()
     {
         using var context = new LanguageCenterContext();
-        return context.Semesters.FirstOrDefault(s => s.IsActive);
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        return context.Semesters
+            .FirstOrDefault(s => s.StartDate <= today && today <= s.EndDate);
+    }
+
+    /// <summary>
+    /// Every semester whose dates clash with [start, end], excluding <paramref name="excludeId"/>
+    /// (pass the row being edited so it does not overlap itself).
+    /// </summary>
+    public static List<Semester> GetOverlapping(DateOnly start, DateOnly end, int? excludeId = null)
+    {
+        using var context = new LanguageCenterContext();
+        return context.Semesters
+            .Where(s => excludeId == null || s.SemesterId != excludeId)
+            .Where(s => s.StartDate <= end && start <= s.EndDate)
+            .OrderBy(s => s.StartDate)
+            .ToList();
+    }
+
+    /// <summary>True when another semester already uses this name (case-insensitive per DB collation).</summary>
+    public static bool NameExists(string name, int? excludeId = null)
+    {
+        using var context = new LanguageCenterContext();
+        return context.Semesters
+            .Any(s => s.Name == name && (excludeId == null || s.SemesterId != excludeId));
+    }
+
+    public static int CountClasses(int semesterId)
+    {
+        using var context = new LanguageCenterContext();
+        return context.Classes.Count(c => c.SemesterId == semesterId);
     }
 
     public static void Save(Semester semester)
@@ -41,7 +76,6 @@ public class SemesterDAO
         existing.StartDate = semester.StartDate;
         existing.EndDate = semester.EndDate;
         existing.SetupEndDate = semester.SetupEndDate;
-        existing.IsActive = semester.IsActive;
         context.SaveChanges();
     }
 
@@ -52,16 +86,5 @@ public class SemesterDAO
         if (semester == null) return;
         context.Semesters.Remove(semester);
         context.SaveChanges();
-    }
-
-    public static void SetActive(int semesterId)
-    {
-        using var context = new LanguageCenterContext();
-        // Deactivate all semesters
-        context.Semesters.ExecuteUpdate(s => s.SetProperty(x => x.IsActive, false));
-        // Activate the target semester
-        context.Semesters
-            .Where(s => s.SemesterId == semesterId)
-            .ExecuteUpdate(s => s.SetProperty(x => x.IsActive, true));
     }
 }

@@ -1,9 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace BusinessObjects;
 
-// Course — domain model.
+// Course — a catalogue entry: what the centre offers, at what price.
+//
+// This is a TEMPLATE. Classes snapshot it at creation, so editing a course
+// (price, level, grading structure) only affects classes created afterwards.
 
 public partial class Course
 {
@@ -13,9 +16,10 @@ public partial class Course
 
     public string Name { get; set; } = null!;
 
-    public string? Level { get; set; }
+    public int LanguageId { get; set; }
 
-    public string Language { get; set; } = null!;
+    /// <summary>Optional — a course need not be pinned to a level.</summary>
+    public int? LevelId { get; set; }
 
     public int DurationSessions { get; set; }
 
@@ -27,7 +31,16 @@ public partial class Course
 
     public DateTime CreatedAt { get; set; }
 
+    public virtual Language Language { get; set; } = null!;
+
+    public virtual Level? Level { get; set; }
+
     public virtual ICollection<Class> Classes { get; set; } = new List<Class>();
 
+    /// <summary>Grading template copied into each new class's GradeComponents.</summary>
     public virtual ICollection<GradeType> GradeTypes { get; set; } = new List<GradeType>();
+
+    // ---- Display helpers (null-safe for un-Included navigations) ----
+    public string LanguageName => Language?.Name ?? "";
+    public string LevelName => Level?.Name ?? "";
 }

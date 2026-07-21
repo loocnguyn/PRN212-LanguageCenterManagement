@@ -47,8 +47,20 @@ public class ClassScheduleService : IClassScheduleService
             var otherClass = classService.GetById(other.ClassId);
             if (otherClass == null) continue;
 
-            if (currentClass.TeacherId == otherClass.TeacherId)
-                conflicts.Add($"Teacher conflict with class '{otherClass.Name}' on same day and overlapping time.");
+            // A class can be co-taught, so the clash is "any teacher assigned to both".
+            var sharedTeachers = currentClass.ClassTeachers
+                .Select(ct => ct.TeacherId)
+                .Intersect(otherClass.ClassTeachers.Select(ct => ct.TeacherId))
+                .ToList();
+
+            if (sharedTeachers.Count > 0)
+            {
+                var names = string.Join(", ", otherClass.ClassTeachers
+                    .Where(ct => sharedTeachers.Contains(ct.TeacherId))
+                    .Select(ct => ct.Teacher?.FullName ?? $"teacher #{ct.TeacherId}"));
+                conflicts.Add($"Teacher conflict ({names}) with class '{otherClass.Name}' on same day and overlapping time.");
+            }
+
             if (currentClass.ClassroomId == otherClass.ClassroomId)
                 conflicts.Add($"Room conflict with class '{otherClass.Name}' on same day and overlapping time.");
         }
