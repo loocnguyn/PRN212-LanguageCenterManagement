@@ -14,6 +14,7 @@ namespace WpfApp;
 public partial class TuitionDiscountManagementWindow : Window
 {
     private readonly ITuitionDiscountService _service = new TuitionDiscountService();
+    private List<TuitionDiscount> _items = new();
 
     public TuitionDiscountManagementWindow()
     {
@@ -26,15 +27,28 @@ public partial class TuitionDiscountManagementWindow : Window
         try
         {
             var status = (cmbStatusFilter.SelectedItem as ComboBoxItem)?.Content?.ToString();
-            var items = _service.Search(txtSearch.Text, status);
-            dgDiscounts.ItemsSource = items;
-            txtCount.Text = $"{items.Count} discount(s)";
+            _items = _service.Search(txtSearch.Text, status);
+            pager.Reset();
+            BindPage();
         }
         catch (Exception ex)
         {
             MessageBox.Show($"Không thể tải danh sách discount: {ex.Message}", "Lỗi",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    private void BindPage()
+    {
+        dgDiscounts.ItemsSource = pager.Slice(_items);
+        emptyState.Visibility = _items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void Pager_PageChanged(object sender, EventArgs e) => BindPage();
+
+    private void DgDiscounts_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (dgDiscounts.SelectedItem is TuitionDiscount) BtnEdit_Click(sender, e);
     }
 
     private void BtnSearch_Click(object sender, RoutedEventArgs e) => LoadData();

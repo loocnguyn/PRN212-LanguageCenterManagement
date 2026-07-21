@@ -19,6 +19,7 @@ public partial class StudentInvoiceWindow : Window
 
     private readonly User _currentUser;
     private int _studentId;
+    private List<InvoiceDisplayItem> _invoices = new();
 
     public StudentInvoiceWindow(User currentUser)
     {
@@ -42,7 +43,7 @@ public partial class StudentInvoiceWindow : Window
             tbStudentName.Text = $"Student: {student.FullName}";
             RefreshBalance();
 
-            var invoices = _invoiceService.Search(_studentId.ToString(), null)
+            _invoices = _invoiceService.Search(_studentId.ToString(), null)
                 .Where(x => x.StudentId == _studentId)
                 .Where(x => x.Status is "UNPAID" or "PARTIAL")
                 .Select(x =>
@@ -67,13 +68,18 @@ public partial class StudentInvoiceWindow : Window
                 .Where(x => x.RemainingAmount > 0)
                 .ToList();
 
-            dgInvoices.ItemsSource = invoices;
+            pager.Reset();
+            BindPage();
         }
         catch (Exception ex)
         {
             MessageBox.Show($"Error loading invoices: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
+
+    private void BindPage() => dgInvoices.ItemsSource = pager.Slice(_invoices);
+
+    private void Pager_PageChanged(object sender, EventArgs e) => BindPage();
 
     private void RefreshBalance()
         => tbBalance.Text = $"Wallet balance: {_walletService.GetBalance(_studentId):N0} VND";

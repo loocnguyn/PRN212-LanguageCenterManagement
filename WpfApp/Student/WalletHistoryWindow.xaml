@@ -1,13 +1,15 @@
 <Window x:Class="WpfApp.WalletHistoryWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Wallet Transaction History" Height="480" Width="820"
+        xmlns:ctl="clr-namespace:WpfApp.Controls"
+        Title="Wallet Transaction History" Height="520" Width="820"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" x:Name="tbBalance" Text="Current balance: 0"
@@ -27,5 +29,8 @@
                 <DataGridTextColumn Header="Note" Binding="{Binding Description}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
+
+        <ctl:PagerBar Grid.Row="3" x:Name="pager" HorizontalAlignment="Left"
+                      Margin="0,10,0,0" PageChanged="Pager_PageChanged"/>
     </Grid>
 </Window>

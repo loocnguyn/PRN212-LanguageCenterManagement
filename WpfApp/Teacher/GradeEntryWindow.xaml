@@ -14,13 +14,13 @@
         <!-- Filter Panel: Semester -> Course -> Class -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
             <TextBlock Text="Semester:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-            <ComboBox x:Name="cboSemester" Width="170" Height="28" DisplayMemberPath="Name"
+            <ComboBox x:Name="cboSemester" Width="170" Height="34" DisplayMemberPath="Name"
                       SelectionChanged="CboSemester_SelectionChanged" VerticalContentAlignment="Center"/>
             <TextBlock Text="Course:" VerticalAlignment="Center" Margin="16,0,6,0"/>
-            <ComboBox x:Name="cboCourse" Width="200" Height="28" DisplayMemberPath="Name"
+            <ComboBox x:Name="cboCourse" Width="200" Height="34" DisplayMemberPath="Name"
                       SelectionChanged="CboCourse_SelectionChanged" VerticalContentAlignment="Center"/>
             <TextBlock Text="Class:" VerticalAlignment="Center" Margin="16,0,6,0"/>
-            <ComboBox x:Name="cboClass" Width="200" Height="28" DisplayMemberPath="Name" 
+            <ComboBox x:Name="cboClass" Width="200" Height="34" DisplayMemberPath="Name" 
                       SelectionChanged="CboClass_SelectionChanged" VerticalContentAlignment="Center"/>
             <Button Content="Reset" Width="80" Height="28" Margin="6,0,0,0" Click="BtnReset_Click"/>
         </StackPanel>
@@ -29,7 +29,7 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Student ID"   Binding="{Binding StudentId}"   Width="80"  IsReadOnly="True"/>
                 <DataGridTextColumn Header="Student Name" Binding="{Binding StudentName}"  Width="170" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Grade Type"   Binding="{Binding GradeType}"    Width="120" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Component"    Binding="{Binding ComponentName}" Width="120" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Max"          Binding="{Binding MaxScore}"     Width="60"  IsReadOnly="True"/>
                 <DataGridTextColumn Header="Score"        Binding="{Binding Score}"        Width="80"/>
                 <DataGridTextColumn Header="Note"         Binding="{Binding Note}"         Width="*"/>

@@ -21,7 +21,6 @@ public partial class ClassResultWindow : Window
 {
     private readonly User _currentUser;
     private readonly IGradeService _gradeService = new GradeService();
-    private readonly IGradeTypeService _gradeTypeService = new GradeTypeService();
     private readonly IEnrollmentService _enrollmentService = new EnrollmentService();
     private readonly IClassService _classService = new ClassService();
     private readonly ITeacherService _teacherService = new TeacherService();
@@ -29,6 +28,7 @@ public partial class ClassResultWindow : Window
 
     private Teacher? _teacher;
     private List<Class> _teacherClasses = new();
+    private List<ExpandoObject> _rows = new();
 
     public ClassResultWindow(User currentUser)
     {
@@ -58,7 +58,7 @@ public partial class ClassResultWindow : Window
             }
 
             _teacherClasses = _classService.GetBySemesterId(semester.SemesterId)
-                .Where(c => c.TeacherId == _teacher.TeacherId)
+                .Where(c => c.ClassTeachers.Any(ct => ct.TeacherId == _teacher.TeacherId))
                 .ToList();
 
             cboClass.ItemsSource = _teacherClasses;
@@ -80,10 +80,12 @@ public partial class ClassResultWindow : Window
 
         try
         {
-            var gradeTypes = _gradeTypeService.GetByCourseId(cls.CourseId);
-            if (gradeTypes.Count == 0)
+            // The class's OWN frozen structure — not the course template, which may
+            // have been edited since this class opened.
+            var components = _classService.GetGradeComponents(cls.ClassId);
+            if (components.Count == 0)
             {
-                MessageBox.Show($"No grade types configured for course '{cls.Name}'.", "Warning",
+                MessageBox.Show($"No grading structure recorded for class '{cls.Name}'.", "Warning",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -93,7 +95,7 @@ public partial class ClassResultWindow : Window
             {
                 MessageBox.Show($"No active enrollments found for class '{cls.Name}'.", "No Data",
                     MessageBoxButton.OK, MessageBoxImage.Information);
-                dgResults.ItemsSource = null;
+                SetRows(new List<ExpandoObject>());
                 return;
             }
 
@@ -119,17 +121,17 @@ public partial class ClassResultWindow : Window
                     : new List<Grade>();
 
                 decimal finalScore = 0m;
-                foreach (var gt in gradeTypes)
+                foreach (var comp in components)
                 {
-                    var grade = enrollmentGrades.FirstOrDefault(g => g.GradeTypeId == gt.GradeTypeId);
+                    var grade = enrollmentGrades.FirstOrDefault(g => g.ComponentId == comp.ComponentId);
                     if (grade != null && grade.MaxScore > 0)
                     {
-                        dict[gt.Name] = grade.Score;
-                        finalScore += (grade.Score / grade.MaxScore) * (gt.WeightPercent / 100m);
+                        dict[comp.Name] = grade.Score;
+                        finalScore += (grade.Score / grade.MaxScore) * (comp.WeightPercent / 100m);
                     }
                     else
                     {
-                        dict[gt.Name] = null;
+                        dict[comp.Name] = null;
                     }
                 }
 
@@ -154,12 +156,12 @@ public partial class ClassResultWindow : Window
                 Width = 180
             });
 
-            foreach (var gt in gradeTypes)
+            foreach (var comp in components)
             {
                 dgResults.Columns.Add(new DataGridTextColumn
                 {
-                    Header = $"{gt.Name}\n({gt.WeightPercent}%)",
-                    Binding = new Binding($"[{gt.Name}]")
+                    Header = $"{comp.Name}\n({comp.WeightPercent}%)",
+                    Binding = new Binding($"[{comp.Name}]")
                     {
                         TargetNullValue = "-",
                         StringFormat = "N2"
@@ -178,7 +180,7 @@ public partial class ClassResultWindow : Window
                 Width = 110
             });
 
-            dgResults.ItemsSource = rows;
+            SetRows(rows);
         }
         catch (Exception ex)
         {
@@ -191,6 +193,18 @@ public partial class ClassResultWindow : Window
     {
         cboClass.SelectedIndex = -1;
         dgResults.Columns.Clear();
-        dgResults.ItemsSource = null;
+        SetRows(new List<ExpandoObject>());
     }
+
+    /// <summary>Swap the result set the grid is paging over and jump back to page 1.</summary>
+    private void SetRows(List<ExpandoObject> rows)
+    {
+        _rows = rows;
+        pager.Reset();
+        BindPage();
+    }
+
+    private void BindPage() => dgResults.ItemsSource = pager.Slice(_rows);
+
+    private void Pager_PageChanged(object sender, EventArgs e) => BindPage();
 }

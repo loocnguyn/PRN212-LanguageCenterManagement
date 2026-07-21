@@ -21,31 +21,31 @@
         </Grid.ColumnDefinitions>
 
         <TextBlock Grid.Row="0" Grid.Column="0" Text="Code:" VerticalAlignment="Center" Margin="0,0,10,10"/>
-        <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtCode" Height="32" Margin="0,0,0,10"
+        <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtCode" Height="34" Margin="0,0,0,10"
                  Padding="8,0" VerticalContentAlignment="Center"/>
 
         <TextBlock Grid.Row="1" Grid.Column="0" Text="Name:" VerticalAlignment="Center" Margin="0,0,10,10"/>
-        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtName" Height="32" Margin="0,0,0,10"
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtName" Height="34" Margin="0,0,0,10"
                  Padding="8,0" VerticalContentAlignment="Center"/>
 
         <TextBlock Grid.Row="2" Grid.Column="0" Text="Type:" VerticalAlignment="Center" Margin="0,0,10,10"/>
-        <ComboBox Grid.Row="2" Grid.Column="1" x:Name="cmbDiscountType" Height="32" Margin="0,0,0,10">
+        <ComboBox Grid.Row="2" Grid.Column="1" x:Name="cmbDiscountType" Height="34" Margin="0,0,0,10">
             <ComboBoxItem Content="PERCENT" IsSelected="True"/>
             <ComboBoxItem Content="FIXED"/>
         </ComboBox>
 
         <TextBlock Grid.Row="3" Grid.Column="0" Text="Value:" VerticalAlignment="Center" Margin="0,0,10,10"/>
-        <TextBox Grid.Row="3" Grid.Column="1" x:Name="txtDiscountValue" Height="32" Margin="0,0,0,10"
+        <TextBox Grid.Row="3" Grid.Column="1" x:Name="txtDiscountValue" Height="34" Margin="0,0,0,10"
                  Padding="8,0" VerticalContentAlignment="Center"/>
 
         <TextBlock Grid.Row="4" Grid.Column="0" Text="Condition:" VerticalAlignment="Center" Margin="0,0,10,10"/>
-        <ComboBox Grid.Row="4" Grid.Column="1" x:Name="cmbConditionType" Height="32" Margin="0,0,0,10">
+        <ComboBox Grid.Row="4" Grid.Column="1" x:Name="cmbConditionType" Height="34" Margin="0,0,0,10">
             <ComboBoxItem Content="NONE" IsSelected="True"/>
             <ComboBoxItem Content="EARLY_PAYMENT"/>
         </ComboBox>
 
         <TextBlock Grid.Row="5" Grid.Column="0" Text="Deadline days:" VerticalAlignment="Center" Margin="0,0,10,10"/>
-        <TextBox Grid.Row="5" Grid.Column="1" x:Name="txtDeadlineDays" Height="32" Margin="0,0,0,10"
+        <TextBox Grid.Row="5" Grid.Column="1" x:Name="txtDeadlineDays" Height="34" Margin="0,0,0,10"
                  Padding="8,0" VerticalContentAlignment="Center"/>
 
         <Grid Grid.Row="6" Grid.ColumnSpan="2">
@@ -60,10 +60,10 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Start date:" VerticalAlignment="Center" Margin="0,0,10,10"/>
-            <DatePicker Grid.Row="0" Grid.Column="1" x:Name="dpStartDate" Height="32" Margin="0,0,0,10"/>
+            <DatePicker Grid.Row="0" Grid.Column="1" x:Name="dpStartDate" Height="34" Margin="0,0,0,10"/>
 
             <TextBlock Grid.Row="1" Grid.Column="0" Text="End date:" VerticalAlignment="Center" Margin="0,0,10,10"/>
-            <DatePicker Grid.Row="1" Grid.Column="1" x:Name="dpEndDate" Height="32" Margin="0,0,0,10"/>
+            <DatePicker Grid.Row="1" Grid.Column="1" x:Name="dpEndDate" Height="34" Margin="0,0,0,10"/>
 
             <TextBlock Grid.Row="2" Grid.Column="0" Text="Note:" VerticalAlignment="Top" Margin="0,0,10,0"/>
             <TextBox Grid.Row="2" Grid.Column="1" x:Name="txtNote" Height="80" Padding="8"

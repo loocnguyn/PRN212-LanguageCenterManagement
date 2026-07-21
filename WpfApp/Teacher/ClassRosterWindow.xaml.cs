@@ -25,6 +25,7 @@ public partial class ClassRosterWindow : Window
 
     private Teacher? _teacher;
     private List<Class> _teacherClassesInSemester = new();
+    private List<RosterRow> _roster = new();
 
     public ClassRosterWindow(User currentUser)
     {
@@ -75,7 +76,7 @@ public partial class ClassRosterWindow : Window
     {
         cboCourse.ItemsSource = null;
         cboClass.ItemsSource = null;
-        dgRoster.ItemsSource = null;
+        SetRoster(new List<RosterRow>());
         _teacherClassesInSemester = new List<Class>();
 
         if (cboSemester.SelectedItem is not Semester semester || _teacher == null) return;
@@ -83,7 +84,7 @@ public partial class ClassRosterWindow : Window
         try
         {
             _teacherClassesInSemester = _classService.GetClassesWithDetails(semester.SemesterId)
-                .Where(c => c.TeacherId == _teacher.TeacherId)
+                .Where(c => c.ClassTeachers.Any(ct => ct.TeacherId == _teacher.TeacherId))
                 .ToList();
 
             var courses = _teacherClassesInSemester
@@ -111,7 +112,7 @@ public partial class ClassRosterWindow : Window
     private void CboCourse_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         cboClass.ItemsSource = null;
-        dgRoster.ItemsSource = null;
+        SetRoster(new List<RosterRow>());
 
         if (cboCourse.SelectedItem is not Course course) return;
 
@@ -134,7 +135,7 @@ public partial class ClassRosterWindow : Window
             {
                 MessageBox.Show($"No active enrollments for class '{cls.Name}'.", "Info",
                     MessageBoxButton.OK, MessageBoxImage.Information);
-                dgRoster.ItemsSource = null;
+                SetRoster(new List<RosterRow>());
                 return;
             }
 
@@ -150,7 +151,7 @@ public partial class ClassRosterWindow : Window
                 })
                 .ToList();
 
-            dgRoster.ItemsSource = students;
+            SetRoster(students);
         }
         catch (Exception ex)
         {
@@ -162,8 +163,20 @@ public partial class ClassRosterWindow : Window
     private void BtnReset_Click(object sender, RoutedEventArgs e)
     {
         cboClass.SelectedIndex = -1;
-        dgRoster.ItemsSource = null;
+        SetRoster(new List<RosterRow>());
     }
+
+    /// <summary>Swap the roster the grid is paging over and jump back to page 1.</summary>
+    private void SetRoster(List<RosterRow> roster)
+    {
+        _roster = roster;
+        pager.Reset();
+        BindPage();
+    }
+
+    private void BindPage() => dgRoster.ItemsSource = pager.Slice(_roster);
+
+    private void Pager_PageChanged(object sender, EventArgs e) => BindPage();
 }
 
 public class RosterRow

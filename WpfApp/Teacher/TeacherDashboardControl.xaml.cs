@@ -42,7 +42,7 @@ public partial class TeacherDashboardControl : UserControl, IDashboardControl
             var myClasses = semester == null
                 ? new List<Class>()
                 : _classService.GetBySemesterId(semester.SemesterId)
-                    .Where(c => c.TeacherId == teacher.TeacherId)
+                    .Where(c => c.ClassTeachers.Any(ct => ct.TeacherId == teacher.TeacherId))
                     .ToList();
 
             var classIds = myClasses.Select(c => c.ClassId).ToList();

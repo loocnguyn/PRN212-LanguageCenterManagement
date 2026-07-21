@@ -15,10 +15,8 @@ namespace WpfApp;
 public partial class InvoiceManagementWindow : Window
 {
     private readonly IInvoiceService _service = new InvoiceService();
-    private const int PageSize = 10;
     private List<InvoiceDisplayItem> _items = new();
     private List<InvoiceDisplayItem> _baseItems = new();
-    private int _currentPage = 1;
 
     public InvoiceManagementWindow()
     {
@@ -40,7 +38,8 @@ public partial class InvoiceManagementWindow : Window
             _items = _baseItems
                 .Where(MatchesAdvancedFilter)
                 .ToList();
-            _currentPage = 1;
+            pager.Reset();
+            UpdateStats();
             ShowCurrentPage();
         }
         catch (Exception ex)
@@ -150,30 +149,25 @@ public partial class InvoiceManagementWindow : Window
         return decimal.TryParse(input.Trim(), out var min) && value >= min;
     }
 
+    private void UpdateStats()
+    {
+        statCount.Text = _items.Count.ToString();
+        statBilled.Text = $"{_items.Sum(x => x.Amount):N0} đ";
+        statPaid.Text = $"{_items.Sum(x => x.PaidAmount):N0} đ";
+        statRemaining.Text = $"{_items.Sum(x => x.RemainingAmount):N0} đ";
+    }
+
     private void ShowCurrentPage()
     {
-        var totalPages = Math.Max(1, (int)Math.Ceiling(_items.Count / (double)PageSize));
-        _currentPage = Math.Clamp(_currentPage, 1, totalPages);
-        dgInvoices.ItemsSource = _items.Skip((_currentPage - 1) * PageSize)
-            .Take(PageSize).ToList();
-        txtPageInfo.Text = $"Page {_currentPage}/{totalPages} ({_items.Count} items)";
-        btnPrevious.IsEnabled = _currentPage > 1;
-        btnNext.IsEnabled = _currentPage < totalPages;
+        dgInvoices.ItemsSource = pager.Slice(_items);
+        emptyState.Visibility = _items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private void BtnPrevious_Click(object sender, RoutedEventArgs e)
-    {
-        if (_currentPage <= 1) return;
-        _currentPage--;
-        ShowCurrentPage();
-    }
+    private void Pager_PageChanged(object sender, EventArgs e) => ShowCurrentPage();
 
-    private void BtnNext_Click(object sender, RoutedEventArgs e)
+    private void DgInvoices_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
-        var totalPages = Math.Max(1, (int)Math.Ceiling(_items.Count / (double)PageSize));
-        if (_currentPage >= totalPages) return;
-        _currentPage++;
-        ShowCurrentPage();
+        if (dgInvoices.SelectedItem is InvoiceDisplayItem) BtnEdit_Click(sender, e);
     }
 
     private void BtnEdit_Click(object sender, RoutedEventArgs e)
@@ -201,7 +195,7 @@ public partial class InvoiceManagementWindow : Window
             SemesterName = invoice.Enrollment?.Class?.Semester?.Name ?? "",
             CourseName = invoice.Enrollment?.Class?.Course?.Name ?? "",
             ClassName = invoice.Enrollment?.Class?.Name ?? "",
-            TeacherName = invoice.Enrollment?.Class?.Teacher?.FullName ?? "",
+            TeacherName = invoice.Enrollment?.Class?.PrimaryTeacher?.FullName ?? "",
             OriginalAmount = invoice.OriginalAmount > 0 ? invoice.OriginalAmount : invoice.Amount,
             DiscountText = invoice.Discount == null ? "" : $"{invoice.Discount.Code} - {invoice.Discount.Name}",
             DiscountAmount = invoice.DiscountAmount,

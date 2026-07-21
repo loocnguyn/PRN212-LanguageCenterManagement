@@ -11,14 +11,13 @@ namespace WpfApp;
 //    1. Construction & load  — compute debt items into the grid
 //    2. Advanced filter      — toggle panel, clear
 //    3. Filter matching      — combo options + per-row predicates
+//    4. Paging & totals      — PagerBar slices; stat cards summarise
 // ============================================================
 public partial class DebtListWindow : Window
 {
     private readonly IInvoiceService _service = new InvoiceService();
-    private const int PageSize = 10;
     private List<DebtItem> _items = new();
     private List<DebtItem> _baseItems = new();
-    private int _currentPage = 1;
 
     public DebtListWindow()
     {
@@ -40,13 +39,24 @@ public partial class DebtListWindow : Window
                 .ToList();
             RefreshAcademicFilterOptions();
             _items = _baseItems.Where(MatchesAdvancedFilter).ToList();
-            _currentPage = 1;
+            pager.Reset();
+            UpdateStats();
             ShowCurrentPage();
         }
         catch (Exception ex)
         {
             MessageBox.Show($"Không thể tải danh sách công nợ: {ex.Message}", "Lỗi");
         }
+    }
+
+    private void UpdateStats()
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        statDebtors.Text = _items.Count.ToString();
+        statOutstanding.Text = $"{_items.Sum(x => x.RemainingAmount):N0} đ";
+        statOverdue.Text = _items
+            .Count(x => x.DueDate.HasValue && x.DueDate.Value < today && x.RemainingAmount > 0)
+            .ToString();
     }
 
     private void BtnSearch_Click(object sender, RoutedEventArgs e) => LoadData();
@@ -148,29 +158,11 @@ public partial class DebtListWindow : Window
 
     private void ShowCurrentPage()
     {
-        var totalPages = Math.Max(1, (int)Math.Ceiling(_items.Count / (double)PageSize));
-        _currentPage = Math.Clamp(_currentPage, 1, totalPages);
-        dgDebts.ItemsSource = _items.Skip((_currentPage - 1) * PageSize)
-            .Take(PageSize).ToList();
-        txtPageInfo.Text = $"Page {_currentPage}/{totalPages} ({_items.Count} items)";
-        btnPrevious.IsEnabled = _currentPage > 1;
-        btnNext.IsEnabled = _currentPage < totalPages;
+        dgDebts.ItemsSource = pager.Slice(_items);
+        emptyState.Visibility = _items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private void BtnPrevious_Click(object sender, RoutedEventArgs e)
-    {
-        if (_currentPage <= 1) return;
-        _currentPage--;
-        ShowCurrentPage();
-    }
-
-    private void BtnNext_Click(object sender, RoutedEventArgs e)
-    {
-        var totalPages = Math.Max(1, (int)Math.Ceiling(_items.Count / (double)PageSize));
-        if (_currentPage >= totalPages) return;
-        _currentPage++;
-        ShowCurrentPage();
-    }
+    private void Pager_PageChanged(object sender, EventArgs e) => ShowCurrentPage();
 
     private static DebtItem ToDebtItem(Invoice invoice)
     {
@@ -184,7 +176,7 @@ public partial class DebtListWindow : Window
             SemesterName = invoice.Enrollment?.Class?.Semester?.Name ?? "",
             CourseName = invoice.Enrollment?.Class?.Course?.Name ?? "",
             ClassName = invoice.Enrollment?.Class?.Name ?? "",
-            TeacherName = invoice.Enrollment?.Class?.Teacher?.FullName ?? "",
+            TeacherName = invoice.Enrollment?.Class?.PrimaryTeacher?.FullName ?? "",
             TotalAmount = invoice.Amount,
             PaidAmount = paidAmount,
             RemainingAmount = Math.Max(0, invoice.Amount - paidAmount),

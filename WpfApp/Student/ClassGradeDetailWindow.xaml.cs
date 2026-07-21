@@ -14,12 +14,12 @@ public partial class ClassGradeDetailWindow : Window
         tbClassName.Text = className;
 
         var displayItems = grades
-            .OrderBy(g => g.GradeType.Name)
+            .OrderBy(g => g.Component.Name)
             .Select(g => new GradeDetailDisplayItem
             {
-                GradeTypeName = g.GradeType.Name,
+                GradeTypeName = g.Component.Name,
                 ScoreDisplay = $"{g.Score}/{g.MaxScore}",
-                WeightPercent = $"{g.GradeType.WeightPercent}%",
+                WeightPercent = $"{g.Component.WeightPercent}%",
                 GradedAtDisplay = g.GradedAt.ToString("dd/MM/yyyy")
             })
             .ToList();

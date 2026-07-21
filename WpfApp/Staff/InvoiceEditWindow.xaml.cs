@@ -38,7 +38,7 @@ public partial class InvoiceEditWindow : Window
         txtSemester.Text = _invoice.Enrollment?.Class?.Semester?.Name ?? "";
         txtCourse.Text = _invoice.Enrollment?.Class?.Course?.Name ?? "";
         txtClass.Text = _invoice.Enrollment?.Class?.Name ?? "";
-        txtTeacher.Text = _invoice.Enrollment?.Class?.Teacher?.FullName ?? "";
+        txtTeacher.Text = _invoice.Enrollment?.Class?.PrimaryTeacher?.FullName ?? "";
 
         txtOriginalAmount.Text = (_invoice.OriginalAmount > 0 ? _invoice.OriginalAmount : _invoice.Amount).ToString("N0");
         txtDiscount.Text = _invoice.Discount == null ? "" : $"{_invoice.Discount.Code} - {_invoice.Discount.Name}";

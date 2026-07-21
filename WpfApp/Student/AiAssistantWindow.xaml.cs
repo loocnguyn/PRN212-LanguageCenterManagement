@@ -96,11 +96,11 @@ public partial class AiAssistantWindow : Window
         sb.AppendLine("Grades:");
         if (grades.Any())
         {
-            foreach (var g in grades.OrderBy(g => g.Enrollment.Class.Name).ThenBy(g => g.GradeType.Name))
+            foreach (var g in grades.OrderBy(g => g.Enrollment.Class.Name).ThenBy(g => g.Component.Name))
             {
                 sb.AppendLine(
-                    $"- {g.Enrollment.Class.Name} / {g.GradeType.Name}: {g.Score}/{g.MaxScore} " +
-                    $"(weight {g.GradeType.WeightPercent}%)");
+                    $"- {g.Enrollment.Class.Name} / {g.Component.Name}: {g.Score}/{g.MaxScore} " +
+                    $"(weight {g.Component.WeightPercent}%)");
             }
         }
         else

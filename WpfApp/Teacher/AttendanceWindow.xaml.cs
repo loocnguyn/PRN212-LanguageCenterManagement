@@ -87,7 +87,7 @@ public partial class AttendanceWindow : Window
         try
         {
             _teacherClassesInSemester = _classService.GetClassesWithDetails(semester.SemesterId)
-                .Where(c => c.TeacherId == _teacher.TeacherId)
+                .Where(c => c.ClassTeachers.Any(ct => ct.TeacherId == _teacher.TeacherId))
                 .ToList();
 
             var courses = _teacherClassesInSemester

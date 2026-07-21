@@ -20,12 +20,11 @@ public partial class GradeEntryWindow : Window
     private readonly User _currentUser;
     private readonly IGradeService _gradeService = new GradeService();
     private readonly IEnrollmentService _enrollmentService = new EnrollmentService();
-    private readonly IGradeTypeService _gradeTypeService = new GradeTypeService();
     private readonly IClassService _classService = new ClassService();
     private readonly ITeacherService _teacherService = new TeacherService();
     private readonly ISemesterService _semesterService = new SemesterService();
 
-    private List<GradeType> _gradeTypes = new();
+    private List<ClassGradeComponent> _components = new();
     private List<Enrollment> _enrollments = new();
     private Teacher? _teacher;
     private List<Class> _teacherClassesInSemester = new();
@@ -87,7 +86,7 @@ public partial class GradeEntryWindow : Window
         try
         {
             _teacherClassesInSemester = _classService.GetClassesWithDetails(semester.SemesterId)
-                .Where(c => c.TeacherId == _teacher.TeacherId)
+                .Where(c => c.ClassTeachers.Any(ct => ct.TeacherId == _teacher.TeacherId))
                 .ToList();
 
             var courses = _teacherClassesInSemester
@@ -137,11 +136,12 @@ public partial class GradeEntryWindow : Window
             if (!AuthorizationHelper.AuthorizeTeacherForClass(_currentUser, _teacherService, cls, "access grades"))
                 return;
 
-            // Load the grading structure configured for this class's course
-            _gradeTypes = _gradeTypeService.GetByCourseId(cls.CourseId);
-            if (!_gradeTypes.Any())
+            // The class's OWN frozen structure, captured when it was created. The
+            // course template may have changed since; these weights must not.
+            _components = _classService.GetGradeComponents(cls.ClassId);
+            if (!_components.Any())
             {
-                MessageBox.Show($"No grade types configured for course '{cls.Name}'. Please set up its grading structure first.", "Info",
+                MessageBox.Show($"No grading structure recorded for class '{cls.Name}'.", "Info",
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 dgGrades.ItemsSource = null;
                 return;
@@ -171,17 +171,17 @@ public partial class GradeEntryWindow : Window
                     ? gList
                     : new List<Grade>();
 
-                foreach (var gt in _gradeTypes)
+                foreach (var comp in _components)
                 {
-                    var existing = enrollmentGrades.FirstOrDefault(g => g.GradeTypeId == gt.GradeTypeId);
+                    var existing = enrollmentGrades.FirstOrDefault(g => g.ComponentId == comp.ComponentId);
                     rows.Add(new GradeEntryRow
                     {
                         EnrollmentId = enrollment.EnrollmentId,
                         StudentId = enrollment.StudentId,
                         StudentName = enrollment.Student?.FullName ?? "",
-                        GradeTypeId = gt.GradeTypeId,
-                        GradeType = gt.Name,
-                        WeightPercent = gt.WeightPercent,
+                        ComponentId = comp.ComponentId,
+                        ComponentName = comp.Name,
+                        WeightPercent = comp.WeightPercent,
                         MaxScore = existing?.MaxScore > 0 ? existing.MaxScore : 10m,
                         Score = existing?.Score,
                         Note = existing?.Note ?? ""
@@ -227,14 +227,14 @@ public partial class GradeEntryWindow : Window
                 var maxScore = row.MaxScore > 0 ? row.MaxScore : 10m;
                 if (row.Score < 0 || row.Score > maxScore)
                 {
-                    errors.Add($"{row.StudentName} - {row.GradeType}: Score {row.Score} is out of range (0-{maxScore}).");
+                    errors.Add($"{row.StudentName} - {row.ComponentName}: Score {row.Score} is out of range (0-{maxScore}).");
                     continue;
                 }
 
                 var grade = new Grade
                 {
                     EnrollmentId = row.EnrollmentId,
-                    GradeTypeId = row.GradeTypeId,
+                    ComponentId = row.ComponentId,
                     Score = row.Score.Value,
                     MaxScore = maxScore,
                     Note = row.Note,
@@ -264,8 +264,8 @@ public class GradeEntryRow
     public int EnrollmentId { get; set; }
     public int StudentId { get; set; }
     public string StudentName { get; set; } = "";
-    public int GradeTypeId { get; set; }
-    public string GradeType { get; set; } = "";
+    public int ComponentId { get; set; }
+    public string ComponentName { get; set; } = "";
     public decimal WeightPercent { get; set; }
     public decimal MaxScore { get; set; }
     public decimal? Score { get; set; }

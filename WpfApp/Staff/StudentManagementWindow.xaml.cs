@@ -40,15 +40,18 @@ public partial class StudentManagementWindow : Window
     private void ApplyFilter()
     {
         var kw = txtSearch.Text.Trim().ToLower();
-        dgStudents.ItemsSource = string.IsNullOrEmpty(kw)
+        var filtered = string.IsNullOrEmpty(kw)
             ? _all
             : _all.Where(r => r.FullName.ToLower().Contains(kw)
                               || (r.Phone ?? "").Contains(kw)
                               || r.Username.ToLower().Contains(kw)).ToList();
+        dgStudents.ItemsSource = pager.Slice(filtered);
     }
 
-    private void BtnSearch_Click(object sender, RoutedEventArgs e) => ApplyFilter();
-    private void BtnReset_Click(object sender, RoutedEventArgs e) { txtSearch.Text = ""; ApplyFilter(); }
+    private void Pager_PageChanged(object sender, EventArgs e) => ApplyFilter();
+
+    private void BtnSearch_Click(object sender, RoutedEventArgs e) { pager.Reset(); ApplyFilter(); }
+    private void BtnReset_Click(object sender, RoutedEventArgs e) { txtSearch.Text = ""; pager.Reset(); ApplyFilter(); }
 
     // ---- 3. Row actions ----------------------------------------
     private void DgStudents_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)

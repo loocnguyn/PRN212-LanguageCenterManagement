@@ -188,7 +188,7 @@ public partial class AttendanceHistoryWindow : Window
                     CourseId = g.Key.CourseId,
                     CourseDisplay = $"{g.Key.Course?.Name ?? "N/A"}",
                     ClassName = g.Key.Name,
-                    TeacherName = g.Key.Teacher?.FullName ?? "N/A",
+                    TeacherName = g.Key.TeacherNames is { Length: > 0 } names ? names : "N/A",
                     TotalSessions = g.Count(),
                     AbsentCount = g.Count(a => a.Status == "ABSENT")
                 })

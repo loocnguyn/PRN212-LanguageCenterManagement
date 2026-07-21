@@ -20,10 +20,8 @@ public partial class PaymentWindow : Window
     private readonly IInvoiceService _invService = new InvoiceService();
     private readonly IStaffService _staffService = new StaffService();
     private readonly User _currentUser;
-    private const int PageSize = 10;
     private List<OutstandingInvoiceItem> _items = new();
     private List<OutstandingInvoiceItem> _baseItems = new();
-    private int _currentPage = 1;
     private int? _currentStaffId;
 
     public PaymentWindow(User currentUser)
@@ -71,7 +69,7 @@ public partial class PaymentWindow : Window
                 .ToList();
             RefreshAcademicFilterOptions();
             _items = _baseItems.Where(MatchesAdvancedFilter).ToList();
-            _currentPage = 1;
+            pager.Reset();
             ShowCurrentPage();
         }
         catch (Exception ex)
@@ -173,29 +171,11 @@ public partial class PaymentWindow : Window
 
     private void ShowCurrentPage()
     {
-        var totalPages = Math.Max(1, (int)Math.Ceiling(_items.Count / (double)PageSize));
-        _currentPage = Math.Clamp(_currentPage, 1, totalPages);
-        dgInvoices.ItemsSource = _items.Skip((_currentPage - 1) * PageSize)
-            .Take(PageSize).ToList();
-        txtPageInfo.Text = $"Page {_currentPage}/{totalPages} ({_items.Count} items)";
-        btnPrevious.IsEnabled = _currentPage > 1;
-        btnNext.IsEnabled = _currentPage < totalPages;
+        dgInvoices.ItemsSource = pager.Slice(_items);
+        emptyState.Visibility = _items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private void BtnPrevious_Click(object sender, RoutedEventArgs e)
-    {
-        if (_currentPage <= 1) return;
-        _currentPage--;
-        ShowCurrentPage();
-    }
-
-    private void BtnNext_Click(object sender, RoutedEventArgs e)
-    {
-        var totalPages = Math.Max(1, (int)Math.Ceiling(_items.Count / (double)PageSize));
-        if (_currentPage >= totalPages) return;
-        _currentPage++;
-        ShowCurrentPage();
-    }
+    private void Pager_PageChanged(object sender, EventArgs e) => ShowCurrentPage();
 
     private void DgInvoices_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -284,7 +264,7 @@ public partial class PaymentWindow : Window
             SemesterName = invoice.Enrollment?.Class?.Semester?.Name ?? "",
             CourseName = invoice.Enrollment?.Class?.Course?.Name ?? "",
             ClassName = invoice.Enrollment?.Class?.Name ?? "",
-            TeacherName = invoice.Enrollment?.Class?.Teacher?.FullName ?? "",
+            TeacherName = invoice.Enrollment?.Class?.PrimaryTeacher?.FullName ?? "",
             Amount = invoice.Amount,
             PaidAmount = paidAmount,
             RemainingAmount = Math.Max(0, invoice.Amount - paidAmount),

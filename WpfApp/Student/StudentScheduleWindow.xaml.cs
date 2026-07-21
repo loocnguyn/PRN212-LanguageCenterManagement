@@ -175,7 +175,7 @@ public partial class StudentScheduleWindow : Window
             _allSessions,
             _weekStart,
             slots,
-            counterpartNameSelector: s => s.Class?.Teacher?.FullName ?? "",
+            counterpartNameSelector: s => s.Class?.PrimaryTeacher?.FullName ?? "",
             statusTextSelector: s => ResolveStatusText(s));
 
         ScheduleGridRenderer.Render(scheduleGrid, rows, _weekStart, slots);

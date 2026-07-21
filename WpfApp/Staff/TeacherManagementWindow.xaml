@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:WpfApp"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:ctl="clr-namespace:WpfApp.Controls"
         Title="Teacher Management" Height="640" Width="1000"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource BackgroundBrush}">
@@ -48,7 +49,7 @@
             <Border Grid.Row="0" Style="{StaticResource Card}" Padding="12" Margin="0,0,0,14">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBox x:Name="txtSearch" Width="240" Height="32" VerticalContentAlignment="Center" Padding="6,0"/>
+                    <TextBox x:Name="txtSearch" Width="240" Height="34" VerticalContentAlignment="Center" Padding="6,0"/>
                     <Button Content="Search" Style="{StaticResource PillButton}" Width="84" Margin="8,0,0,0" Click="BtnSearch_Click"/>
                     <Button Content="Reset" Style="{StaticResource PillButtonSubtle}" Width="84" Margin="8,0,0,0" Click="BtnReset_Click"/>
                 </StackPanel>
@@ -68,12 +69,16 @@
                 </DataGrid>
             </Border>
 
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
-                <Button Content="View"       Style="{StaticResource PillButtonInfo}"     Width="90"  Margin="0,0,8,0" Click="BtnView_Click"/>
-                <Button Content="Add"        Style="{StaticResource PillButton}"        Width="90"  Margin="0,0,8,0" Click="BtnAdd_Click"/>
-                <Button Content="Edit"       Style="{StaticResource PillButtonSuccess}" Width="90"  Margin="0,0,8,0" Click="BtnEdit_Click"/>
-                <Button Content="Deactivate" Style="{StaticResource PillButtonDanger}"  Width="110" Click="BtnDelete_Click"/>
-            </StackPanel>
+            <!-- Footer: pager + actions -->
+            <Grid Grid.Row="2" Margin="0,14,0,0">
+                <ctl:PagerBar x:Name="pager" HorizontalAlignment="Left" PageChanged="Pager_PageChanged"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="View"       Style="{StaticResource PillButtonInfo}"     Width="90"  Margin="0,0,8,0" Click="BtnView_Click"/>
+                    <Button Content="Add"        Style="{StaticResource PillButton}"        Width="90"  Margin="0,0,8,0" Click="BtnAdd_Click"/>
+                    <Button Content="Edit"       Style="{StaticResource PillButtonSuccess}" Width="90"  Margin="0,0,8,0" Click="BtnEdit_Click"/>
+                    <Button Content="Deactivate" Style="{StaticResource PillButtonDanger}"  Width="110" Click="BtnDelete_Click"/>
+                </StackPanel>
+            </Grid>
         </Grid>
     </DockPanel>
 </Window>

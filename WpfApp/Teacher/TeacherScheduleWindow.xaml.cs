@@ -56,7 +56,7 @@ public partial class TeacherScheduleWindow : Window
                 _sessionService.EnsureSessionsForSemester(semester.SemesterId);
 
             var classes = _classService.GetBySemesterId(semester.SemesterId)
-                .Where(c => c.TeacherId == _teacherId)
+                .Where(c => c.ClassTeachers.Any(ct => ct.TeacherId == _teacherId))
                 .ToList();
 
             if (!classes.Any())

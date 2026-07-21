@@ -211,7 +211,7 @@ public partial class StudentGradeWindow : Window
 
         var gradesForClass = _allGrades
             .Where(g => g.Enrollment.Class.ClassId == selected.ClassId)
-            .OrderBy(g => g.GradeType.Name)
+            .OrderBy(g => g.Component.Name)
             .ToList();
 
         var detailWindow = new ClassGradeDetailWindow(selected.ClassName, gradesForClass)
@@ -274,7 +274,7 @@ public partial class StudentGradeWindow : Window
 
             foreach (var classGroup in classGroups)
             {
-                var classGrades = classGroup.OrderBy(g => g.GradeType.Name).ToList();
+                var classGrades = classGroup.OrderBy(g => g.Component.Name).ToList();
                 var weightedAverage = ComputeWeightedAverageDisplay(classGrades);
                 var cls = classGroup.Key;
 
@@ -285,8 +285,8 @@ public partial class StudentGradeWindow : Window
                         CsvEscape(cls.Semester?.Name ?? "N/A"),
                         CsvEscape(cls.Course?.Name ?? "N/A"),
                         CsvEscape(cls.Name),
-                        CsvEscape(grade.GradeType.Name),
-                        CsvEscape(grade.GradeType.WeightPercent.ToString()),
+                        CsvEscape(grade.Component.Name),
+                        CsvEscape(grade.Component.WeightPercent.ToString()),
                         CsvEscape(grade.Score.ToString()),
                         CsvEscape(grade.MaxScore.ToString()),
                         CsvEscape(grade.GradedAt.ToString("dd/MM/yyyy")),
@@ -328,7 +328,7 @@ public partial class StudentGradeWindow : Window
             if (grade.MaxScore > 0)
             {
                 var normalizedScore = (grade.Score / grade.MaxScore) * 10;
-                var weight = grade.GradeType.WeightPercent;
+                var weight = grade.Component.WeightPercent;
                 totalWeightedScore += normalizedScore * weight;
                 totalWeight += weight;
             }

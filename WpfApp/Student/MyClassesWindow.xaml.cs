@@ -177,7 +177,7 @@ public partial class MyClassesWindow : Window
                     SemesterName = en.Class?.Semester?.Name ?? "N/A",
                     CourseDisplay = $"{en.Class?.Course?.Name ?? "N/A"} ({en.Class?.Course?.Code ?? "N/A"})",
                     ClassName = en.Class?.Name ?? "N/A",
-                    TeacherName = en.Class?.Teacher?.FullName ?? "N/A",
+                    TeacherName = en.Class?.PrimaryTeacher?.FullName ?? "N/A",
                     ClassroomName = en.Class?.Classroom?.Name ?? "N/A",
                     DateRangeDisplay = FormatDateRange(en.Class?.StartDate, en.Class?.EndDate),
                     ClassStatus = en.Class?.Status ?? "N/A",

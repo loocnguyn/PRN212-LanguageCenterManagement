@@ -61,7 +61,7 @@ public partial class StudentDashboardControl : UserControl, IDashboardControl
                 if (grade.MaxScore > 0)
                 {
                     var normalizedScore = (grade.Score / grade.MaxScore) * 10;
-                    var weight = grade.GradeType.WeightPercent;
+                    var weight = grade.Component.WeightPercent;
                     totalWeightedScore += normalizedScore * weight;
                     totalWeight += weight;
                 }
