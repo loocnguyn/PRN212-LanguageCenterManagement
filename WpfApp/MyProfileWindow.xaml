@@ -63,39 +63,39 @@
 
                         <!-- Username (always visible, read-only) -->
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Username" VerticalAlignment="Center" Margin="0,0,0,10"/>
-                        <TextBox   Grid.Row="0" Grid.Column="1" x:Name="txtUsername" Height="32"
+                        <TextBox   Grid.Row="0" Grid.Column="1" x:Name="txtUsername" Height="34"
                                    VerticalContentAlignment="Center" Padding="6,0" Margin="0,0,0,10" IsReadOnly="True"/>
 
                         <!-- FullName (always visible, read-only) -->
                         <TextBlock Grid.Row="1" Grid.Column="0" Text="Full Name" VerticalAlignment="Center" Margin="0,0,0,10"/>
-                        <TextBox   Grid.Row="1" Grid.Column="1" x:Name="txtFullName" Height="32"
+                        <TextBox   Grid.Row="1" Grid.Column="1" x:Name="txtFullName" Height="34"
                                    VerticalContentAlignment="Center" Padding="6,0" Margin="0,0,0,10" IsReadOnly="True"/>
 
                         <!-- Phone (editable) -->
                         <TextBlock Grid.Row="2" Grid.Column="0" Text="Phone" VerticalAlignment="Center" Margin="0,0,0,10"/>
-                        <TextBox   Grid.Row="2" Grid.Column="1" x:Name="txtPhone" Height="32"
+                        <TextBox   Grid.Row="2" Grid.Column="1" x:Name="txtPhone" Height="34"
                                    VerticalContentAlignment="Center" Padding="6,0" Margin="0,0,0,10"/>
 
                         <!-- Email (editable) -->
                         <TextBlock Grid.Row="3" Grid.Column="0" Text="Email" VerticalAlignment="Center" Margin="0,0,0,10"/>
-                        <TextBox   Grid.Row="3" Grid.Column="1" x:Name="txtEmail" Height="32"
+                        <TextBox   Grid.Row="3" Grid.Column="1" x:Name="txtEmail" Height="34"
                                    VerticalContentAlignment="Center" Padding="6,0" Margin="0,0,0,10"/>
 
                         <!-- Student: Address -->
                         <TextBlock Grid.Row="4" Grid.Column="0" x:Name="lblAddress" Text="Address" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
-                        <TextBox   Grid.Row="4" Grid.Column="1" x:Name="txtAddress" Height="32"
+                        <TextBox   Grid.Row="4" Grid.Column="1" x:Name="txtAddress" Height="34"
                                    VerticalContentAlignment="Center" Padding="6,0" Margin="0,0,0,10" Visibility="Collapsed"/>
 
                         <!-- Student/Teacher/Staff: Gender -->
                         <TextBlock Grid.Row="5" Grid.Column="0" x:Name="lblGender" Text="Gender" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
-                        <ComboBox  Grid.Row="5" Grid.Column="1" x:Name="cmbGender" Height="32" Margin="0,0,0,10" Visibility="Collapsed">
+                        <ComboBox  Grid.Row="5" Grid.Column="1" x:Name="cmbGender" Height="34" Margin="0,0,0,10" Visibility="Collapsed">
                             <ComboBoxItem Content="Male"/>
                             <ComboBoxItem Content="Female"/>
                         </ComboBox>
 
                         <!-- Teacher: Specialization -->
                         <TextBlock Grid.Row="6" Grid.Column="0" x:Name="lblSpec" Text="Specialization" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
-                        <ComboBox  Grid.Row="6" Grid.Column="1" x:Name="cmbSpec" Height="32" Margin="0,0,0,10" Visibility="Collapsed">
+                        <ComboBox  Grid.Row="6" Grid.Column="1" x:Name="cmbSpec" Height="34" Margin="0,0,0,10" Visibility="Collapsed">
                             <ComboBoxItem Content="English"/>
                             <ComboBoxItem Content="Japanese"/>
                             <ComboBoxItem Content="Korean"/>
@@ -107,7 +107,7 @@
                         <!-- Staff: Department -->
                         <TextBlock Grid.Row="6" Grid.Column="0" x:Name="lblDept" Text="Department" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
                         <!-- Items populated from the Departments table at runtime -->
-                        <ComboBox  Grid.Row="6" Grid.Column="1" x:Name="cmbDept" Height="32" Margin="0,0,0,10" Visibility="Collapsed"/>
+                        <ComboBox  Grid.Row="6" Grid.Column="1" x:Name="cmbDept" Height="34" Margin="0,0,0,10" Visibility="Collapsed"/>
                     </Grid>
                 </TabItem>
 

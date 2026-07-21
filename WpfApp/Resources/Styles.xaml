@@ -61,9 +61,13 @@
          chevron, and a soft-shadowed popup instead of the flat default.
          ============================================================ -->
 
+    <!-- The arrow sits in a 30px gutter on the right; ContentSite below is inset by
+         the same amount so the selected text can never run underneath it. Keep the
+         two numbers in sync if you change either. -->
     <Style TargetType="ComboBox">
-        <Setter Property="Padding" Value="10,4"/>
-        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="MinHeight" Value="34"/>
+        <Setter Property="MinWidth" Value="90"/>
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -82,7 +86,7 @@
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="28"/>
+                                                <ColumnDefinition Width="30"/>
                                             </Grid.ColumnDefinitions>
                                             <Path Grid.Column="1" x:Name="arrow"
                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -104,12 +108,21 @@
                             </ToggleButton.Template>
                         </ToggleButton>
 
-                        <ContentPresenter Name="ContentSite" IsHitTestVisible="False"
-                                          Content="{TemplateBinding SelectionBoxItem}"
-                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                          ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                          Margin="{TemplateBinding Padding}"
-                                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                        <!-- Sits in its own arrow-free column. Previously this spanned the
+                             whole grid with only Padding as its margin, so a selection wide
+                             enough (or a control sized down to ~28px) ran under the arrow. -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+                            <ContentPresenter Grid.Column="0" Name="ContentSite" IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                              Margin="{TemplateBinding Padding}"
+                                              VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                        </Grid>
 
                         <Popup Name="PART_Popup" Placement="Bottom" AllowsTransparency="True"
                                Focusable="False" PopupAnimation="Slide"
@@ -163,6 +176,33 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <!-- ============================================================
+         DatePicker — force the short date pattern and give the text box
+         room. Without SelectedDateFormat the control follows the OS long
+         pattern in some locales ("Wednesday, 21 July 2026"), which does not
+         fit the ~130px widths used across the filter panels and gets clipped.
+         ============================================================ -->
+    <Style TargetType="DatePicker">
+        <Setter Property="SelectedDateFormat" Value="Short"/>
+        <Setter Property="MinHeight" Value="34"/>
+        <Setter Property="MinWidth" Value="130"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    </Style>
+
+    <Style TargetType="DatePickerTextBox">
+        <Setter Property="Padding" Value="6,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Match the ComboBox metrics so controls sitting on the same filter row
+         line up instead of each picking its own height. -->
+    <Style TargetType="TextBox">
+        <Setter Property="MinHeight" Value="34"/>
+        <Setter Property="Padding" Value="8,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <!-- ============================================================

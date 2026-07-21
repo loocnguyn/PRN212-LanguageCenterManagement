@@ -27,7 +27,7 @@ public partial class App : Application
             {
                 // Lock enrollments only on the first day after setup ends (transition day)
                 var today = DateOnly.FromDateTime(DateTime.Today);
-                if (today == active.SetupEndDate.Value.AddDays(1))
+                if (today == active.SetupEndDate.AddDays(1))
                 {
                     var enrollmentService = new EnrollmentService();
                     enrollmentService.LockEnrollmentsForSemester(active.SemesterId);
