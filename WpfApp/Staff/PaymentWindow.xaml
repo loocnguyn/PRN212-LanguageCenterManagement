@@ -71,7 +71,7 @@
                         <TextBox x:Name="txtSearch" Width="220" Height="34"
                                  VerticalContentAlignment="Center" Padding="6,0"/>
                         <TextBlock Text="Status:" VerticalAlignment="Center" Margin="16,0,6,0"/>
-                        <ComboBox x:Name="cmbInvoiceStatus" Width="130" Height="34" VerticalContentAlignment="Center">
+                        <ComboBox x:Name="cmbInvoiceStatus" MinWidth="130" VerticalContentAlignment="Center">
                             <ComboBoxItem Content="All" IsSelected="True"/>
                             <ComboBoxItem Content="UNPAID"/>
                             <ComboBoxItem Content="PARTIAL"/>
@@ -112,20 +112,20 @@
                             <TextBlock Grid.Row="0" Grid.Column="4" Text="Remaining min:" Margin="12,0,0,0" VerticalAlignment="Center"/>
                             <TextBox Grid.Row="0" Grid.Column="5" x:Name="txtRemainingMin" Height="34" Padding="6,0" VerticalContentAlignment="Center"/>
                             <TextBlock Grid.Row="0" Grid.Column="6" Text="Overdue:" Margin="12,0,0,0" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Row="0" Grid.Column="7" x:Name="cmbOverdue" Height="34" VerticalContentAlignment="Center">
+                            <ComboBox Grid.Row="0" Grid.Column="7" x:Name="cmbOverdue" VerticalContentAlignment="Center">
                                 <ComboBoxItem Content="All" IsSelected="True"/>
                                 <ComboBoxItem Content="Overdue"/>
                                 <ComboBoxItem Content="Not Overdue"/>
                             </ComboBox>
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Semester:" Margin="0,10,0,0" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="cmbSemester" Height="34" Margin="0,10,0,0" VerticalContentAlignment="Center"/>
+                            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="cmbSemester" Margin="0,10,0,0" VerticalContentAlignment="Center"/>
                             <TextBlock Grid.Row="1" Grid.Column="2" Text="Course:" Margin="0,10,0,0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Row="1" Grid.Column="3" x:Name="cmbCourse" Height="34" Margin="0,10,0,0" VerticalContentAlignment="Center"/>
+                            <ComboBox Grid.Row="1" Grid.Column="3" x:Name="cmbCourse" Margin="0,10,0,0" VerticalContentAlignment="Center"/>
                             <TextBlock Grid.Row="1" Grid.Column="4" Text="Class:" Margin="12,10,0,0" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Row="1" Grid.Column="5" x:Name="cmbClass" Height="34" Margin="0,10,0,0" VerticalContentAlignment="Center"/>
+                            <ComboBox Grid.Row="1" Grid.Column="5" x:Name="cmbClass" Margin="0,10,0,0" VerticalContentAlignment="Center"/>
                             <TextBlock Grid.Row="1" Grid.Column="6" Text="Teacher:" Margin="12,10,0,0" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Row="1" Grid.Column="7" Grid.ColumnSpan="2" x:Name="cmbTeacher" Height="34" Margin="0,10,0,0" VerticalContentAlignment="Center"/>
+                            <ComboBox Grid.Row="1" Grid.Column="7" Grid.ColumnSpan="2" x:Name="cmbTeacher" Margin="0,10,0,0" VerticalContentAlignment="Center"/>
                         </Grid>
                     </Border>
                 </StackPanel>
@@ -199,7 +199,7 @@
                                  Margin="0,6,16,6"
                                  VerticalContentAlignment="Center" Padding="6,0"/>
                         <TextBlock Grid.Row="1" Grid.Column="2" Text="Method:" VerticalAlignment="Center"/>
-                        <ComboBox Grid.Row="1" Grid.Column="3" x:Name="cmbMethod" Height="34"
+                        <ComboBox Grid.Row="1" Grid.Column="3" x:Name="cmbMethod"
                                   Margin="0,6,16,6" VerticalContentAlignment="Center">
                             <ComboBoxItem Content="Cash" IsSelected="True"/>
                             <ComboBoxItem Content="Transfer"/>

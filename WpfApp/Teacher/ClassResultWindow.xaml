@@ -13,7 +13,7 @@
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
             <TextBlock x:Name="tbTeacherInfo" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Margin="0,0,16,0"/>
             <TextBlock Text="Class:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-            <ComboBox x:Name="cboClass" Width="220" Height="34" DisplayMemberPath="Name" 
+            <ComboBox x:Name="cboClass" MinWidth="220" DisplayMemberPath="Name" 
                       SelectionChanged="CboClass_SelectionChanged" VerticalContentAlignment="Center"/>
             <Button Content="Reset" Width="80" Height="28" Margin="6,0,0,0" Click="BtnReset_Click"/>
         </StackPanel>

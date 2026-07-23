@@ -19,9 +19,9 @@
         <!-- Filters: Semester -> Course, plus show-all toggle -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8" VerticalAlignment="Center">
             <TextBlock Text="Semester:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-            <ComboBox x:Name="cbSemester" Width="180" Height="34" SelectionChanged="CbSemester_SelectionChanged"/>
+            <ComboBox x:Name="cbSemester" MinWidth="180" SelectionChanged="CbSemester_SelectionChanged"/>
             <TextBlock Text="Course:" VerticalAlignment="Center" Margin="16,0,6,0"/>
-            <ComboBox x:Name="cbCourse" Width="200" Height="34" SelectionChanged="CbCourse_SelectionChanged"/>
+            <ComboBox x:Name="cbCourse" MinWidth="200" SelectionChanged="CbCourse_SelectionChanged"/>
             <CheckBox x:Name="cbShowAll" Content="Show all (including past/dropped)" VerticalAlignment="Center" Margin="20,0,0,0" Checked="CbShowAll_Changed" Unchecked="CbShowAll_Changed"/>
             <TextBlock x:Name="tbSummary" VerticalAlignment="Center" Margin="24,0,0,0" FontSize="12" Foreground="#555"/>
         </StackPanel>

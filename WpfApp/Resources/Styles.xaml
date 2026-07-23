@@ -61,13 +61,16 @@
          chevron, and a soft-shadowed popup instead of the flat default.
          ============================================================ -->
 
-    <!-- The arrow sits in a 30px gutter on the right; ContentSite below is inset by
+    <!-- The chevron sits in a 24px gutter on the right; ContentSite below is inset by
          the same amount so the selected text can never run underneath it. Keep the
-         two numbers in sync if you change either. -->
+         two numbers in sync if you change either.
+         The gutter and padding are deliberately tight: on a ~130px filter combo a
+         wider chevron column plus generous padding left barely 70px for the text,
+         which clipped values like "Not Overdue". -->
     <Style TargetType="ComboBox">
-        <Setter Property="Padding" Value="12,6"/>
-        <Setter Property="MinHeight" Value="34"/>
-        <Setter Property="MinWidth" Value="90"/>
+        <Setter Property="Padding" Value="10,6"/>
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="MinWidth" Value="110"/>
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -76,7 +79,17 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBox">
                     <Grid>
-                        <ToggleButton Name="ToggleButton" Focusable="False" ClickMode="Press"
+                        <!-- Style="{x:Null}" is load-bearing: without it the WPF-UI
+                             ControlsDictionary's implicit ToggleButton style still applies
+                             (only the Template is overridden below), and its padding/sizing
+                             setters shrink this button to the width of the chevron gutter.
+                             The border then renders as a small pill on the left while the
+                             selected text — which lives in a sibling Grid — keeps spanning
+                             the full width and spills outside it. -->
+                        <ToggleButton Name="ToggleButton" Style="{x:Null}"
+                                      Focusable="False" ClickMode="Press"
+                                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                      Padding="0"
                                       IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
                             <ToggleButton.Template>
                                 <ControlTemplate TargetType="ToggleButton">
@@ -86,22 +99,27 @@
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="30"/>
+                                                <ColumnDefinition Width="24"/>
                                             </Grid.ColumnDefinitions>
+                                            <!-- Stroked chevron rather than a solid triangle: at this
+                                                 size a filled wedge reads as a heavy blob. -->
                                             <Path Grid.Column="1" x:Name="arrow"
                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                  Data="M0,0 L4,4 L8,0 Z"
-                                                  Fill="{StaticResource TextSecondaryBrush}"/>
+                                                  Data="M0,0 L4,4 L8,0"
+                                                  Stroke="{StaticResource TextSecondaryBrush}"
+                                                  StrokeThickness="1.6"
+                                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                                  StrokeLineJoin="Round"/>
                                         </Grid>
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
-                                            <Setter TargetName="arrow" Property="Fill" Value="{StaticResource PrimaryBrush}"/>
+                                            <Setter TargetName="arrow" Property="Stroke" Value="{StaticResource PrimaryBrush}"/>
                                         </Trigger>
                                         <Trigger Property="IsChecked" Value="True">
                                             <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
-                                            <Setter TargetName="arrow" Property="Fill" Value="{StaticResource PrimaryBrush}"/>
+                                            <Setter TargetName="arrow" Property="Stroke" Value="{StaticResource PrimaryBrush}"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -114,7 +132,7 @@
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="30"/>
+                                <ColumnDefinition Width="24"/>
                             </Grid.ColumnDefinitions>
                             <ContentPresenter Grid.Column="0" Name="ContentSite" IsHitTestVisible="False"
                                               Content="{TemplateBinding SelectionBoxItem}"

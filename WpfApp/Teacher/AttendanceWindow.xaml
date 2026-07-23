@@ -18,18 +18,18 @@
                 <TextBlock x:Name="tbTeacherName" Margin="0,0,0,6" FontSize="14" FontWeight="Bold"/>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                     <TextBlock Text="Semester:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <ComboBox x:Name="cboSemester" Width="180" Height="34" DisplayMemberPath="Name"
+                    <ComboBox x:Name="cboSemester" MinWidth="180" DisplayMemberPath="Name"
                               SelectionChanged="CboSemester_SelectionChanged" VerticalContentAlignment="Center"/>
                     <TextBlock Text="Course:" VerticalAlignment="Center" Margin="16,0,6,0"/>
-                    <ComboBox x:Name="cboCourse" Width="220" Height="34" DisplayMemberPath="Name"
+                    <ComboBox x:Name="cboCourse" MinWidth="220" DisplayMemberPath="Name"
                               SelectionChanged="CboCourse_SelectionChanged" VerticalContentAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Class:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <ComboBox x:Name="cboClass" Width="220" Height="34" DisplayMemberPath="Name"
+                    <ComboBox x:Name="cboClass" MinWidth="220" DisplayMemberPath="Name"
                               SelectionChanged="CboClass_SelectionChanged" VerticalContentAlignment="Center"/>
                     <TextBlock Text="Session Date:" VerticalAlignment="Center" Margin="16,0,6,0"/>
-                    <ComboBox x:Name="cboSession" Width="220" Height="34" DisplayMemberPath="SessionDisplay"
+                    <ComboBox x:Name="cboSession" MinWidth="220" DisplayMemberPath="SessionDisplay"
                               SelectionChanged="CboSession_SelectionChanged" VerticalContentAlignment="Center"/>
                 </StackPanel>
             </StackPanel>

@@ -88,14 +88,14 @@
 
                         <!-- Student/Teacher/Staff: Gender -->
                         <TextBlock Grid.Row="5" Grid.Column="0" x:Name="lblGender" Text="Gender" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
-                        <ComboBox  Grid.Row="5" Grid.Column="1" x:Name="cmbGender" Height="34" Margin="0,0,0,10" Visibility="Collapsed">
+                        <ComboBox  Grid.Row="5" Grid.Column="1" x:Name="cmbGender" Margin="0,0,0,10" Visibility="Collapsed">
                             <ComboBoxItem Content="Male"/>
                             <ComboBoxItem Content="Female"/>
                         </ComboBox>
 
                         <!-- Teacher: Specialization -->
                         <TextBlock Grid.Row="6" Grid.Column="0" x:Name="lblSpec" Text="Specialization" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
-                        <ComboBox  Grid.Row="6" Grid.Column="1" x:Name="cmbSpec" Height="34" Margin="0,0,0,10" Visibility="Collapsed">
+                        <ComboBox  Grid.Row="6" Grid.Column="1" x:Name="cmbSpec" Margin="0,0,0,10" Visibility="Collapsed">
                             <ComboBoxItem Content="English"/>
                             <ComboBoxItem Content="Japanese"/>
                             <ComboBoxItem Content="Korean"/>
@@ -107,7 +107,7 @@
                         <!-- Staff: Department -->
                         <TextBlock Grid.Row="6" Grid.Column="0" x:Name="lblDept" Text="Department" VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
                         <!-- Items populated from the Departments table at runtime -->
-                        <ComboBox  Grid.Row="6" Grid.Column="1" x:Name="cmbDept" Height="34" Margin="0,0,0,10" Visibility="Collapsed"/>
+                        <ComboBox  Grid.Row="6" Grid.Column="1" x:Name="cmbDept" Margin="0,0,0,10" Visibility="Collapsed"/>
                     </Grid>
                 </TabItem>
 

@@ -108,7 +108,7 @@
                         <TextBox x:Name="txtSearch" Width="220" Height="34"
                                  VerticalContentAlignment="Center" Padding="6,0"/>
                         <TextBlock Text="Status:" VerticalAlignment="Center" Margin="16,0,6,0"/>
-                        <ComboBox x:Name="cmbStatus" Width="130" Height="34" VerticalContentAlignment="Center">
+                        <ComboBox x:Name="cmbStatus" MinWidth="130" VerticalContentAlignment="Center">
                             <ComboBoxItem Content="All" IsSelected="True"/>
                             <ComboBoxItem Content="UNPAID"/>
                             <ComboBoxItem Content="PAID"/>
@@ -150,7 +150,7 @@
                             <TextBlock Grid.Row="0" Grid.Column="2" Text="to" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             <DatePicker Grid.Row="0" Grid.Column="3" x:Name="dpDueTo" Height="34"/>
                             <TextBlock Grid.Row="0" Grid.Column="4" Text="Payment:" Margin="12,0,0,0" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Row="0" Grid.Column="5" x:Name="cmbPaymentState" Height="34" VerticalContentAlignment="Center">
+                            <ComboBox Grid.Row="0" Grid.Column="5" x:Name="cmbPaymentState" VerticalContentAlignment="Center">
                                 <ComboBoxItem Content="All" IsSelected="True"/>
                                 <ComboBoxItem Content="Has Debt"/>
                                 <ComboBoxItem Content="Paid Full"/>
@@ -158,7 +158,7 @@
                                 <ComboBoxItem Content="Has Payment"/>
                             </ComboBox>
                             <TextBlock Grid.Row="0" Grid.Column="6" Text="Discount:" Margin="12,0,0,0" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Row="0" Grid.Column="7" x:Name="cmbDiscountStatus" Height="34" VerticalContentAlignment="Center">
+                            <ComboBox Grid.Row="0" Grid.Column="7" x:Name="cmbDiscountStatus" VerticalContentAlignment="Center">
                                 <ComboBoxItem Content="All" IsSelected="True"/>
                                 <ComboBoxItem Content="NONE"/>
                                 <ComboBoxItem Content="ACTIVE"/>
@@ -176,13 +176,13 @@
                             <TextBox Grid.Row="1" Grid.Column="7" x:Name="txtRemainingMin" Height="34" Margin="0,10,0,0" Padding="6,0" VerticalContentAlignment="Center"/>
 
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Semester:" Margin="0,10,0,0" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Row="2" Grid.Column="1" x:Name="cmbSemester" Height="34" Margin="0,10,0,0" VerticalContentAlignment="Center"/>
+                            <ComboBox Grid.Row="2" Grid.Column="1" x:Name="cmbSemester" Margin="0,10,0,0" VerticalContentAlignment="Center"/>
                             <TextBlock Grid.Row="2" Grid.Column="2" Text="Course:" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Row="2" Grid.Column="3" x:Name="cmbCourse" Height="34" Margin="0,10,0,0" VerticalContentAlignment="Center"/>
+                            <ComboBox Grid.Row="2" Grid.Column="3" x:Name="cmbCourse" Margin="0,10,0,0" VerticalContentAlignment="Center"/>
                             <TextBlock Grid.Row="2" Grid.Column="4" Text="Class:" Margin="12,10,0,0" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Row="2" Grid.Column="5" x:Name="cmbClass" Height="34" Margin="0,10,0,0" VerticalContentAlignment="Center"/>
+                            <ComboBox Grid.Row="2" Grid.Column="5" x:Name="cmbClass" Margin="0,10,0,0" VerticalContentAlignment="Center"/>
                             <TextBlock Grid.Row="2" Grid.Column="6" Text="Teacher:" Margin="12,10,0,0" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Row="2" Grid.Column="7" x:Name="cmbTeacher" Height="34" Margin="0,10,0,0" VerticalContentAlignment="Center"/>
+                            <ComboBox Grid.Row="2" Grid.Column="7" x:Name="cmbTeacher" Margin="0,10,0,0" VerticalContentAlignment="Center"/>
                         </Grid>
                     </Border>
                 </StackPanel>

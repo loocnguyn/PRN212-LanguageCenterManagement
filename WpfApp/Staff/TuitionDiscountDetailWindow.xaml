@@ -29,7 +29,7 @@
                  Padding="8,0" VerticalContentAlignment="Center"/>
 
         <TextBlock Grid.Row="2" Grid.Column="0" Text="Type:" VerticalAlignment="Center" Margin="0,0,10,10"/>
-        <ComboBox Grid.Row="2" Grid.Column="1" x:Name="cmbDiscountType" Height="34" Margin="0,0,0,10">
+        <ComboBox Grid.Row="2" Grid.Column="1" x:Name="cmbDiscountType" Margin="0,0,0,10">
             <ComboBoxItem Content="PERCENT" IsSelected="True"/>
             <ComboBoxItem Content="FIXED"/>
         </ComboBox>
@@ -39,7 +39,7 @@
                  Padding="8,0" VerticalContentAlignment="Center"/>
 
         <TextBlock Grid.Row="4" Grid.Column="0" Text="Condition:" VerticalAlignment="Center" Margin="0,0,10,10"/>
-        <ComboBox Grid.Row="4" Grid.Column="1" x:Name="cmbConditionType" Height="34" Margin="0,0,0,10">
+        <ComboBox Grid.Row="4" Grid.Column="1" x:Name="cmbConditionType" Margin="0,0,0,10">
             <ComboBoxItem Content="NONE" IsSelected="True"/>
             <ComboBoxItem Content="EARLY_PAYMENT"/>
         </ComboBox>
