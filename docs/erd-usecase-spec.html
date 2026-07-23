@@ -1,0 +1,1152 @@
+<title>ERD &amp; Use Case Specification — Language Center Management System</title>
+
+<style>
+  /* ============================================================
+     Tokens. Palette is taken from the application's own Fluent
+     accents so the document reads as part of the same system:
+     #0078D4 blue, #107C10 green, #D13438 red — deepened slightly
+     for text-on-paper contrast. Neutrals carry a blue bias to
+     match, rather than a default mid-grey.
+     ============================================================ */
+  :root {
+    --paper:        #FBFCFD;
+    --paper-raised: #FFFFFF;
+    --paper-sunken: #F1F4F7;
+    --ink:          #14181D;
+    --ink-soft:     #5B6672;
+    --ink-faint:    #8B96A3;
+    --rule:         #DCE3EA;
+    --rule-strong:  #C2CCD6;
+
+    --primary:      #0F6CBD;
+    --primary-soft: #E8F1FA;
+    --success:      #0E700E;
+    --success-soft: #E7F3E7;
+    --danger:       #B3282D;
+    --danger-soft:  #FBEAEB;
+    --amber:        #8A5A00;
+    --amber-soft:   #FBF1DF;
+
+    --display: Cambria, Georgia, "Times New Roman", serif;
+    --body: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+    --mono: Consolas, "Cascadia Mono", "SF Mono", ui-monospace, monospace;
+
+    --measure: 74ch;
+    --shell: 1180px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:        #101418;
+      --paper-raised: #171C22;
+      --paper-sunken: #1C222A;
+      --ink:          #E6EBF0;
+      --ink-soft:     #A3AEBA;
+      --ink-faint:    #6F7B88;
+      --rule:         #2A323B;
+      --rule-strong:  #3A444F;
+
+      --primary:      #6FB3EE;
+      --primary-soft: #14212D;
+      --success:      #6FCF6F;
+      --success-soft: #12210F;
+      --danger:       #F08A8E;
+      --danger-soft:  #2A1416;
+      --amber:        #E0B057;
+      --amber-soft:   #241C0C;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:        #101418;
+    --paper-raised: #171C22;
+    --paper-sunken: #1C222A;
+    --ink:          #E6EBF0;
+    --ink-soft:     #A3AEBA;
+    --ink-faint:    #6F7B88;
+    --rule:         #2A323B;
+    --rule-strong:  #3A444F;
+    --primary:      #6FB3EE;
+    --primary-soft: #14212D;
+    --success:      #6FCF6F;
+    --success-soft: #12210F;
+    --danger:       #F08A8E;
+    --danger-soft:  #2A1416;
+    --amber:        #E0B057;
+    --amber-soft:   #241C0C;
+  }
+
+  :root[data-theme="light"] {
+    --paper:        #FBFCFD;
+    --paper-raised: #FFFFFF;
+    --paper-sunken: #F1F4F7;
+    --ink:          #14181D;
+    --ink-soft:     #5B6672;
+    --ink-faint:    #8B96A3;
+    --rule:         #DCE3EA;
+    --rule-strong:  #C2CCD6;
+    --primary:      #0F6CBD;
+    --primary-soft: #E8F1FA;
+    --success:      #0E700E;
+    --success-soft: #E7F3E7;
+    --danger:       #B3282D;
+    --danger-soft:  #FBEAEB;
+    --amber:        #8A5A00;
+    --amber-soft:   #FBF1DF;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell {
+    max-width: var(--shell);
+    margin: 0 auto;
+    padding: 0 28px 96px;
+  }
+
+  /* ---- Masthead ------------------------------------------- */
+  .masthead {
+    border-bottom: 2px solid var(--ink);
+    padding: 56px 0 22px;
+    margin-bottom: 40px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 14px;
+  }
+  .masthead h1 {
+    font-family: var(--display);
+    font-size: clamp(30px, 4.4vw, 46px);
+    line-height: 1.12;
+    font-weight: 700;
+    margin: 0 0 12px;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  .masthead .lede {
+    max-width: var(--measure);
+    color: var(--ink-soft);
+    font-size: 17px;
+    margin: 0;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    margin-top: 22px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--ink-faint);
+  }
+  .meta b { color: var(--ink-soft); font-weight: 600; }
+
+  /* ---- Sections ------------------------------------------- */
+  .part {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--primary);
+    border-top: 2px solid var(--primary);
+    padding-top: 10px;
+    margin: 64px 0 26px;
+  }
+
+  h2 {
+    font-family: var(--display);
+    font-size: 27px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 46px 0 14px;
+    text-wrap: balance;
+  }
+  h2:first-of-type { margin-top: 0; }
+
+  h3 {
+    font-family: var(--display);
+    font-size: 20px;
+    font-weight: 700;
+    margin: 34px 0 10px;
+  }
+
+  p, li { max-width: var(--measure); }
+  p { margin: 0 0 14px; }
+  ul, ol { margin: 0 0 16px; padding-left: 22px; }
+  li { margin-bottom: 6px; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.87em;
+    background: var(--paper-sunken);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 1px 5px;
+  }
+
+  a { color: var(--primary); }
+
+  /* ---- Callout: the design rules worth defending ---------- */
+  .rule-box {
+    background: var(--primary-soft);
+    border-left: 3px solid var(--primary);
+    padding: 16px 20px;
+    margin: 22px 0;
+    max-width: var(--measure);
+  }
+  .rule-box p:last-child { margin-bottom: 0; }
+  .rule-box .tag {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 7px;
+  }
+
+  /* ---- Diagrams ------------------------------------------- */
+  figure {
+    margin: 24px 0 34px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--paper-raised);
+  }
+  .canvas {
+    overflow-x: auto;
+    padding: 22px 18px;
+  }
+  .mermaid { min-width: min-content; }
+  figcaption {
+    border-top: 1px solid var(--rule);
+    padding: 10px 18px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    background: var(--paper-sunken);
+  }
+  figcaption b { color: var(--ink); font-weight: 600; }
+
+  /* ---- Tables --------------------------------------------- */
+  .table-wrap { overflow-x: auto; margin: 18px 0 30px; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 560px;
+    font-size: 14.5px;
+  }
+  th, td {
+    text-align: left;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  th {
+    font-family: var(--body);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    border-bottom: 1.5px solid var(--rule-strong);
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td code { background: none; border: none; padding: 0; color: var(--primary); }
+  .num { font-variant-numeric: tabular-nums; text-align: right; }
+
+  /* ---- Use case specification card ------------------------ */
+  .uc {
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    margin: 30px 0 40px;
+    background: var(--paper-raised);
+    overflow: hidden;
+  }
+  .uc > header {
+    background: var(--paper-sunken);
+    border-bottom: 1px solid var(--rule-strong);
+    padding: 14px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 14px;
+  }
+  .uc .id {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 0.04em;
+  }
+  .uc .name {
+    font-family: var(--display);
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .uc .body { padding: 4px 20px 18px; }
+
+  .uc dl {
+    display: grid;
+    grid-template-columns: 168px minmax(0, 1fr);
+    gap: 0;
+    margin: 0;
+  }
+  .uc dt {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    padding: 11px 14px 11px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .uc dd {
+    margin: 0;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--rule);
+    max-width: none;
+  }
+  .uc dd > :last-child { margin-bottom: 0; }
+  .uc dd ol, .uc dd ul { margin: 0; padding-left: 20px; }
+  .uc dd li { max-width: none; }
+  .uc dl > :nth-last-child(-n+2) { border-bottom: none; }
+
+  @media (max-width: 620px) {
+    .uc dl { grid-template-columns: 1fr; }
+    .uc dt { padding-bottom: 0; border-bottom: none; }
+    .uc dd { padding-top: 4px; }
+  }
+
+  .flag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .flag.ext { background: var(--amber-soft); color: var(--amber); }
+  .flag.core { background: var(--success-soft); color: var(--success); }
+  .flag.guard { background: var(--danger-soft); color: var(--danger); }
+
+  /* ---- Print ---------------------------------------------- */
+  @media print {
+    :root {
+      --paper: #fff; --paper-raised: #fff; --paper-sunken: #f6f7f9;
+      --ink: #000; --ink-soft: #333; --rule: #ccc; --rule-strong: #999;
+    }
+    body { font-size: 11pt; }
+    .shell { max-width: none; padding: 0; }
+    .uc, figure { break-inside: avoid; }
+    h2, .part { break-after: avoid; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="shell">
+
+  <header class="masthead">
+    <p class="eyebrow">Tài liệu phân tích thiết kế</p>
+    <h1>ERD &amp; Đặc tả Use Case</h1>
+    <p class="lede">
+      Hệ thống Quản lý Trung tâm Ngoại ngữ — mô hình dữ liệu quan hệ và đặc tả chi tiết
+      năm luồng nghiệp vụ cốt lõi, đối chiếu trực tiếp với mã nguồn đang chạy.
+    </p>
+    <div class="meta">
+      <span><b>Nền tảng</b> WPF · .NET 10 · EF Core · SQL Server</span>
+      <span><b>Số bảng</b> 27</span>
+      <span><b>Hệ thống ngoài</b> ZaloPay · Google Gemini</span>
+    </div>
+  </header>
+
+  <!-- ================= PART A — ERD ================= -->
+  <p class="part">Phần A — Mô hình dữ liệu</p>
+
+  <h2>A.1 Sơ đồ quan hệ thực thể tổng quan</h2>
+
+  <p>
+    Cơ sở dữ liệu gồm 27 bảng, chia theo năm nhóm chức năng tương ứng với năm phần trong
+    <code>schema.sql</code>. Sơ đồ dưới chỉ hiển thị khóa chính, khóa ngoại và các cột định
+    danh để giữ khả năng đọc; chi tiết đầy đủ nằm ở ba sơ đồ cận cảnh phía sau.
+  </p>
+
+  <figure>
+    <div class="canvas">
+<pre class="mermaid">
+erDiagram
+    Users ||--o| Students : "1–1"
+    Users ||--o| Teachers : "1–1"
+    Users ||--o| Staff : "1–1"
+    Users ||--o| Admins : "1–1"
+
+    Languages ||--o{ Levels : "có"
+    Languages ||--o{ Courses : "thuộc"
+    Levels ||--o{ Courses : "gắn"
+    Courses ||--o{ GradeTypes : "mẫu chấm điểm"
+
+    Semesters ||--o{ Classes : "chứa"
+    Courses ||--o{ Classes : "nguồn gốc"
+    Classrooms ||--o{ Classes : "diễn ra tại"
+
+    Classes ||--o{ ClassTeachers : "phân công"
+    Teachers ||--o{ ClassTeachers : "giảng dạy"
+    Classes ||--o{ ClassSchedules : "lịch tuần"
+    Classes ||--o{ ClassGradeComponents : "cấu trúc điểm đóng băng"
+    Classes ||--o{ Sessions : "buổi học"
+    ClassSchedules ||--o{ Sessions : "sinh ra"
+
+    Students ||--o{ Enrollments : "ghi danh"
+    Classes ||--o{ Enrollments : "nhận"
+    Enrollments ||--o{ Grades : "điểm"
+    ClassGradeComponents ||--o{ Grades : "thành phần"
+
+    Sessions ||--o{ Attendances : "điểm danh HV"
+    Students ||--o{ Attendances : "được điểm danh"
+    Sessions ||--o{ TeacherAttendances : "điểm danh GV"
+    Teachers ||--o{ TeacherAttendances : "được điểm danh"
+
+    Students ||--o{ Invoices : "hóa đơn"
+    Enrollments ||--o| Invoices : "phát sinh"
+    TuitionDiscounts ||--o{ Invoices : "áp dụng"
+    Invoices ||--o{ Payments : "thanh toán"
+    Staff ||--o{ Payments : "thu ngân"
+    Students ||--o{ WalletTransactions : "ví điện tử"
+
+    Students ||--o{ StudentRewards : "học bổng"
+    Semesters ||--o{ StudentRewards : "trong kỳ"
+    Courses ||--o{ StudentRewards : "môn"
+    TuitionDiscounts ||--o| StudentRewards : "voucher"
+
+    Slots {
+        int slot_id PK
+        int slot_no UK
+    }
+</pre>
+    </div>
+    <figcaption>
+      <b>Hình A.1</b> — ERD tổng quan. <code>Slots</code> đứng riêng: nó là dữ liệu cấu hình
+      khung giờ, được sao chép giá trị vào <code>ClassSchedules</code> chứ không tham chiếu khóa ngoại.
+    </figcaption>
+  </figure>
+
+  <h3>Danh mục bảng theo nhóm chức năng</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Nhóm</th><th>Bảng</th><th>Vai trò</th></tr>
+      </thead>
+      <tbody>
+        <tr><td rowspan="6"><b>1. Tài khoản</b></td><td><code>Users</code></td><td>Đăng nhập, mật khẩu băm BCrypt, vai trò</td></tr>
+        <tr><td><code>Students</code></td><td>Hồ sơ học viên, số dư ví</td></tr>
+        <tr><td><code>Teachers</code></td><td>Hồ sơ giáo viên</td></tr>
+        <tr><td><code>Staff</code></td><td>Hồ sơ nhân viên</td></tr>
+        <tr><td><code>Admins</code></td><td>Hồ sơ quản trị viên</td></tr>
+        <tr><td><code>Departments</code></td><td>Phòng ban của nhân viên</td></tr>
+
+        <tr><td rowspan="9"><b>2. Khóa học &amp; lớp</b></td><td><code>Languages</code></td><td>Ngôn ngữ trung tâm giảng dạy</td></tr>
+        <tr><td><code>Levels</code></td><td>Trình độ, phạm vi theo từng ngôn ngữ</td></tr>
+        <tr><td><code>Courses</code></td><td>Khóa học: học phí, số buổi chuẩn</td></tr>
+        <tr><td><code>Classrooms</code></td><td>Phòng học và sức chứa</td></tr>
+        <tr><td><code>Semesters</code></td><td>Học kỳ, không được chồng lấn</td></tr>
+        <tr><td><code>Classes</code></td><td>Lớp — <i>ảnh chụp</i> của khóa học</td></tr>
+        <tr><td><code>ClassTeachers</code></td><td>Nhiều GV/lớp, một GV chính</td></tr>
+        <tr><td><code>Slots</code></td><td>Khung giờ trong ngày</td></tr>
+        <tr><td><code>ClassSchedules</code></td><td>Lịch lặp theo tuần của lớp</td></tr>
+
+        <tr><td rowspan="4"><b>3. Ghi danh &amp; điểm</b></td><td><code>Enrollments</code></td><td>Học viên ↔ lớp</td></tr>
+        <tr><td><code>GradeTypes</code></td><td><i>Mẫu</i> cấu trúc điểm của khóa học</td></tr>
+        <tr><td><code>ClassGradeComponents</code></td><td>Bản đóng băng cho từng lớp</td></tr>
+        <tr><td><code>Grades</code></td><td>Điểm theo thành phần đã đóng băng</td></tr>
+
+        <tr><td rowspan="3"><b>4. Buổi học</b></td><td><code>Sessions</code></td><td>Buổi học cụ thể, sinh tự động</td></tr>
+        <tr><td><code>Attendances</code></td><td>Điểm danh học viên</td></tr>
+        <tr><td><code>TeacherAttendances</code></td><td>Điểm danh giáo viên</td></tr>
+
+        <tr><td rowspan="5"><b>5. Tài chính</b></td><td><code>TuitionDiscounts</code></td><td>Mã giảm học phí</td></tr>
+        <tr><td><code>StudentRewards</code></td><td>Học bổng đã cấp</td></tr>
+        <tr><td><code>Invoices</code></td><td>Hóa đơn học phí</td></tr>
+        <tr><td><code>Payments</code></td><td>Lần thu tiền</td></tr>
+        <tr><td><code>WalletTransactions</code></td><td>Giao dịch ví, đối soát ZaloPay</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>A.2 Cận cảnh — Danh mục và cơ chế đóng băng</h2>
+
+  <div class="rule-box">
+    <span class="tag">Quy tắc thiết kế trọng tâm</span>
+    <p>
+      Khi tạo lớp, hệ thống <b>sao chép</b> học phí, số buổi, ngôn ngữ, trình độ và toàn bộ cấu trúc
+      chấm điểm của khóa học sang lớp, rồi <b>khóa lại vĩnh viễn</b>. Cột <code>course_id</code> chỉ
+      còn ý nghĩa truy vết nguồn gốc.
+    </p>
+    <p>
+      Lý do: sửa học phí khóa học sau đó không được phép làm đổi số tiền trên hóa đơn đã phát,
+      và sửa trọng số điểm không được phép làm đổi điểm tổng kết đã công bố cho học viên.
+    </p>
+  </div>
+
+  <figure>
+    <div class="canvas">
+<pre class="mermaid">
+erDiagram
+    Languages {
+        int language_id PK
+        nvarchar name UK
+    }
+    Levels {
+        int level_id PK
+        int language_id FK
+        nvarchar name "UK cùng language_id"
+    }
+    Courses {
+        int course_id PK
+        nvarchar code UK
+        nvarchar name
+        int language_id FK
+        int level_id FK "NULL được"
+        int duration_sessions "số buổi chuẩn"
+        decimal tuition_fee "học phí niêm yết"
+        bit is_active
+    }
+    GradeTypes {
+        int grade_type_id PK
+        int course_id FK
+        nvarchar name
+        decimal weight_percent "0–100"
+    }
+    Semesters {
+        int semester_id PK
+        nvarchar name UK
+        date start_date
+        date setup_end_date "cuối giai đoạn setup"
+        date end_date
+    }
+    Classes {
+        int class_id PK
+        int semester_id FK
+        int course_id FK "chỉ truy vết"
+        int classroom_id FK
+        nvarchar name
+        int max_students
+        date start_date
+        date end_date
+        bit is_cancelled "trạng thái duy nhất được lưu"
+        nvarchar snap_course_code "ĐÓNG BĂNG"
+        nvarchar snap_course_name "ĐÓNG BĂNG"
+        nvarchar snap_language "ĐÓNG BĂNG"
+        nvarchar snap_level "ĐÓNG BĂNG"
+        int snap_duration_sessions "ĐÓNG BĂNG"
+        decimal snap_tuition_fee "ĐÓNG BĂNG"
+    }
+    ClassGradeComponents {
+        int component_id PK
+        int class_id FK
+        nvarchar name
+        decimal weight_percent "ĐÓNG BĂNG"
+        int sort_order
+    }
+    ClassTeachers {
+        int class_id PK_FK
+        int teacher_id PK_FK
+        bit is_primary "duy nhất 1 mỗi lớp"
+    }
+    ClassSchedules {
+        int schedule_id PK
+        int class_id FK
+        tinyint day_of_week "1=T2 … 7=CN"
+        time start_time
+        time end_time
+    }
+
+    Languages ||--o{ Levels : ""
+    Languages ||--o{ Courses : ""
+    Levels ||--o{ Courses : ""
+    Courses ||--o{ GradeTypes : "mẫu"
+    Courses ||--o{ Classes : "sao chép lúc tạo"
+    Semesters ||--o{ Classes : ""
+    Classes ||--o{ ClassGradeComponents : "bản đóng băng"
+    Classes ||--o{ ClassTeachers : ""
+    Classes ||--o{ ClassSchedules : ""
+</pre>
+    </div>
+    <figcaption>
+      <b>Hình A.2</b> — <code>GradeTypes</code> là mẫu gắn với khóa học; không dòng điểm nào trỏ vào đây.
+      Lúc tạo lớp, mẫu được nhân bản sang <code>ClassGradeComponents</code> và điểm sẽ bám vào bản sao đó.
+    </figcaption>
+  </figure>
+
+  <h2>A.3 Cận cảnh — Ghi danh, điểm số và buổi học</h2>
+
+  <figure>
+    <div class="canvas">
+<pre class="mermaid">
+erDiagram
+    Students {
+        int student_id PK
+        int user_id FK "UK"
+        nvarchar full_name
+        decimal balance "số dư ví ≥ 0"
+        nvarchar status "ACTIVE|SUSPENDED|GRADUATED|DROPPED"
+    }
+    Enrollments {
+        int enrollment_id PK
+        int student_id FK
+        int class_id FK
+        date enrolled_date
+        nvarchar status "ACTIVE|DEFERRED|TRANSFERRED|COMPLETED|DROPPED"
+    }
+    ClassGradeComponents {
+        int component_id PK
+        int class_id FK
+        nvarchar name
+        decimal weight_percent
+    }
+    Grades {
+        int grade_id PK
+        int enrollment_id FK
+        int component_id FK
+        decimal score "≤ max_score"
+        decimal max_score
+        datetime graded_at
+    }
+    Sessions {
+        int session_id PK
+        int class_id FK
+        int schedule_id FK "NULL nếu buổi bù"
+        date session_date
+        nvarchar status "SCHEDULED|COMPLETED|CANCELLED|MAKEUP"
+    }
+    Attendances {
+        int attendance_id PK
+        int session_id FK
+        int student_id FK
+        nvarchar status "PRESENT|ABSENT|LATE|EXCUSED"
+    }
+    TeacherAttendances {
+        int teacher_attendance_id PK
+        int session_id FK
+        int teacher_id FK
+        nvarchar status "PRESENT|ABSENT|SUBSTITUTE"
+    }
+
+    Students ||--o{ Enrollments : ""
+    Enrollments ||--o{ Grades : "UK(enrollment, component)"
+    ClassGradeComponents ||--o{ Grades : ""
+    Sessions ||--o{ Attendances : "UK(session, student)"
+    Students ||--o{ Attendances : ""
+    Sessions ||--o{ TeacherAttendances : ""
+</pre>
+    </div>
+    <figcaption>
+      <b>Hình A.3</b> — Ràng buộc <code>UNIQUE(enrollment_id, component_id)</code> bảo đảm mỗi học viên
+      chỉ có một điểm cho mỗi thành phần; <code>UNIQUE(session_id, student_id)</code> chặn điểm danh trùng.
+    </figcaption>
+  </figure>
+
+  <h2>A.4 Cận cảnh — Tài chính và ví điện tử</h2>
+
+  <figure>
+    <div class="canvas">
+<pre class="mermaid">
+erDiagram
+    Invoices {
+        int invoice_id PK
+        int student_id FK
+        int enrollment_id FK "NULL được"
+        decimal original_amount "= snap_tuition_fee"
+        int discount_id FK
+        decimal discount_amount "≤ original_amount"
+        decimal amount "thực thu"
+        nvarchar status "UNPAID|PARTIAL|PAID|CANCELLED"
+        date due_date
+        date discount_deadline
+        nvarchar discount_status "NONE|ACTIVE|LOCKED|EXPIRED"
+    }
+    Payments {
+        int payment_id PK
+        int invoice_id FK
+        int staff_id FK "NULL nếu admin/ví"
+        decimal amount_paid "> 0"
+        nvarchar payment_method "Cash|Transfer|Card|Wallet"
+        datetime paid_at
+        nvarchar receipt_code UK
+    }
+    TuitionDiscounts {
+        int discount_id PK
+        nvarchar code UK
+        nvarchar discount_type "PERCENT|FIXED"
+        decimal discount_value "> 0"
+        date start_date
+        date end_date
+        int payment_deadline_days
+        nvarchar condition_type "NONE|EARLY_PAYMENT"
+        bit is_active
+    }
+    WalletTransactions {
+        int transaction_id PK
+        int student_id FK
+        decimal amount "> 0"
+        nvarchar transaction_type "TOP_UP|PAYMENT|REFUND"
+        nvarchar provider_order_id UK "mã đơn ZaloPay"
+        nvarchar status "PENDING|COMPLETED|FAILED"
+        datetime created_at
+    }
+    StudentRewards {
+        int reward_id PK
+        int student_id FK
+        int semester_id FK
+        int course_id FK
+        decimal average_score
+        int discount_id FK
+    }
+    Students {
+        int student_id PK
+        decimal balance
+    }
+
+    Students ||--o{ Invoices : ""
+    Invoices ||--o{ Payments : "cộng dồn quyết định status"
+    TuitionDiscounts ||--o{ Invoices : ""
+    Students ||--o{ WalletTransactions : ""
+    Students ||--o{ StudentRewards : "UK(student, semester, course)"
+    TuitionDiscounts ||--o| StudentRewards : "voucher sinh ra"
+</pre>
+    </div>
+    <figcaption>
+      <b>Hình A.4</b> — <code>provider_order_id</code> là khóa đối soát với ZaloPay và có ràng buộc
+      <code>UNIQUE</code>, nhờ đó một đơn nạp tiền không thể bị cộng vào ví hai lần.
+    </figcaption>
+  </figure>
+
+  <h3>Trạng thái không lưu trong cơ sở dữ liệu</h3>
+
+  <p>
+    Ba trạng thái dưới đây <b>được suy ra khi đọc</b> chứ không có cột tương ứng. Đây là lựa
+    chọn thiết kế nhằm loại bỏ khả năng dữ liệu tự mâu thuẫn.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Thuộc tính</th><th>Công thức suy ra</th><th>Trạng thái sai bị loại bỏ</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>Semester.IsActive</code></td>
+          <td>Hôm nay nằm trong <code>[start_date, end_date]</code></td>
+          <td>Hai học kỳ cùng “đang hoạt động”</td>
+        </tr>
+        <tr>
+          <td><code>Semester.Phase</code></td>
+          <td>SETUP đến hết <code>setup_end_date</code>, sau đó LEARNING đến <code>end_date</code>, rồi COMPLETED</td>
+          <td>Giai đoạn lệch với mốc ngày</td>
+        </tr>
+        <tr>
+          <td><code>Class.Status</code></td>
+          <td>CANCELLED nếu <code>is_cancelled</code>; ngược lại suy từ <code>start_date</code>/<code>end_date</code></td>
+          <td>Lớp ONGOING trong học kỳ chưa bắt đầu</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ================= PART B — UC SPEC ================= -->
+  <p class="part">Phần B — Đặc tả Use Case</p>
+
+  <p>
+    Năm use case được chọn để đặc tả chi tiết vì cùng nhau chúng bao phủ cả bốn nhóm tác nhân,
+    cả hai hệ thống ngoài, và toàn bộ các quy tắc nghiệp vụ đáng chú ý của hệ thống.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Mã</th><th>Use case</th><th>Tác nhân chính</th><th>Điểm nhấn</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>UC-01</code></td><td>Tạo lớp học trong học kỳ</td><td>Quản trị viên / NV Đào tạo</td><td><span class="flag core">Đóng băng dữ liệu</span></td></tr>
+        <tr><td><code>UC-02</code></td><td>Thiết lập lịch tuần cho lớp</td><td>Quản trị viên / NV Đào tạo</td><td><span class="flag guard">Ràng buộc đủ số buổi</span></td></tr>
+        <tr><td><code>UC-03</code></td><td>Ghi danh học viên vào lớp</td><td>Nhân viên Đào tạo</td><td><span class="flag core">Giá theo bản đóng băng</span></td></tr>
+        <tr><td><code>UC-04</code></td><td>Nạp tiền vào ví điện tử</td><td>Học viên</td><td><span class="flag ext">ZaloPay</span></td></tr>
+        <tr><td><code>UC-05</code></td><td>Nhập điểm cho lớp</td><td>Giáo viên</td><td><span class="flag core">Trọng số đã khóa</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ---------------- UC-01 ---------------- -->
+  <article class="uc">
+    <header><span class="id">UC-01</span><span class="name">Tạo lớp học trong học kỳ</span></header>
+    <div class="body">
+      <dl>
+        <dt>Tác nhân chính</dt>
+        <dd>Quản trị viên, Nhân viên Đào tạo</dd>
+
+        <dt>Mô tả</dt>
+        <dd>Mở một lớp mới thuộc một học kỳ, dựa trên một khóa học có sẵn. Toàn bộ điều kiện
+            vận hành của khóa học được sao chép và khóa lại trên lớp.</dd>
+
+        <dt>Tiền điều kiện</dt>
+        <dd>
+          <ul>
+            <li>Đã đăng nhập với quyền Quản trị viên hoặc Nhân viên Đào tạo.</li>
+            <li>Học kỳ đích đã tồn tại.</li>
+            <li>Khóa học đã có cấu trúc chấm điểm (ít nhất một <code>GradeType</code>).</li>
+          </ul>
+        </dd>
+
+        <dt>Hậu điều kiện</dt>
+        <dd>
+          <ul>
+            <li>Một dòng <code>Classes</code> được tạo với đầy đủ sáu cột <code>snap_*</code>.</li>
+            <li>Các dòng <code>ClassTeachers</code> được tạo, đúng một dòng có <code>is_primary = 1</code>.</li>
+            <li>Cấu trúc điểm của khóa học được nhân bản sang <code>ClassGradeComponents</code>.</li>
+            <li>Cả ba bước trên nằm trong <b>một giao dịch</b>: hoặc thành công trọn vẹn, hoặc không có gì được ghi.</li>
+          </ul>
+        </dd>
+
+        <dt>Luồng chính</dt>
+        <dd>
+          <ol>
+            <li>Tác nhân mở màn hình Học kỳ, chọn một học kỳ và bấm <i>Classes</i>.</li>
+            <li>Bấm <i>Add class</i>; hệ thống hiển thị biểu mẫu tạo lớp.</li>
+            <li>Tác nhân chọn khóa học. Hệ thống hiển thị bản xem trước những giá trị sắp bị đóng băng.</li>
+            <li>Tác nhân nhập tên lớp, phòng học, sĩ số tối đa, ngày bắt đầu và kết thúc.</li>
+            <li>Tác nhân tích chọn các giáo viên phụ trách và đánh dấu một giáo viên chính.</li>
+            <li>Tác nhân bấm <i>Save</i>.</li>
+            <li>Hệ thống kiểm tra hợp lệ, sao chép dữ liệu khóa học vào lớp, ghi phân công giáo viên
+                và nhân bản cấu trúc điểm trong cùng một giao dịch.</li>
+            <li>Hệ thống đóng biểu mẫu và làm mới danh sách lớp.</li>
+          </ol>
+        </dd>
+
+        <dt>Luồng thay thế</dt>
+        <dd>
+          <ul>
+            <li><b>6a.</b> Chỉ có một giáo viên được chọn và chưa đánh dấu giáo viên chính → hệ thống
+                tự nhận giáo viên đó là chính, không hỏi lại.</li>
+            <li><b>3a.</b> Ở chế độ sửa lớp, ô chọn khóa học bị vô hiệu hóa và bản đóng băng chỉ hiển thị
+                để đọc.</li>
+          </ul>
+        </dd>
+
+        <dt>Luồng ngoại lệ</dt>
+        <dd>
+          <ul>
+            <li><b>E1.</b> Sĩ số tối đa vượt sức chứa phòng học → báo lỗi kèm sức chứa thực tế, dừng lưu.</li>
+            <li><b>E2.</b> Ngày lớp nằm ngoài phạm vi học kỳ → báo lỗi kèm mốc ngày của học kỳ, dừng lưu.</li>
+            <li><b>E3.</b> Khóa học chưa có cấu trúc chấm điểm → từ chối tạo lớp, yêu cầu thiết lập trước.</li>
+            <li><b>E4.</b> Lỗi ghi cơ sở dữ liệu ở bất kỳ bước nào → giao dịch được hoàn tác toàn bộ.</li>
+          </ul>
+        </dd>
+
+        <dt>Quy tắc nghiệp vụ</dt>
+        <dd>
+          <ul>
+            <li><b>BR-01.</b> Lớp bắt buộc thuộc về một học kỳ; không tồn tại lối tạo lớp độc lập.</li>
+            <li><b>BR-02.</b> Sáu cột <code>snap_*</code> là bất biến — thao tác sửa lớp khôi phục lại
+                giá trị cũ ngay cả khi lời gọi có mang giá trị khác.</li>
+            <li><b>BR-03.</b> Mỗi lớp có tối đa một giáo viên chính, cưỡng chế bằng chỉ mục
+                <code>uq_class_one_primary</code>.</li>
+            <li><b>BR-04.</b> Lớp mới luôn ở trạng thái UPCOMING — trạng thái suy từ ngày, không cho chọn.</li>
+          </ul>
+        </dd>
+      </dl>
+    </div>
+  </article>
+
+  <!-- ---------------- UC-02 ---------------- -->
+  <article class="uc">
+    <header><span class="id">UC-02</span><span class="name">Thiết lập lịch tuần cho lớp</span></header>
+    <div class="body">
+      <dl>
+        <dt>Tác nhân chính</dt>
+        <dd>Quản trị viên, Nhân viên Đào tạo</dd>
+
+        <dt>Mô tả</dt>
+        <dd>Khai báo các buổi lặp theo tuần của lớp, đồng thời kiểm tra lịch đó có đủ sinh ra
+            số buổi mà khóa học yêu cầu hay không.</dd>
+
+        <dt>Tiền điều kiện</dt>
+        <dd>Lớp đã tồn tại và đã có <code>snap_duration_sessions</code>.</dd>
+
+        <dt>Hậu điều kiện</dt>
+        <dd>Các dòng <code>ClassSchedules</code> phản ánh đúng lịch tuần mong muốn; số buổi lịch có thể
+            sinh ra được hiển thị đối chiếu với số buổi yêu cầu.</dd>
+
+        <dt>Luồng chính</dt>
+        <dd>
+          <ol>
+            <li>Tác nhân mở màn hình Quản lý lịch lớp và chọn một lớp.</li>
+            <li>Hệ thống hiển thị lịch tuần hiện có kèm chỉ báo <i>“Sessions covered: X / Y”</i>.</li>
+            <li>Tác nhân bấm <i>Add Session</i>, chọn thứ trong tuần và khung giờ.</li>
+            <li>Hệ thống lưu buổi và tính lại chỉ báo.</li>
+            <li>Lặp lại bước 3–4 cho đến khi X ≥ Y (chỉ báo chuyển sang màu xanh).</li>
+            <li>Tác nhân bấm <i>Close</i>.</li>
+          </ol>
+        </dd>
+
+        <dt>Luồng thay thế</dt>
+        <dd>
+          <b>5a.</b> Tác nhân xóa một buổi khỏi lịch → chỉ báo được tính lại ngay lập tức.
+        </dd>
+
+        <dt>Luồng ngoại lệ</dt>
+        <dd>
+          <ul>
+            <li><b>E1.</b> Tác nhân đóng cửa sổ khi X &lt; Y → hệ thống cảnh báo còn thiếu bao nhiêu buổi
+                và hỏi có ở lại chỉnh sửa không. Chọn <i>No</i> vẫn thoát được, vì khi học kỳ quá ngắn
+                so với khóa học thì không lịch tuần nào thỏa mãn được.</li>
+            <li><b>E2.</b> Lịch mới trùng giờ với lớp khác dùng chung giáo viên hoặc chung phòng học →
+                hệ thống liệt kê xung đột kèm tên lớp và <b>từ chối lưu</b> buổi đó.</li>
+          </ul>
+        </dd>
+
+        <dt>Quy tắc nghiệp vụ</dt>
+        <dd>
+          <ul>
+            <li><b>BR-05.</b> Số buổi do <b>khóa học</b> quyết định; lịch tuần và học kỳ chỉ quyết định
+                các buổi đó rơi vào ngày nào.</li>
+            <li><b>BR-06.</b> Phép đếm dùng để kiểm tra và phép sinh buổi thật dùng <b>chung một hàm</b>
+                (<code>GetAvailableSessionDates</code>), tránh trường hợp kiểm tra báo đủ nhưng sinh ra thiếu.</li>
+            <li><b>BR-07.</b> Buổi học chỉ được sinh từ ngày kế tiếp <code>setup_end_date</code> của học kỳ.</li>
+          </ul>
+        </dd>
+      </dl>
+    </div>
+  </article>
+
+  <!-- ---------------- UC-03 ---------------- -->
+  <article class="uc">
+    <header><span class="id">UC-03</span><span class="name">Ghi danh học viên vào lớp</span></header>
+    <div class="body">
+      <dl>
+        <dt>Tác nhân chính</dt>
+        <dd>Nhân viên Đào tạo, Quản trị viên</dd>
+
+        <dt>Mô tả</dt>
+        <dd>Đăng ký một học viên vào một lớp và phát sinh hóa đơn học phí tương ứng, có thể kèm
+            mã giảm giá.</dd>
+
+        <dt>Tiền điều kiện</dt>
+        <dd>
+          <ul>
+            <li>Học viên và lớp đều tồn tại.</li>
+            <li>Lớp chưa bị hủy và chưa kết thúc.</li>
+            <li>Lớp còn chỗ trống.</li>
+          </ul>
+        </dd>
+
+        <dt>Hậu điều kiện</dt>
+        <dd>
+          <ul>
+            <li>Một dòng <code>Enrollments</code> trạng thái ACTIVE.</li>
+            <li>Một dòng <code>Invoices</code> trạng thái UNPAID, số tiền lấy từ <code>snap_tuition_fee</code>.</li>
+          </ul>
+        </dd>
+
+        <dt>Luồng chính</dt>
+        <dd>
+          <ol>
+            <li>Tác nhân vào Học kỳ → Lớp → <i>Enrollments</i>.</li>
+            <li>Hệ thống hiển thị sĩ số hiện tại, số chỗ còn lại và học phí đã đóng băng của lớp.</li>
+            <li>Tác nhân nhập mã học viên và chọn mã giảm giá (hoặc <i>None</i>).</li>
+            <li>Tác nhân bấm <i>Enroll</i>.</li>
+            <li>Hệ thống kiểm tra sĩ số, trạng thái lớp và tình trạng ghi danh trùng.</li>
+            <li>Hệ thống tạo bản ghi ghi danh và hóa đơn, tính giảm giá nếu có.</li>
+            <li>Hệ thống làm mới danh sách và các số liệu sĩ số.</li>
+          </ol>
+        </dd>
+
+        <dt>Luồng thay thế</dt>
+        <dd>
+          <ul>
+            <li><b>5a.</b> Học viên từng ghi danh lớp này nhưng đã DROPPED → hệ thống kích hoạt lại bản ghi
+                cũ thay vì tạo mới, đồng thời vẫn kiểm tra sĩ số.</li>
+            <li><b>3a.</b> Mã giảm giá thuộc loại EARLY_PAYMENT → hóa đơn nhận thêm
+                <code>discount_deadline</code> và <code>discount_status = ACTIVE</code>.</li>
+          </ul>
+        </dd>
+
+        <dt>Luồng ngoại lệ</dt>
+        <dd>
+          <ul>
+            <li><b>E1.</b> Lớp đã đầy → thông báo kèm sĩ số hiện tại trên tổng sĩ số, không ghi danh.</li>
+            <li><b>E2.</b> Học viên đang ACTIVE trong lớp này → thông báo trùng, không tạo bản ghi thứ hai
+                (ràng buộc <code>uq_enrollment</code>).</li>
+            <li><b>E3.</b> Lớp đã bị hủy hoặc đã kết thúc → từ chối ghi danh.</li>
+            <li><b>E4.</b> Lớp không có học phí hợp lệ (<code>snap_tuition_fee ≤ 0</code>) → từ chối ghi danh.</li>
+          </ul>
+        </dd>
+
+        <dt>Quy tắc nghiệp vụ</dt>
+        <dd>
+          <ul>
+            <li><b>BR-08.</b> Học phí lấy từ <code>Classes.snap_tuition_fee</code>, <b>không</b> đọc
+                <code>Courses.tuition_fee</code>. Trung tâm đổi giá khóa học không làm đổi công nợ của
+                học viên đã ghi danh.</li>
+            <li><b>BR-09.</b> Một học viên chỉ có một bản ghi ghi danh cho mỗi lớp.</li>
+            <li><b>BR-10.</b> Khi chuyển lớp, nếu lớp mới rẻ hơn thì phần chênh lệch được hoàn vào ví.</li>
+          </ul>
+        </dd>
+      </dl>
+    </div>
+  </article>
+
+  <!-- ---------------- UC-04 ---------------- -->
+  <article class="uc">
+    <header><span class="id">UC-04</span><span class="name">Nạp tiền vào ví điện tử</span></header>
+    <div class="body">
+      <dl>
+        <dt>Tác nhân chính</dt>
+        <dd>Học viên</dd>
+
+        <dt>Tác nhân phụ</dt>
+        <dd><span class="flag ext">ZaloPay</span> — cổng thanh toán ngoài (môi trường sandbox)</dd>
+
+        <dt>Mô tả</dt>
+        <dd>Học viên nạp tiền vào ví trong hệ thống thông qua cổng ZaloPay, sau đó dùng số dư này
+            để thanh toán học phí.</dd>
+
+        <dt>Tiền điều kiện</dt>
+        <dd>Đã đăng nhập với vai trò Học viên và có hồ sơ học viên liên kết.</dd>
+
+        <dt>Hậu điều kiện</dt>
+        <dd>
+          <ul>
+            <li><b>Thành công:</b> <code>WalletTransactions</code> chuyển sang COMPLETED và
+                <code>Students.balance</code> tăng tương ứng.</li>
+            <li><b>Thất bại/hủy:</b> giao dịch giữ nguyên PENDING hoặc chuyển FAILED; số dư không đổi.</li>
+          </ul>
+        </dd>
+
+        <dt>Luồng chính</dt>
+        <dd>
+          <ol>
+            <li>Học viên mở <i>My Invoices</i> → <i>Top Up Wallet</i>.</li>
+            <li>Học viên nhập số tiền cần nạp.</li>
+            <li>Hệ thống gọi ZaloPay tạo đơn hàng và nhận về <code>order_url</code> cùng mã đơn.</li>
+            <li>Hệ thống ghi một dòng <code>WalletTransactions</code> trạng thái PENDING kèm
+                <code>provider_order_id</code>.</li>
+            <li>Hệ thống mở trang thanh toán ZaloPay trên trình duyệt và bắt đầu <b>hỏi trạng thái
+                theo chu kỳ</b>, hiển thị “Waiting for payment confirmation from ZaloPay…”.</li>
+            <li>Học viên hoàn tất thanh toán trên giao diện ZaloPay.</li>
+            <li>Ở lần hỏi kế tiếp, ZaloPay xác nhận đã thanh toán. Hệ thống dừng vòng hỏi, chuyển giao
+                dịch sang COMPLETED, cộng số dư ví và cập nhật số dư trên màn hình.</li>
+          </ol>
+        </dd>
+
+        <dt>Luồng thay thế</dt>
+        <dd>
+          <b>7a.</b> ZaloPay báo đơn chưa thanh toán → hệ thống tiếp tục vòng hỏi cho tới khi hết thời gian chờ.
+        </dd>
+
+        <dt>Luồng ngoại lệ</dt>
+        <dd>
+          <ul>
+            <li><b>E1.</b> Chưa cấu hình khóa ZaloPay trong <code>appsettings.json</code> → hệ thống báo
+                tính năng chưa sẵn sàng, không tạo giao dịch.</li>
+            <li><b>E2.</b> Không gọi được cổng thanh toán → thông báo lỗi, không tạo giao dịch.</li>
+            <li><b>E3.</b> Số tiền không hợp lệ (≤ 0) → từ chối ngay tại biểu mẫu.</li>
+            <li><b>E4.</b> Hết thời gian chờ mà chưa có xác nhận → hệ thống dừng hỏi và đánh dấu giao dịch
+                FAILED; số dư không thay đổi.</li>
+          </ul>
+        </dd>
+
+        <dt>Quy tắc nghiệp vụ</dt>
+        <dd>
+          <ul>
+            <li><b>BR-11.</b> <code>provider_order_id</code> có ràng buộc <code>UNIQUE</code>, nhờ đó
+                một đơn nạp không thể bị cộng vào ví hai lần dù thao tác kiểm tra được lặp nhiều lần.</li>
+            <li><b>BR-12.</b> Số dư ví không được âm (<code>CHECK (balance ≥ 0)</code>).</li>
+            <li><b>BR-13.</b> Thanh toán học phí từ ví tạo một <code>Payment</code> với
+                <code>payment_method = 'Wallet'</code> và không gắn nhân viên thu ngân.</li>
+          </ul>
+        </dd>
+      </dl>
+    </div>
+  </article>
+
+  <!-- ---------------- UC-05 ---------------- -->
+  <article class="uc">
+    <header><span class="id">UC-05</span><span class="name">Nhập điểm cho lớp</span></header>
+    <div class="body">
+      <dl>
+        <dt>Tác nhân chính</dt>
+        <dd>Giáo viên</dd>
+
+        <dt>Mô tả</dt>
+        <dd>Giáo viên nhập điểm cho từng học viên theo từng thành phần trong cấu trúc điểm đã được
+            đóng băng của lớp.</dd>
+
+        <dt>Tiền điều kiện</dt>
+        <dd>
+          <ul>
+            <li>Đã đăng nhập với vai trò Giáo viên.</li>
+            <li>Giáo viên nằm trong danh sách phụ trách lớp.</li>
+            <li>Lớp có <code>ClassGradeComponents</code> và có học viên ghi danh.</li>
+          </ul>
+        </dd>
+
+        <dt>Hậu điều kiện</dt>
+        <dd>Các dòng <code>Grades</code> được thêm mới hoặc cập nhật, mỗi cặp
+            (ghi danh, thành phần) đúng một dòng.</dd>
+
+        <dt>Luồng chính</dt>
+        <dd>
+          <ol>
+            <li>Giáo viên mở <i>Grade Entry</i> và chọn lớp trong danh sách lớp mình phụ trách.</li>
+            <li>Hệ thống kiểm tra quyền, nạp cấu trúc điểm <b>của lớp</b> và danh sách học viên.</li>
+            <li>Hệ thống hiển thị lưới phẳng: mỗi dòng là một cặp học viên × thành phần điểm.</li>
+            <li>Giáo viên nhập điểm và ghi chú.</li>
+            <li>Giáo viên bấm lưu.</li>
+            <li>Hệ thống kiểm tra khoảng điểm rồi ghi từng dòng theo cơ chế thêm-mới-hoặc-cập-nhật.</li>
+            <li>Hệ thống báo số dòng đã lưu, kèm danh sách lỗi nếu có.</li>
+          </ol>
+        </dd>
+
+        <dt>Luồng thay thế</dt>
+        <dd>
+          <b>4a.</b> Giáo viên bỏ trống ô điểm → dòng đó bị bỏ qua khi lưu, không ghi đè điểm cũ.
+        </dd>
+
+        <dt>Luồng ngoại lệ</dt>
+        <dd>
+          <ul>
+            <li><b>E1.</b> Giáo viên không phụ trách lớp được chọn → từ chối truy cập, hiển thị danh sách
+                giáo viên thực sự phụ trách.</li>
+            <li><b>E2.</b> Điểm nằm ngoài khoảng <code>[0, max_score]</code> → dòng đó không được lưu và
+                được liệt kê trong thông báo kết quả; các dòng hợp lệ vẫn lưu bình thường.</li>
+            <li><b>E3.</b> Lớp chưa có cấu trúc điểm → thông báo và dừng.</li>
+          </ul>
+        </dd>
+
+        <dt>Quy tắc nghiệp vụ</dt>
+        <dd>
+          <ul>
+            <li><b>BR-14.</b> Điểm gắn vào <code>ClassGradeComponents</code> của lớp, <b>không</b> gắn vào
+                <code>GradeTypes</code> của khóa học. Sửa mẫu chấm điểm không làm đổi kết quả các lớp đã chạy.</li>
+            <li><b>BR-15.</b> Điểm tổng kết = Σ (điểm quy về thang 10 × trọng số) ⁄ Σ trọng số, dùng trọng số
+                đã đóng băng của lớp.</li>
+            <li><b>BR-16.</b> Lớp có thể có nhiều giáo viên; quyền truy cập là “có tên trong danh sách phụ trách”.</li>
+          </ul>
+        </dd>
+      </dl>
+    </div>
+  </article>
+
+</div>

@@ -1,0 +1,838 @@
+<title>Sơ đồ hệ thống — Language Center Management</title>
+
+<style>
+  /* ============================================================
+     Tokens. Palette derives from the app's own Colors.xaml so the
+     document carries the identity of the system it documents:
+     Fluent blue #0078D4 deepened for print, with blue-biased
+     neutrals rather than pure grey.
+     ============================================================ */
+  :root {
+    --paper:        #FAFBFC;
+    --panel:        #FFFFFF;
+    --ink:          #14181F;
+    --ink-soft:     #3B4652;
+    --muted:        #5F6C7B;
+    --rule:         #DCE3EB;
+    --rule-strong:  #C3CEDA;
+
+    --accent:       #0064B0;
+    --accent-ink:   #004E8A;
+    --accent-wash:  #E7F0F9;
+
+    --ok:           #0F6E12;
+    --ok-wash:      #E4F1E4;
+    --warn:         #9A6100;
+    --warn-wash:    #FBEFD9;
+    --stop:         #B32B30;
+    --stop-wash:    #FAE6E7;
+    --info:         #0A6E72;
+    --info-wash:    #E0F0F1;
+
+    --figure-bg:    #FFFFFF;
+    --figure-rule:  #D8E0E9;
+
+    --shadow: 0 1px 2px rgba(20, 24, 31, .05), 0 8px 24px -12px rgba(20, 24, 31, .18);
+
+    --measure: 68ch;
+    --sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --mono: "Cascadia Mono", Consolas, "SF Mono", "Liberation Mono", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:       #10141A;
+      --panel:       #161C24;
+      --ink:         #E8EDF3;
+      --ink-soft:    #BAC5D2;
+      --muted:       #8E9BAA;
+      --rule:        #262F3A;
+      --rule-strong: #364252;
+
+      --accent:      #55A8EE;
+      --accent-ink:  #8CC6F5;
+      --accent-wash: #16283A;
+
+      --ok:          #6FCB72;  --ok-wash:   #16281A;
+      --warn:        #D8A343;  --warn-wash: #2B2214;
+      --stop:        #EE7B80;  --stop-wash: #2E1A1C;
+      --info:        #5FC3C7;  --info-wash: #12272A;
+
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+    }
+  }
+
+  /* The viewer's toggle must win over the media query in both directions. */
+  :root[data-theme="light"] {
+    --paper: #FAFBFC; --panel: #FFFFFF; --ink: #14181F; --ink-soft: #3B4652;
+    --muted: #5F6C7B; --rule: #DCE3EB; --rule-strong: #C3CEDA;
+    --accent: #0064B0; --accent-ink: #004E8A; --accent-wash: #E7F0F9;
+    --ok: #0F6E12; --ok-wash: #E4F1E4; --warn: #9A6100; --warn-wash: #FBEFD9;
+    --stop: #B32B30; --stop-wash: #FAE6E7; --info: #0A6E72; --info-wash: #E0F0F1;
+    --shadow: 0 1px 2px rgba(20,24,31,.05), 0 8px 24px -12px rgba(20,24,31,.18);
+  }
+  :root[data-theme="dark"] {
+    --paper: #10141A; --panel: #161C24; --ink: #E8EDF3; --ink-soft: #BAC5D2;
+    --muted: #8E9BAA; --rule: #262F3A; --rule-strong: #364252;
+    --accent: #55A8EE; --accent-ink: #8CC6F5; --accent-wash: #16283A;
+    --ok: #6FCB72; --ok-wash: #16281A; --warn: #D8A343; --warn-wash: #2B2214;
+    --stop: #EE7B80; --stop-wash: #2E1A1C; --info: #5FC3C7; --info-wash: #12272A;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 4.5rem) clamp(1.1rem, 4vw, 2.5rem) 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.75rem, 5vw, 4rem);
+  }
+
+  /* ---- Masthead ---- */
+  .masthead { display: flex; flex-direction: column; gap: 1rem; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: .75rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0;
+  }
+  h1 {
+    font-size: clamp(1.9rem, 4.2vw, 2.7rem);
+    line-height: 1.15;
+    font-weight: 600;
+    letter-spacing: -.02em;
+    text-wrap: balance;
+    margin: 0;
+  }
+  .standfirst {
+    max-width: var(--measure);
+    color: var(--ink-soft);
+    font-size: 1.05rem;
+    margin: 0;
+  }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: .5rem 1.75rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--rule);
+    font-size: .8125rem;
+    color: var(--muted);
+  }
+  .meta b { color: var(--ink-soft); font-weight: 600; }
+
+  /* ---- Sections ---- */
+  section { display: flex; flex-direction: column; gap: 1.25rem; }
+  .sec-head { display: flex; flex-direction: column; gap: .35rem; }
+  .sec-num {
+    font-family: var(--mono);
+    font-size: .75rem;
+    letter-spacing: .12em;
+    color: var(--muted);
+  }
+  h2 {
+    font-size: clamp(1.3rem, 2.4vw, 1.6rem);
+    font-weight: 600;
+    letter-spacing: -.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.25rem 0 0;
+    color: var(--ink);
+  }
+  p { max-width: var(--measure); margin: 0; color: var(--ink-soft); }
+  p + p { margin-top: .85rem; }
+
+  /* ---- Figures ---- *
+     Diagrams sit on paper white in BOTH themes: they read as printed
+     figures, and it keeps Mermaid's own palette legible either way. */
+  figure {
+    margin: 0;
+    background: var(--figure-bg);
+    border: 1px solid var(--figure-rule);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .figure-body { overflow-x: auto; padding: 1.75rem 1.25rem; }
+  .mermaid { min-width: 640px; }
+  figcaption {
+    border-top: 1px solid var(--figure-rule);
+    padding: .7rem 1.15rem;
+    font-size: .8125rem;
+    color: #5F6C7B;
+    background: #F7F9FB;
+    font-family: var(--mono);
+  }
+
+  /* ---- Tables ---- */
+  .table-scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; background: var(--panel); }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; min-width: 620px; }
+  thead th {
+    text-align: left;
+    font-size: .72rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    padding: .8rem 1rem;
+    border-bottom: 1px solid var(--rule-strong);
+    white-space: nowrap;
+  }
+  tbody td { padding: .7rem 1rem; border-bottom: 1px solid var(--rule); vertical-align: top; color: var(--ink-soft); }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody td:first-child { color: var(--ink); }
+  td.id, th.id { font-family: var(--mono); font-size: .82rem; white-space: nowrap; color: var(--accent); font-variant-numeric: tabular-nums; }
+  code {
+    font-family: var(--mono);
+    font-size: .86em;
+    background: var(--accent-wash);
+    color: var(--accent-ink);
+    padding: .1em .38em;
+    border-radius: 4px;
+  }
+
+  /* ---- Chips ---- */
+  .chip {
+    display: inline-block;
+    font-size: .7rem; font-weight: 600;
+    letter-spacing: .04em;
+    padding: .2em .6em;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .chip.admin  { background: var(--stop-wash);  color: var(--stop); }
+  .chip.staff  { background: var(--accent-wash);color: var(--accent-ink); }
+  .chip.teach  { background: var(--ok-wash);    color: var(--ok); }
+  .chip.stud   { background: var(--info-wash);  color: var(--info); }
+  .chip.sys    { background: var(--warn-wash);  color: var(--warn); }
+
+  /* ---- Callout ---- */
+  .note {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-wash);
+    padding: 1rem 1.15rem;
+    border-radius: 0 8px 8px 0;
+    max-width: var(--measure);
+  }
+  .note p { color: var(--accent-ink); max-width: none; }
+  .note strong { color: var(--accent-ink); }
+
+  /* ---- Rule list for domain notes ---- */
+  .rules { display: grid; gap: .9rem; margin: 0; padding: 0; list-style: none; }
+  .rules li {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 9px;
+    padding: 1rem 1.15rem;
+  }
+  .rules b { display: block; color: var(--ink); margin-bottom: .25rem; font-size: .95rem; }
+  .rules span { color: var(--ink-soft); font-size: .9rem; }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Phân tích thiết kế hệ thống</p>
+    <h1>Language Center Management System</h1>
+    <p class="standfirst">
+      Sơ đồ ngữ cảnh và sơ đồ use case của hệ thống quản lý trung tâm ngoại ngữ —
+      ứng dụng desktop WPF (.NET 10) theo kiến trúc phân tầng
+      DAO → Repository → Service → UI.
+    </p>
+    <div class="meta">
+      <span><b>Tác nhân:</b> 5 người dùng + 1 hệ thống</span>
+      <span><b>Hệ thống ngoài:</b> 3</span>
+      <span><b>Use case:</b> 40</span>
+      <span><b>Nguồn:</b> đối chiếu trực tiếp từ mã nguồn</span>
+    </div>
+  </header>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <h2>Sơ đồ ngữ cảnh (Context Diagram)</h2>
+    </div>
+    <p>
+      Hệ thống được xem như một khối duy nhất. Sơ đồ chỉ ra ai tương tác với nó
+      và luồng dữ liệu chính đi qua ranh giới hệ thống.
+    </p>
+
+    <figure>
+      <div class="figure-body">
+<pre class="mermaid">
+%%{init: {"theme":"base","themeVariables":{
+  "fontFamily":"Segoe UI, system-ui, sans-serif",
+  "fontSize":"14px",
+  "primaryColor":"#E7F0F9",
+  "primaryTextColor":"#14181F",
+  "primaryBorderColor":"#0064B0",
+  "lineColor":"#5F6C7B",
+  "tertiaryColor":"#FFFFFF"
+}}}%%
+flowchart LR
+  ADMIN["👤 Admin"]
+  ACAD["👤 Nhân viên<br/>Học vụ"]
+  FIN["👤 Nhân viên<br/>Tài chính"]
+  TCH["👤 Giáo viên"]
+  STU["👤 Học viên"]
+
+  SYS(["<b>HỆ THỐNG QUẢN LÝ<br/>TRUNG TÂM NGOẠI NGỮ</b>"])
+
+  DB[("🗄️ SQL Server<br/>LanguageCenterDB")]
+  ZLP["💳 ZaloPay<br/>Cổng thanh toán"]
+  GEM["🤖 Google Gemini API<br/>Trợ lý học tập"]
+
+  ADMIN -->|"Tài khoản, phòng ban,<br/>danh mục, học kỳ"| SYS
+  ACAD  -->|"Khoá học, lớp,<br/>lịch học, ghi danh"| SYS
+  FIN   -->|"Hoá đơn, thanh toán,<br/>giảm giá"| SYS
+  TCH   -->|"Điểm danh, nhập điểm"| SYS
+  STU   -->|"Yêu cầu nạp ví,<br/>câu hỏi học tập"| SYS
+
+  SYS -->|"Báo cáo doanh thu,<br/>danh sách công nợ"| FIN
+  SYS -->|"Lịch dạy, danh sách lớp,<br/>kết quả lớp"| TCH
+  SYS -->|"Lịch học, điểm,<br/>hoá đơn, số dư ví"| STU
+  SYS -->|"Thống kê tổng quan"| ADMIN
+
+  SYS <-->|"Đọc / ghi dữ liệu<br/>(Entity Framework Core)"| DB
+  SYS -->|"Tạo đơn nạp tiền (HTTPS)"| ZLP
+  ZLP -->|"order_url + trạng thái<br/>giao dịch"| SYS
+  SYS -->|"Câu hỏi + ngữ cảnh<br/>học tập của học viên"| GEM
+  GEM -->|"Câu trả lời"| SYS
+
+  classDef actor fill:#E7F0F9,stroke:#0064B0,stroke-width:1.5px,color:#14181F
+  classDef core  fill:#0064B0,stroke:#004E8A,stroke-width:2px,color:#FFFFFF
+  classDef ext   fill:#FBEFD9,stroke:#9A6100,stroke-width:1.5px,color:#3B2A05
+  classDef store fill:#E4F1E4,stroke:#0F6E12,stroke-width:1.5px,color:#0C2A0D
+
+  class ADMIN,ACAD,FIN,TCH,STU actor
+  class SYS core
+  class ZLP,GEM ext
+  class DB store
+</pre>
+      </div>
+      <figcaption>Hình 1 — Sơ đồ ngữ cảnh mức 0</figcaption>
+    </figure>
+
+    <h3>Hệ thống ngoài</h3>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Hệ thống</th><th>Vai trò</th><th>Giao tiếp</th><th class="id">Cài đặt tại</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>SQL Server</td>
+            <td>Lưu trữ toàn bộ dữ liệu nghiệp vụ (27 bảng)</td>
+            <td>Entity Framework Core</td>
+            <td class="id">LanguageCenterContext</td>
+          </tr>
+          <tr>
+            <td>ZaloPay (sandbox)</td>
+            <td>Nạp tiền vào ví học viên; hệ thống tạo đơn rồi truy vấn trạng thái để cộng tiền</td>
+            <td>HTTPS REST — <code>/v2/create</code>, <code>/v2/query</code></td>
+            <td class="id">ZaloPayService</td>
+          </tr>
+          <tr>
+            <td>Google Gemini API</td>
+            <td>Trả lời câu hỏi học tập; dữ liệu của chính học viên được đính kèm làm ngữ cảnh</td>
+            <td>HTTPS REST — <code>generateContent</code></td>
+            <td class="id">AiAssistantService</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <h2>Tác nhân và phạm vi quyền</h2>
+    </div>
+    <p>
+      Quyền được phân theo vai trò tài khoản. Riêng nhân viên còn được chia tiếp
+      theo phòng ban: phòng <code>Finance</code> thấy nhóm menu tài chính, các
+      phòng còn lại thấy nhóm học vụ.
+    </p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Tác nhân</th><th>Mô tả</th><th>Nhóm chức năng chính</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="chip admin">Admin</span></td>
+            <td>Quản trị viên toàn hệ thống</td>
+            <td>Toàn bộ chức năng của cả học vụ lẫn tài chính, cộng quản lý tài khoản và phòng ban</td>
+          </tr>
+          <tr>
+            <td><span class="chip staff">Học vụ</span></td>
+            <td>Nhân viên phòng học vụ</td>
+            <td>Học viên, học kỳ, khoá học, lớp, lịch học, ghi danh</td>
+          </tr>
+          <tr>
+            <td><span class="chip staff">Tài chính</span></td>
+            <td>Nhân viên phòng tài chính</td>
+            <td>Công nợ, hoá đơn, thu tiền, mã giảm giá, báo cáo doanh thu, xét học bổng</td>
+          </tr>
+          <tr>
+            <td><span class="chip teach">Giáo viên</span></td>
+            <td>Giáo viên đứng lớp</td>
+            <td>Lịch dạy, điểm danh, danh sách lớp, nhập điểm, kết quả lớp</td>
+          </tr>
+          <tr>
+            <td><span class="chip stud">Học viên</span></td>
+            <td>Học viên đang theo học</td>
+            <td>Lịch học, lớp, điểm, hoá đơn, ví điện tử, trợ lý AI</td>
+          </tr>
+          <tr>
+            <td><span class="chip sys">Hệ thống</span></td>
+            <td>Tác nhân thời gian — chạy tự động lúc khởi động ứng dụng</td>
+            <td>Sinh buổi học, khoá ghi danh khi kết thúc giai đoạn setup</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <h2>Use case — Quản trị &amp; Học vụ</h2>
+    </div>
+    <p>
+      Admin có toàn quyền; nhân viên học vụ dùng chung phần lớn chức năng nhưng
+      không đụng tới quản lý tài khoản.
+    </p>
+
+    <figure>
+      <div class="figure-body">
+<pre class="mermaid">
+%%{init: {"theme":"base","themeVariables":{
+  "fontFamily":"Segoe UI, system-ui, sans-serif","fontSize":"13px",
+  "lineColor":"#5F6C7B","tertiaryColor":"#FFFFFF"}}}%%
+flowchart LR
+  ADMIN["👤 Admin"]
+  ACAD["👤 Nhân viên<br/>Học vụ"]
+
+  subgraph BOUND[" Hệ thống quản lý trung tâm ngoại ngữ "]
+    direction TB
+
+    subgraph G1[" Tài khoản "]
+      A01(["Quản lý tài khoản"])
+      A02(["Kích hoạt lại tài khoản"])
+      A03(["Quản lý học viên"])
+      A04(["Quản lý giáo viên"])
+      A05(["Quản lý nhân viên"])
+      A06(["Quản lý phòng ban"])
+    end
+
+    subgraph G2[" Danh mục đào tạo "]
+      C01(["Quản lý ngôn ngữ &amp; trình độ"])
+      C02(["Quản lý khoá học"])
+      C03(["Quản lý phòng học"])
+      C04(["Quản lý cấu trúc điểm"])
+    end
+
+    subgraph G3[" Học kỳ &amp; Lớp học "]
+      S01(["Quản lý học kỳ"])
+      S02(["Quản lý lớp trong học kỳ"])
+      S03(["Huỷ / khôi phục lớp"])
+      S04(["Phân công giáo viên"])
+      S05(["Quản lý lịch học tuần"])
+      S06(["Quản lý khung giờ"])
+      S07(["Ghi danh học viên"])
+      S08(["Chuyển lớp"])
+      S09(["Huỷ ghi danh"])
+    end
+  end
+
+  ADMIN --- A01
+  ADMIN --- A02
+  ADMIN --- A04
+  ADMIN --- A05
+  ADMIN --- A06
+  ADMIN --- C01
+  ADMIN --- S01
+
+  ACAD --- A03
+  ACAD --- C02
+  ACAD --- C03
+  ACAD --- C04
+  ACAD --- S02
+  ACAD --- S05
+  ACAD --- S07
+
+  A03 -.- ADMIN
+  C02 -.- ADMIN
+  S02 -.- ADMIN
+
+  S02 --- S03
+  S02 --- S04
+  S02 --- S06
+  S07 --- S08
+  S07 --- S09
+
+  classDef actor fill:#E7F0F9,stroke:#0064B0,stroke-width:1.5px,color:#14181F
+  classDef uc    fill:#FFFFFF,stroke:#0064B0,stroke-width:1.2px,color:#14181F
+  class ADMIN,ACAD actor
+  class A01,A02,A03,A04,A05,A06,C01,C02,C03,C04,S01,S02,S03,S04,S05,S06,S07,S08,S09 uc
+
+  style BOUND fill:#FAFBFC,stroke:#C3CEDA,stroke-width:1.5px
+  style G1 fill:#FFFFFF,stroke:#DCE3EB
+  style G2 fill:#FFFFFF,stroke:#DCE3EB
+  style G3 fill:#FFFFFF,stroke:#DCE3EB
+</pre>
+      </div>
+      <figcaption>Hình 2 — Use case quản trị và học vụ · nét đứt = Admin kế thừa quyền học vụ</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <h2>Use case — Tài chính</h2>
+    </div>
+
+    <figure>
+      <div class="figure-body">
+<pre class="mermaid">
+%%{init: {"theme":"base","themeVariables":{
+  "fontFamily":"Segoe UI, system-ui, sans-serif","fontSize":"13px",
+  "lineColor":"#5F6C7B","tertiaryColor":"#FFFFFF"}}}%%
+flowchart LR
+  FIN["👤 Nhân viên<br/>Tài chính"]
+  ADMIN["👤 Admin"]
+
+  subgraph BOUND[" Phân hệ Tài chính "]
+    direction TB
+    F01(["Xem danh sách công nợ"])
+    F02(["Quản lý hoá đơn"])
+    F03(["Ghi nhận thanh toán"])
+    F04(["Quản lý mã giảm học phí"])
+    F05(["Báo cáo doanh thu"])
+    F06(["Xét học bổng &amp; cấp voucher"])
+    F07(["Cập nhật trạng thái hoá đơn"])
+    F08(["Tính điểm trung bình có trọng số"])
+  end
+
+  FIN --- F01
+  FIN --- F02
+  FIN --- F03
+  FIN --- F04
+  FIN --- F05
+  ADMIN --- F06
+  ADMIN --- F05
+
+  F03 -->|"&laquo;include&raquo;"| F07
+  F06 -->|"&laquo;include&raquo;"| F08
+  F06 -->|"&laquo;include&raquo;"| F04
+
+  classDef actor fill:#E7F0F9,stroke:#0064B0,stroke-width:1.5px,color:#14181F
+  classDef uc    fill:#FFFFFF,stroke:#0064B0,stroke-width:1.2px,color:#14181F
+  classDef inc   fill:#F7F9FB,stroke:#9AA7B4,stroke-width:1px,color:#3B4652,stroke-dasharray:4 3
+  class FIN,ADMIN actor
+  class F01,F02,F03,F04,F05,F06 uc
+  class F07,F08 inc
+
+  style BOUND fill:#FAFBFC,stroke:#C3CEDA,stroke-width:1.5px
+</pre>
+      </div>
+      <figcaption>Hình 3 — Use case tài chính · khối nét đứt = use case được &laquo;include&raquo;</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <h2>Use case — Giáo viên, Học viên và Hệ thống</h2>
+    </div>
+
+    <figure>
+      <div class="figure-body">
+<pre class="mermaid">
+%%{init: {"theme":"base","themeVariables":{
+  "fontFamily":"Segoe UI, system-ui, sans-serif","fontSize":"13px",
+  "lineColor":"#5F6C7B","tertiaryColor":"#FFFFFF"}}}%%
+flowchart LR
+  TCH["👤 Giáo viên"]
+  STU["👤 Học viên"]
+  SYSA["⏱️ Hệ thống<br/>(khởi động)"]
+  ZLP["💳 ZaloPay"]
+  GEM["🤖 Gemini API"]
+
+  subgraph BOUND[" Hệ thống quản lý trung tâm ngoại ngữ "]
+    direction TB
+
+    subgraph GT[" Giáo viên "]
+      T01(["Xem lịch dạy"])
+      T02(["Điểm danh"])
+      T03(["Xem danh sách lớp"])
+      T04(["Nhập điểm"])
+      T05(["Xem kết quả lớp"])
+    end
+
+    subgraph GU[" Học viên "]
+      U01(["Xem lịch học"])
+      U02(["Xem lịch sử điểm danh"])
+      U03(["Xem lớp của tôi"])
+      U04(["Xem điểm"])
+      U05(["Xem hoá đơn"])
+      U06(["Nạp tiền vào ví"])
+      U07(["Thanh toán học phí từ ví"])
+      U08(["Xem lịch sử ví"])
+      U09(["Hỏi trợ lý AI"])
+    end
+
+    subgraph GX[" Tự động "]
+      X01(["Sinh buổi học"])
+      X02(["Khoá ghi danh"])
+    end
+  end
+
+  TCH --- T01
+  TCH --- T02
+  TCH --- T03
+  TCH --- T04
+  TCH --- T05
+
+  STU --- U01
+  STU --- U02
+  STU --- U03
+  STU --- U04
+  STU --- U05
+  STU --- U06
+  STU --- U07
+  STU --- U08
+  STU --- U09
+
+  SYSA --- X01
+  SYSA --- X02
+
+  U06 --> ZLP
+  U09 --> GEM
+
+  classDef actor fill:#E7F0F9,stroke:#0064B0,stroke-width:1.5px,color:#14181F
+  classDef ext   fill:#FBEFD9,stroke:#9A6100,stroke-width:1.5px,color:#3B2A05
+  classDef uc    fill:#FFFFFF,stroke:#0064B0,stroke-width:1.2px,color:#14181F
+  classDef auto  fill:#FBEFD9,stroke:#9A6100,stroke-width:1.2px,color:#3B2A05
+  class TCH,STU actor
+  class SYSA,ZLP,GEM ext
+  class T01,T02,T03,T04,T05,U01,U02,U03,U04,U05,U06,U07,U08,U09 uc
+  class X01,X02 auto
+
+  style BOUND fill:#FAFBFC,stroke:#C3CEDA,stroke-width:1.5px
+  style GT fill:#FFFFFF,stroke:#DCE3EB
+  style GU fill:#FFFFFF,stroke:#DCE3EB
+  style GX fill:#FFFFFF,stroke:#DCE3EB
+</pre>
+      </div>
+      <figcaption>Hình 4 — Use case giáo viên, học viên và tác nhân hệ thống</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">06</span>
+      <h2>Quan hệ &laquo;include&raquo; và &laquo;extend&raquo;</h2>
+    </div>
+    <p>
+      Đây là phần mang nhiều nghiệp vụ nhất: một số use case luôn kéo theo
+      use case khác, và chính các quan hệ này quyết định cấu trúc dữ liệu.
+    </p>
+
+    <figure>
+      <div class="figure-body">
+<pre class="mermaid">
+%%{init: {"theme":"base","themeVariables":{
+  "fontFamily":"Segoe UI, system-ui, sans-serif","fontSize":"13px",
+  "lineColor":"#5F6C7B","tertiaryColor":"#FFFFFF"}}}%%
+flowchart TB
+  S02(["Tạo lớp trong học kỳ"])
+  SNAP(["Đóng băng bản sao khoá học<br/><i>học phí · số buổi · trình độ</i>"])
+  SNAPG(["Sao chép cấu trúc điểm<br/>sang lớp"])
+
+  S05(["Thiết lập lịch học tuần"])
+  CHK(["Kiểm tra đủ số buổi<br/>theo khoá học"])
+
+  S07(["Ghi danh học viên"])
+  INV(["Tạo hoá đơn theo<br/>học phí đã đóng băng"])
+  DISC(["Áp mã giảm học phí"])
+
+  U06(["Nạp tiền vào ví"])
+  ZC(["Tạo đơn ZaloPay"])
+  ZQ(["Truy vấn trạng thái giao dịch"])
+
+  U07(["Thanh toán từ ví"])
+  DED(["Trừ số dư ví"])
+  UPD(["Cập nhật trạng thái hoá đơn"])
+
+  S02 -->|"&laquo;include&raquo;"| SNAP
+  S02 -->|"&laquo;include&raquo;"| SNAPG
+  S05 -->|"&laquo;include&raquo;"| CHK
+  S07 -->|"&laquo;include&raquo;"| INV
+  DISC -.->|"&laquo;extend&raquo;"| S07
+  U06 -->|"&laquo;include&raquo;"| ZC
+  U06 -->|"&laquo;include&raquo;"| ZQ
+  U07 -->|"&laquo;include&raquo;"| DED
+  U07 -->|"&laquo;include&raquo;"| UPD
+
+  classDef base fill:#E7F0F9,stroke:#0064B0,stroke-width:1.5px,color:#14181F
+  classDef sub  fill:#FFFFFF,stroke:#9AA7B4,stroke-width:1.1px,color:#3B4652
+  classDef ext  fill:#FBEFD9,stroke:#9A6100,stroke-width:1.1px,color:#3B2A05
+  class S02,S05,S07,U06,U07 base
+  class SNAP,SNAPG,CHK,INV,ZC,ZQ,DED,UPD sub
+  class DISC ext
+</pre>
+      </div>
+      <figcaption>Hình 5 — Quan hệ include / extend</figcaption>
+    </figure>
+
+    <div class="note">
+      <p>
+        <strong>Vì sao “đóng băng bản sao khoá học”:</strong> lớp lưu lại học phí,
+        số buổi và cấu trúc điểm tại thời điểm tạo. Khi trung tâm đổi học phí khoá
+        học về sau, hoá đơn đã phát hành và điểm đã nhập của lớp cũ không bị thay đổi theo.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">07</span>
+      <h2>Danh mục use case</h2>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th class="id">Mã</th><th>Use case</th><th>Tác nhân</th><th>Mô tả ngắn</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="id">UC-G01</td><td>Đăng nhập</td><td>Tất cả</td><td>Xác thực bằng tài khoản, mật khẩu băm BCrypt</td></tr>
+          <tr><td class="id">UC-G02</td><td>Xem / cập nhật hồ sơ</td><td>Tất cả</td><td>Thông tin cá nhân của chính người dùng</td></tr>
+          <tr><td class="id">UC-G03</td><td>Đăng xuất</td><td>Tất cả</td><td>Kết thúc phiên, quay lại màn đăng nhập</td></tr>
+
+          <tr><td class="id">UC-A01</td><td>Quản lý tài khoản</td><td><span class="chip admin">Admin</span></td><td>Tạo, sửa, vô hiệu hoá tài khoản mọi vai trò</td></tr>
+          <tr><td class="id">UC-A02</td><td>Kích hoạt lại tài khoản</td><td><span class="chip admin">Admin</span></td><td>Khôi phục tài khoản đã vô hiệu hoá</td></tr>
+          <tr><td class="id">UC-A03</td><td>Quản lý học viên</td><td><span class="chip admin">Admin</span> <span class="chip staff">Học vụ</span></td><td>Hồ sơ học viên gắn với tài khoản</td></tr>
+          <tr><td class="id">UC-A04</td><td>Quản lý giáo viên</td><td><span class="chip admin">Admin</span></td><td>Hồ sơ giáo viên, chuyên môn, bằng cấp</td></tr>
+          <tr><td class="id">UC-A05</td><td>Quản lý nhân viên</td><td><span class="chip admin">Admin</span></td><td>Hồ sơ nhân viên và phòng ban trực thuộc</td></tr>
+          <tr><td class="id">UC-A06</td><td>Quản lý phòng ban</td><td><span class="chip admin">Admin</span></td><td>Danh mục phòng ban của nhân viên</td></tr>
+
+          <tr><td class="id">UC-C01</td><td>Quản lý ngôn ngữ &amp; trình độ</td><td><span class="chip admin">Admin</span></td><td>Ngôn ngữ trung tâm dạy và thang trình độ của từng ngôn ngữ</td></tr>
+          <tr><td class="id">UC-C02</td><td>Quản lý khoá học</td><td><span class="chip admin">Admin</span> <span class="chip staff">Học vụ</span></td><td>Mã, tên, ngôn ngữ, trình độ, số buổi, học phí</td></tr>
+          <tr><td class="id">UC-C03</td><td>Quản lý phòng học</td><td><span class="chip admin">Admin</span> <span class="chip staff">Học vụ</span></td><td>Phòng, sức chứa, vị trí</td></tr>
+          <tr><td class="id">UC-C04</td><td>Quản lý cấu trúc điểm</td><td><span class="chip admin">Admin</span> <span class="chip staff">Học vụ</span></td><td>Thành phần điểm và trọng số mẫu của khoá học</td></tr>
+
+          <tr><td class="id">UC-S01</td><td>Quản lý học kỳ</td><td><span class="chip admin">Admin</span></td><td>Ngày bắt đầu, hết setup, kết thúc; chặn trùng khoảng ngày</td></tr>
+          <tr><td class="id">UC-S02</td><td>Quản lý lớp trong học kỳ</td><td><span class="chip admin">Admin</span> <span class="chip staff">Học vụ</span></td><td>Mở lớp từ khoá học, đóng băng bản sao khoá học</td></tr>
+          <tr><td class="id">UC-S03</td><td>Huỷ / khôi phục lớp</td><td><span class="chip admin">Admin</span> <span class="chip staff">Học vụ</span></td><td>Trạng thái duy nhất do người dùng quyết định</td></tr>
+          <tr><td class="id">UC-S04</td><td>Phân công giáo viên</td><td><span class="chip admin">Admin</span> <span class="chip staff">Học vụ</span></td><td>Nhiều giáo viên một lớp, một người là chính</td></tr>
+          <tr><td class="id">UC-S05</td><td>Quản lý lịch học tuần</td><td><span class="chip admin">Admin</span> <span class="chip staff">Học vụ</span></td><td>Buổi cố định theo thứ; cảnh báo nếu không đủ số buổi</td></tr>
+          <tr><td class="id">UC-S06</td><td>Quản lý khung giờ</td><td><span class="chip admin">Admin</span></td><td>Các ca học trong ngày</td></tr>
+          <tr><td class="id">UC-S07</td><td>Ghi danh học viên</td><td><span class="chip admin">Admin</span> <span class="chip staff">Học vụ</span></td><td>Kiểm tra sĩ số, tạo hoá đơn theo học phí đã đóng băng</td></tr>
+          <tr><td class="id">UC-S08</td><td>Chuyển lớp</td><td><span class="chip admin">Admin</span> <span class="chip staff">Học vụ</span></td><td>Chuyển sang lớp khác, hoàn chênh lệch vào ví nếu rẻ hơn</td></tr>
+          <tr><td class="id">UC-S09</td><td>Huỷ ghi danh</td><td><span class="chip admin">Admin</span> <span class="chip staff">Học vụ</span></td><td>Đánh dấu DROPPED, giữ lịch sử</td></tr>
+
+          <tr><td class="id">UC-F01</td><td>Xem danh sách công nợ</td><td><span class="chip staff">Tài chính</span></td><td>Hoá đơn còn nợ, lọc nâng cao theo kỳ / khoá / lớp / GV</td></tr>
+          <tr><td class="id">UC-F02</td><td>Quản lý hoá đơn</td><td><span class="chip staff">Tài chính</span></td><td>Tra cứu và điều chỉnh hoá đơn</td></tr>
+          <tr><td class="id">UC-F03</td><td>Ghi nhận thanh toán</td><td><span class="chip staff">Tài chính</span></td><td>Thu tiền mặt / chuyển khoản / thẻ, cập nhật trạng thái</td></tr>
+          <tr><td class="id">UC-F04</td><td>Quản lý mã giảm học phí</td><td><span class="chip staff">Tài chính</span></td><td>Mã giảm theo % hoặc số tiền, thời hạn áp dụng</td></tr>
+          <tr><td class="id">UC-F05</td><td>Báo cáo doanh thu</td><td><span class="chip admin">Admin</span> <span class="chip staff">Tài chính</span></td><td>Doanh thu theo khoảng ngày, tách theo phương thức</td></tr>
+          <tr><td class="id">UC-F06</td><td>Xét học bổng</td><td><span class="chip admin">Admin</span></td><td>Xếp hạng theo điểm trung bình có trọng số, cấp voucher</td></tr>
+
+          <tr><td class="id">UC-T01</td><td>Xem lịch dạy</td><td><span class="chip teach">Giáo viên</span></td><td>Lịch theo tuần của các lớp mình phụ trách</td></tr>
+          <tr><td class="id">UC-T02</td><td>Điểm danh</td><td><span class="chip teach">Giáo viên</span></td><td>Ghi nhận có mặt / vắng theo từng buổi</td></tr>
+          <tr><td class="id">UC-T03</td><td>Xem danh sách lớp</td><td><span class="chip teach">Giáo viên</span></td><td>Học viên đang theo học trong lớp</td></tr>
+          <tr><td class="id">UC-T04</td><td>Nhập điểm</td><td><span class="chip teach">Giáo viên</span></td><td>Nhập theo cấu trúc điểm đã đóng băng của lớp</td></tr>
+          <tr><td class="id">UC-T05</td><td>Xem kết quả lớp</td><td><span class="chip teach">Giáo viên</span></td><td>Bảng điểm tổng hợp và điểm cuối có trọng số</td></tr>
+
+          <tr><td class="id">UC-U01</td><td>Xem lịch học</td><td><span class="chip stud">Học viên</span></td><td>Lịch theo tuần</td></tr>
+          <tr><td class="id">UC-U02</td><td>Xem lịch sử điểm danh</td><td><span class="chip stud">Học viên</span></td><td>Thống kê vắng mặt theo lớp</td></tr>
+          <tr><td class="id">UC-U03</td><td>Xem lớp của tôi</td><td><span class="chip stud">Học viên</span></td><td>Các lớp đã và đang ghi danh</td></tr>
+          <tr><td class="id">UC-U04</td><td>Xem điểm</td><td><span class="chip stud">Học viên</span></td><td>Điểm thành phần và điểm tổng kết</td></tr>
+          <tr><td class="id">UC-U05</td><td>Xem hoá đơn</td><td><span class="chip stud">Học viên</span></td><td>Hoá đơn học phí và số tiền còn nợ</td></tr>
+          <tr><td class="id">UC-U06</td><td>Nạp tiền vào ví</td><td><span class="chip stud">Học viên</span></td><td>Tạo đơn ZaloPay, cộng tiền sau khi truy vấn thành công</td></tr>
+          <tr><td class="id">UC-U07</td><td>Thanh toán từ ví</td><td><span class="chip stud">Học viên</span></td><td>Trừ số dư và cập nhật hoá đơn</td></tr>
+          <tr><td class="id">UC-U08</td><td>Xem lịch sử ví</td><td><span class="chip stud">Học viên</span></td><td>Các giao dịch nạp và chi</td></tr>
+          <tr><td class="id">UC-U09</td><td>Hỏi trợ lý AI</td><td><span class="chip stud">Học viên</span></td><td>Gửi câu hỏi kèm ngữ cảnh học tập tới Gemini</td></tr>
+
+          <tr><td class="id">UC-X01</td><td>Sinh buổi học</td><td><span class="chip sys">Hệ thống</span></td><td>Trải lịch tuần thành các buổi cụ thể, dừng ở số buổi khoá học yêu cầu</td></tr>
+          <tr><td class="id">UC-X02</td><td>Khoá ghi danh</td><td><span class="chip sys">Hệ thống</span></td><td>Chốt danh sách vào ngày đầu tiên sau giai đoạn setup</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">08</span>
+      <h2>Ràng buộc nghiệp vụ chi phối thiết kế</h2>
+    </div>
+    <p>
+      Bốn quy tắc dưới đây không chỉ là kiểm tra dữ liệu — chúng quyết định cấu
+      trúc bảng, nên được nêu kèm sơ đồ.
+    </p>
+
+    <ul class="rules">
+      <li>
+        <b>Học kỳ không được chồng ngày</b>
+        <span>
+          Nhờ vậy “học kỳ hiện tại” luôn có đúng một đáp án và không cần cột đánh dấu —
+          hệ thống suy ra từ ngày hôm nay. Trạng thái sai trở nên không thể biểu diễn.
+        </span>
+      </li>
+      <li>
+        <b>Lớp đóng băng bản sao khoá học lúc tạo</b>
+        <span>
+          Học phí, số buổi, ngôn ngữ, trình độ và cấu trúc điểm được sao chép sang lớp.
+          Sửa khoá học về sau chỉ ảnh hưởng các lớp mở sau đó.
+        </span>
+      </li>
+      <li>
+        <b>Trạng thái lớp suy từ ngày, không chỉnh tay</b>
+        <span>
+          Sắp diễn ra / đang học / đã kết thúc do ngày bắt đầu và kết thúc quyết định.
+          Chỉ “huỷ lớp” là quyết định của con người, nên nó là cờ riêng.
+        </span>
+      </li>
+      <li>
+        <b>Số buổi do khoá học quyết định</b>
+        <span>
+          Lịch tuần và khoảng thời gian học kỳ chỉ quyết định buổi rơi vào ngày nào.
+          Màn lịch học cảnh báo nếu lịch không đủ số buổi khoá học yêu cầu.
+        </span>
+      </li>
+    </ul>
+  </section>
+
+</div>
