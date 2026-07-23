@@ -1,14 +1,16 @@
 using System.Windows;
-using System.Windows.Controls;
 using BusinessObjects;
 
 namespace WpfApp;
 
 // ============================================================
-//  DepartmentDialog — Add/Edit a department (name + access group).
+//  DepartmentDialog — Add/Edit a department (name only).
 //  CONTENTS:
-//    1. Construction   — add vs edit (prefill name/access group)
+//    1. Construction   — add vs edit (prefill name)
 //    2. Save / Cancel  — validate name, return via Result
+//
+//  No access group here: which menus a department unlocks is decided in code,
+//  see MainWindow.ApplyStaffDepartmentVisibility.
 // ============================================================
 public partial class DepartmentDialog : Window
 {
@@ -20,14 +22,11 @@ public partial class DepartmentDialog : Window
     {
         InitializeComponent();
         _existing = existing;
-        cmbAccess.SelectedIndex = 0;
 
         if (existing != null)
         {
             tbTitle.Text = "Edit department";
             txtName.Text = existing.Name;
-            cmbAccess.SelectedItem = cmbAccess.Items.Cast<ComboBoxItem>()
-                .FirstOrDefault(i => (string)i.Tag == existing.AccessGroup) ?? cmbAccess.Items[0];
         }
     }
 
@@ -40,11 +39,8 @@ public partial class DepartmentDialog : Window
             return;
         }
 
-        var accessGroup = (cmbAccess.SelectedItem as ComboBoxItem)?.Tag as string ?? "ACADEMIC";
-
         Result = _existing ?? new Department();
         Result.Name = name;
-        Result.AccessGroup = accessGroup;
 
         DialogResult = true;
     }

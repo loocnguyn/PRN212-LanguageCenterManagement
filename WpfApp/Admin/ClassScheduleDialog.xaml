@@ -22,15 +22,15 @@
                    FontSize="16" FontWeight="SemiBold" Margin="0,0,0,16"/>
 
         <TextBlock Grid.Row="1" Grid.Column="0" Text="Class:" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <ComboBox Grid.Row="1" Grid.Column="1" x:Name="cboClass" Height="34" Margin="0,0,0,10"
+        <ComboBox Grid.Row="1" Grid.Column="1" x:Name="cboClass" Margin="0,0,0,10"
                   VerticalContentAlignment="Center" DisplayMemberPath="Name" SelectedValuePath="ClassId"/>
 
         <TextBlock Grid.Row="2" Grid.Column="0" Text="Day of Week:" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <ComboBox Grid.Row="2" Grid.Column="1" x:Name="cboDayOfWeek" Height="34" Margin="0,0,0,10"
+        <ComboBox Grid.Row="2" Grid.Column="1" x:Name="cboDayOfWeek" Margin="0,0,0,10"
                   VerticalContentAlignment="Center" DisplayMemberPath="Key" SelectedValuePath="Value"/>
 
         <TextBlock Grid.Row="3" Grid.Column="0" Text="Slot:" VerticalAlignment="Center" Margin="0,0,0,10"/>
-        <ComboBox Grid.Row="3" Grid.Column="1" x:Name="cboSlot" Height="34" Margin="0,0,0,10"
+        <ComboBox Grid.Row="3" Grid.Column="1" x:Name="cboSlot" Margin="0,0,0,10"
                   VerticalContentAlignment="Center" DisplayMemberPath="Display" SelectedValuePath="SlotId"/>
 
         <TextBlock Grid.Row="4" Grid.Column="1" x:Name="tbHint" FontSize="11"

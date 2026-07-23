@@ -70,7 +70,7 @@
                     <TextBox x:Name="txtSearch" Width="220" Height="34" VerticalContentAlignment="Center" Padding="6,0"/>
                     <Button Content="Search" Style="{StaticResource PillButton}" Width="84" Margin="8,0,0,0" Click="BtnSearch_Click"/>
                     <TextBlock Text="Department:" VerticalAlignment="Center" Margin="20,0,6,0"/>
-                    <ComboBox x:Name="cmbFilterDept" Width="170" Height="34" SelectionChanged="CmbFilterDept_Changed"/>
+                    <ComboBox x:Name="cmbFilterDept" MinWidth="170" SelectionChanged="CmbFilterDept_Changed"/>
                 </StackPanel>
             </Border>
 

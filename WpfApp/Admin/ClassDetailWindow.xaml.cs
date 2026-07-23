@@ -52,7 +52,8 @@ public partial class ClassDetailWindow : Window
             dpEndDate.SelectedDate = semester.EndDate.ToDateTime(TimeOnly.MinValue);
         }
 
-        cmbStatus.SelectedIndex = 0;
+        // The status row stays hidden: a class being created has no status to show yet,
+        // and there was never anything to choose — it follows the dates.
     }
 
     /// <summary>Edit mode.</summary>
@@ -73,12 +74,20 @@ public partial class ClassDetailWindow : Window
         cmbClassroom.SelectedValue = classEntity.ClassroomId;
         txtMaxStudents.Text = classEntity.MaxStudents.ToString();
 
-        if (classEntity.StartDate.HasValue)
-            dpStartDate.SelectedDate = classEntity.StartDate.Value.ToDateTime(TimeOnly.MinValue);
-        if (classEntity.EndDate.HasValue)
-            dpEndDate.SelectedDate = classEntity.EndDate.Value.ToDateTime(TimeOnly.MinValue);
+        dpStartDate.SelectedDate = classEntity.StartDate.ToDateTime(TimeOnly.MinValue);
+        dpEndDate.SelectedDate = classEntity.EndDate.ToDateTime(TimeOnly.MinValue);
 
-        SelectComboItem(cmbStatus, classEntity.Status);
+        // Shown, not editable: the status is whatever the dates say it is.
+        lblStatus.Visibility = Visibility.Visible;
+        statusPanel.Visibility = Visibility.Visible;
+        tbStatus.Text = classEntity.Status;
+        statusBadge.Background = (System.Windows.Media.Brush)FindResource(classEntity.Status switch
+        {
+            "ONGOING" => "SecondaryBrush",
+            "COMPLETED" => "TextSecondaryBrush",
+            "CANCELLED" => "DangerBrush",
+            _ => "PrimaryBrush"
+        });
 
         // The snapshot is immutable — show it, don't offer to change it.
         cmbCourse.IsEnabled = false;
@@ -172,8 +181,7 @@ public partial class ClassDetailWindow : Window
             return;
         }
 
-        var status = (cmbStatus.SelectedItem as ComboBoxItem)?.Content?.ToString();
-        if (string.IsNullOrEmpty(status)) { Warn("Status is required."); return; }
+        // No status to collect: it is derived from the dates below.
 
         var selected = _teacherPicks.Where(p => p.IsSelected).ToList();
         if (selected.Count == 0) { Warn("Assign at least one teacher."); return; }
@@ -197,12 +205,18 @@ public partial class ClassDetailWindow : Window
             return;
         }
 
-        DateOnly? startDate = dpStartDate.SelectedDate.HasValue
-            ? DateOnly.FromDateTime(dpStartDate.SelectedDate.Value) : null;
-        DateOnly? endDate = dpEndDate.SelectedDate.HasValue
-            ? DateOnly.FromDateTime(dpEndDate.SelectedDate.Value) : null;
+        // Both dates are required: the class's status is derived from them, and session
+        // generation needs a window to lay meetings out in.
+        if (dpStartDate.SelectedDate is not DateTime start || dpEndDate.SelectedDate is not DateTime end)
+        {
+            Warn("Both the start and end date are required.");
+            return;
+        }
 
-        if (startDate.HasValue && endDate.HasValue && startDate > endDate)
+        var startDate = DateOnly.FromDateTime(start);
+        var endDate = DateOnly.FromDateTime(end);
+
+        if (startDate > endDate)
         {
             Warn("Start date cannot be later than end date.");
             return;
@@ -222,7 +236,6 @@ public partial class ClassDetailWindow : Window
                     MaxStudents = maxStudents,
                     StartDate = startDate,
                     EndDate = endDate,
-                    Status = status,
                     CreatedAt = System.DateTime.Now
                 };
 
@@ -236,7 +249,6 @@ public partial class ClassDetailWindow : Window
                 _editClass.MaxStudents = maxStudents;
                 _editClass.StartDate = startDate;
                 _editClass.EndDate = endDate;
-                _editClass.Status = status;
 
                 _classService.Update(_editClass);
                 _classService.SetTeachers(_editClass.ClassId, teacherIds, primary.TeacherId);

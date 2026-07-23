@@ -58,13 +58,10 @@
                 <MenuItem Header="Course Management"   Click="MenuCourses_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="Book24"/></MenuItem.Icon>
                 </MenuItem>
-                <!-- The catalogue courses are built from: languages, then each
-                     language's levels. -->
-                <MenuItem Header="Languages" Click="MenuLanguages_Click">
+                <!-- Languages and their levels — the catalogue courses are built from.
+                     One screen: a level is meaningless outside its language. -->
+                <MenuItem Header="Course Catalogue (Languages &amp; Levels)" Click="MenuCatalogue_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="LocalLanguage24"/></MenuItem.Icon>
-                </MenuItem>
-                <MenuItem Header="Levels" Click="MenuLevels_Click">
-                    <MenuItem.Icon><ui:SymbolIcon Symbol="ArrowSortUp24"/></MenuItem.Icon>
                 </MenuItem>
                 <Separator/>
                 <MenuItem Header="Classroom Management" Click="MenuClassrooms_Click">

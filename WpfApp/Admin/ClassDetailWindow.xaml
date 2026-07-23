@@ -41,7 +41,7 @@
                      and swapping it later would desync that copy from invoices already issued. -->
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Course" VerticalAlignment="Center" Margin="0,0,0,10"/>
                 <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
-                    <ComboBox x:Name="cmbCourse" Height="34"
+                    <ComboBox x:Name="cmbCourse"
                               SelectedValuePath="CourseId"
                               SelectionChanged="CmbCourse_SelectionChanged">
                         <ComboBox.ItemTemplate>
@@ -104,7 +104,7 @@
                 </StackPanel>
 
                 <TextBlock Grid.Row="3" Grid.Column="0" Text="Classroom" VerticalAlignment="Center" Margin="0,0,0,10"/>
-                <ComboBox Grid.Row="3" Grid.Column="1" x:Name="cmbClassroom" Height="34" Margin="0,0,0,10"
+                <ComboBox Grid.Row="3" Grid.Column="1" x:Name="cmbClassroom" Margin="0,0,0,10"
                           DisplayMemberPath="Name" SelectedValuePath="ClassroomId"/>
 
                 <TextBlock Grid.Row="4" Grid.Column="0" Text="Max students" VerticalAlignment="Center" Margin="0,0,0,10"/>
@@ -117,13 +117,20 @@
                     <DatePicker x:Name="dpEndDate" Width="150" Height="34"/>
                 </StackPanel>
 
-                <TextBlock Grid.Row="6" Grid.Column="0" Text="Status" VerticalAlignment="Center" Margin="0,0,0,10"/>
-                <ComboBox Grid.Row="6" Grid.Column="1" x:Name="cmbStatus" Height="34" Margin="0,0,0,10">
-                    <ComboBoxItem Content="UPCOMING" IsSelected="True"/>
-                    <ComboBoxItem Content="ONGOING"/>
-                    <ComboBoxItem Content="COMPLETED"/>
-                    <ComboBoxItem Content="CANCELLED"/>
-                </ComboBox>
+                <!-- Read-only: the status follows the dates above (upcoming until the
+                     start date, ongoing until the end date, completed after). Cancelling
+                     is done from the class list, not here. -->
+                <TextBlock x:Name="lblStatus" Grid.Row="6" Grid.Column="0" Text="Status"
+                           VerticalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
+                <StackPanel x:Name="statusPanel" Grid.Row="6" Grid.Column="1"
+                            Orientation="Horizontal" Margin="0,0,0,10" Visibility="Collapsed">
+                    <Border x:Name="statusBadge" CornerRadius="10" Padding="10,3"
+                            VerticalAlignment="Center" Background="{StaticResource PrimaryBrush}">
+                        <TextBlock x:Name="tbStatus" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+                    </Border>
+                    <TextBlock Text="follows the dates above" VerticalAlignment="Center" Margin="10,0,0,0"
+                               FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                </StackPanel>
 
                 <StackPanel Grid.Row="7" Grid.ColumnSpan="2"
                             Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">

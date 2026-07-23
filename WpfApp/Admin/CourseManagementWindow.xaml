@@ -58,8 +58,8 @@
                         <DataGridTextColumn Header="ID" Binding="{Binding CourseId}" Width="50"/>
                         <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="100"/>
                         <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
-                        <DataGridTextColumn Header="Level" Binding="{Binding Level}" Width="80"/>
-                        <DataGridTextColumn Header="Language" Binding="{Binding Language}" Width="110"/>
+                        <DataGridTextColumn Header="Language" Binding="{Binding LanguageName}" Width="110"/>
+                        <DataGridTextColumn Header="Level" Binding="{Binding LevelName}" Width="90"/>
                         <DataGridTextColumn Header="Sessions" Binding="{Binding DurationSessions}" Width="90"/>
                         <DataGridTextColumn Header="Fee" Binding="{Binding TuitionFee, StringFormat='{}{0:N0} đ'}" Width="130"/>
                         <DataGridTemplateColumn Header="Status" Width="110" CellTemplate="{StaticResource StatusBadgeTemplate}"/>

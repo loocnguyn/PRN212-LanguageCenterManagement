@@ -7,28 +7,13 @@
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource BackgroundBrush}">
 
-    <Window.Resources>
-        <!-- Access-group badge: teal for Academic, amber-ish for Finance -->
-        <DataTemplate x:Key="AccessBadgeTemplate">
-            <Border x:Name="badge" CornerRadius="10" Padding="10,3" HorizontalAlignment="Left"
-                    Background="{StaticResource InfoBrush}">
-                <TextBlock Text="{Binding AccessGroupDisplay}" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
-            </Border>
-            <DataTemplate.Triggers>
-                <DataTrigger Binding="{Binding AccessGroup}" Value="FINANCE">
-                    <Setter TargetName="badge" Property="Background" Value="{StaticResource RoleStudentBrush}"/>
-                </DataTrigger>
-            </DataTemplate.Triggers>
-        </DataTemplate>
-    </Window.Resources>
-
     <DockPanel>
         <Border DockPanel.Dock="Top" Background="{StaticResource PrimaryBrush}" Padding="20,14">
             <StackPanel Orientation="Horizontal">
                 <ui:SymbolIcon Symbol="Building24" Foreground="White" FontSize="26" Margin="0,0,12,0"/>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="Departments" Foreground="White" FontSize="18" FontWeight="SemiBold"/>
-                    <TextBlock Text="Manage staff departments and the access they unlock"
+                    <TextBlock Text="Staff departments"
                                Foreground="#DCEBFF" FontSize="12"/>
                 </StackPanel>
             </StackPanel>
@@ -45,9 +30,8 @@
                           SelectionMode="Single" BorderThickness="0" Background="Transparent" RowHeight="44"
                           MouseDoubleClick="DgDepartments_MouseDoubleClick">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="ID" Binding="{Binding DepartmentId}" Width="60"/>
+                        <DataGridTextColumn Header="ID" Binding="{Binding DepartmentId}" Width="80"/>
                         <DataGridTextColumn Header="Department" Binding="{Binding Name}" Width="*"/>
-                        <DataGridTemplateColumn Header="Access group" Width="200" CellTemplate="{StaticResource AccessBadgeTemplate}"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>

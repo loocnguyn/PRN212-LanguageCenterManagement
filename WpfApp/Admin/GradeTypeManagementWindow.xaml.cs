@@ -113,8 +113,6 @@ public partial class GradeTypeManagementWindow : Window
     {
         public string Name => Course.Name;
         public string Code => Course.Code;
-        public string Language => Course.LanguageName;
-        public string Level => Course.LevelName;
         public bool IsActive => Course.IsActive;
 
         public int ComponentCount => GradeTypes.Count;

@@ -21,7 +21,6 @@ public partial class LanguageDialog : Window
         _editing = language;
         Title = "Edit Language";
         txtName.Text = language.Name;
-        chkActive.IsChecked = language.IsActive;
     }
 
     private void BtnSave_Click(object sender, RoutedEventArgs e)
@@ -30,16 +29,11 @@ public partial class LanguageDialog : Window
         {
             if (_editing == null)
             {
-                _service.SaveLanguage(new Language
-                {
-                    Name = txtName.Text,
-                    IsActive = chkActive.IsChecked ?? true
-                });
+                _service.SaveLanguage(new Language { Name = txtName.Text });
             }
             else
             {
                 _editing.Name = txtName.Text;
-                _editing.IsActive = chkActive.IsChecked ?? true;
                 _service.UpdateLanguage(_editing);
             }
 

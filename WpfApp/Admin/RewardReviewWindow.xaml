@@ -49,9 +49,9 @@
             <Border Grid.Row="0" Style="{StaticResource Card}" Padding="12" Margin="0,0,0,14">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Semester:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <ComboBox x:Name="cboSemester" Width="180" Height="34" DisplayMemberPath="Name" SelectedValuePath="SemesterId"/>
+                    <ComboBox x:Name="cboSemester" MinWidth="180" DisplayMemberPath="Name" SelectedValuePath="SemesterId"/>
                     <TextBlock Text="Course:" VerticalAlignment="Center" Margin="16,0,6,0"/>
-                    <ComboBox x:Name="cboCourse" Width="200" Height="34" DisplayMemberPath="Name" SelectedValuePath="CourseId"/>
+                    <ComboBox x:Name="cboCourse" MinWidth="200" DisplayMemberPath="Name" SelectedValuePath="CourseId"/>
                     <TextBlock Text="Threshold:" VerticalAlignment="Center" Margin="16,0,6,0"/>
                     <TextBox x:Name="txtThreshold" Width="56" Height="34" Text="8.0" VerticalContentAlignment="Center" Padding="6,0"/>
                     <Button Content="Review" Style="{StaticResource PillButton}" Width="90" Margin="16,0,0,0" Click="BtnReview_Click"/>

@@ -106,6 +106,8 @@
                     <Button Content="Enrollments" Style="{StaticResource PillButtonInfo}" Width="130" Margin="0,0,8,0" Click="BtnEnrollments_Click"/>
                     <Button Content="Add class"   Style="{StaticResource PillButton}"     Width="110" Margin="0,0,8,0" Click="BtnAdd_Click"/>
                     <Button Content="Edit"        Style="{StaticResource PillButtonSuccess}" Width="90" Margin="0,0,8,0" Click="BtnEdit_Click"/>
+                    <!-- Cancelling is the only status a human sets; the rest follow the dates. -->
+                    <Button x:Name="btnCancel" Content="Cancel class" Style="{StaticResource PillButtonSubtle}" Width="120" Margin="0,0,8,0" Click="BtnCancelClass_Click"/>
                     <Button Content="Delete"      Style="{StaticResource PillButtonDanger}"  Width="90" Click="BtnDelete_Click"/>
                 </StackPanel>
             </Grid>

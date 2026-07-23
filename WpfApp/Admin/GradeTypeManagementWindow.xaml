@@ -8,17 +8,12 @@
         Background="{StaticResource BackgroundBrush}">
 
     <Window.Resources>
-        <!-- Course code as headline, name underneath -->
+        <!-- Course name, with its code underneath as the identifier -->
         <DataTemplate x:Key="CourseCellTemplate">
             <StackPanel VerticalAlignment="Center">
                 <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14"/>
-                <TextBlock FontSize="11" Foreground="{StaticResource TextSecondaryBrush}">
-                    <Run Text="{Binding Code, Mode=OneWay}"/>
-                    <Run Text=" · "/>
-                    <Run Text="{Binding Language, Mode=OneWay}"/>
-                    <Run Text=" · Level "/>
-                    <Run Text="{Binding Level, Mode=OneWay}"/>
-                </TextBlock>
+                <TextBlock Text="{Binding Code}" FontSize="11"
+                           Foreground="{StaticResource TextSecondaryBrush}"/>
             </StackPanel>
         </DataTemplate>
 

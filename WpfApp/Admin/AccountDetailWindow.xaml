@@ -50,7 +50,7 @@
 
                     <!-- Role -->
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Role" VerticalAlignment="Center" Margin="0,0,0,12"/>
-                    <ComboBox  Grid.Row="0" Grid.Column="1" x:Name="cmbRole" Height="34" Margin="0,0,0,12"
+                    <ComboBox  Grid.Row="0" Grid.Column="1" x:Name="cmbRole" Margin="0,0,0,12"
                                SelectionChanged="CmbRole_SelectionChanged">
                         <ComboBoxItem Content="STAFF"/>
                         <ComboBoxItem Content="TEACHER"/>
@@ -88,14 +88,14 @@
 
                     <!-- Student/Teacher: Gender -->
                     <TextBlock Grid.Row="8" Grid.Column="0" x:Name="lblGender" Text="Giới tính" VerticalAlignment="Center" Margin="0,0,0,12" Visibility="Collapsed"/>
-                    <ComboBox  Grid.Row="8" Grid.Column="1" x:Name="cmbGender" Height="34" Margin="0,0,0,12" Visibility="Collapsed">
+                    <ComboBox  Grid.Row="8" Grid.Column="1" x:Name="cmbGender" Margin="0,0,0,12" Visibility="Collapsed">
                         <ComboBoxItem Content="Male"/>
                         <ComboBoxItem Content="Female"/>
                     </ComboBox>
 
                     <!-- Teacher: Specialization -->
                     <TextBlock Grid.Row="9" Grid.Column="0" x:Name="lblSpec" Text="Specialization" VerticalAlignment="Center" Margin="0,0,0,12" Visibility="Collapsed"/>
-                    <ComboBox  Grid.Row="9" Grid.Column="1" x:Name="txtSpec" Height="34" Margin="0,0,0,12" Visibility="Collapsed">
+                    <ComboBox  Grid.Row="9" Grid.Column="1" x:Name="txtSpec" Margin="0,0,0,12" Visibility="Collapsed">
                         <ComboBoxItem Content="English"/>
                         <ComboBoxItem Content="Japanese"/>
                         <ComboBoxItem Content="Korean"/>
@@ -106,7 +106,7 @@
 
                     <!-- Teacher: Degree -->
                     <TextBlock Grid.Row="10" Grid.Column="0" x:Name="lblDegree" Text="Bằng cấp" VerticalAlignment="Center" Margin="0,0,0,12" Visibility="Collapsed"/>
-                    <ComboBox  Grid.Row="10" Grid.Column="1" x:Name="cmbDegree" Height="34" Margin="0,0,0,12" Visibility="Collapsed">
+                    <ComboBox  Grid.Row="10" Grid.Column="1" x:Name="cmbDegree" Margin="0,0,0,12" Visibility="Collapsed">
                         <ComboBoxItem Content="Bachelor"/>
                         <ComboBoxItem Content="Master"/>
                         <ComboBoxItem Content="Doctor"/>
@@ -114,7 +114,7 @@
 
                     <!-- Staff: Department (populated from the Departments table at runtime) -->
                     <TextBlock Grid.Row="9" Grid.Column="0" x:Name="lblDept" Text="Department" VerticalAlignment="Center" Margin="0,0,0,12" Visibility="Collapsed"/>
-                    <ComboBox  Grid.Row="9" Grid.Column="1" x:Name="txtDept" Height="34" Margin="0,0,0,12" Visibility="Collapsed"/>
+                    <ComboBox  Grid.Row="9" Grid.Column="1" x:Name="txtDept" Margin="0,0,0,12" Visibility="Collapsed"/>
 
                     <!-- Active (edit only) -->
                     <TextBlock Grid.Row="10" Grid.Column="0" x:Name="lblActive" Text="Active" VerticalAlignment="Center" Margin="0,0,0,12" Visibility="Collapsed"/>

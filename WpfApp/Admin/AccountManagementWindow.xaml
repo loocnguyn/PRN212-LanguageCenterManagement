@@ -126,7 +126,7 @@
                     <TextBox x:Name="txtSearch" Width="220" Height="34" VerticalContentAlignment="Center" Padding="6,0"/>
                     <Button Content="Search" Style="{StaticResource PillButton}" Width="84" Margin="8,0,0,0" Click="BtnSearch_Click"/>
                     <TextBlock Text="Role:" VerticalAlignment="Center" Margin="20,0,6,0"/>
-                    <ComboBox x:Name="cmbFilterRole" Width="150" Height="34" SelectionChanged="CmbFilterRole_Changed"
+                    <ComboBox x:Name="cmbFilterRole" MinWidth="150" SelectionChanged="CmbFilterRole_Changed"
                               HorizontalContentAlignment="Left" Padding="8,4" VerticalContentAlignment="Center">
                         <ComboBoxItem Content="All" IsSelected="True"/>
                         <ComboBoxItem Content="ADMIN"/>

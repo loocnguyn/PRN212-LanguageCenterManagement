@@ -82,7 +82,7 @@
                     <TextBlock Text="Student ID:" VerticalAlignment="Center" Margin="0,0,6,0"/>
                     <TextBox x:Name="txtStudentId" Width="110" Height="34"/>
                     <TextBlock Text="Discount:" VerticalAlignment="Center" Margin="16,0,6,0"/>
-                    <ComboBox x:Name="cboDiscount" Width="280" Height="34" DisplayMemberPath="DisplayText"/>
+                    <ComboBox x:Name="cboDiscount" MinWidth="280" DisplayMemberPath="DisplayText"/>
                     <Button Content="Enroll" Style="{StaticResource PillButton}" Width="100"
                             Margin="16,0,0,0" Click="BtnEnroll_Click"/>
                     <Button Content="Refresh" Style="{StaticResource PillButtonSubtle}" Width="90"

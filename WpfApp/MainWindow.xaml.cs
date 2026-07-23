@@ -80,19 +80,29 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Department names whose staff get the finance menus (invoices, payments, reports,
+    /// discounts). Everything else counts as academic.
+    ///
+    /// Kept in code rather than as a column on Departments: it is a rule about this
+    /// application's menus, not data about a department, and it changes when the menus
+    /// change — not when an admin renames a row.
+    /// </summary>
+    private static readonly string[] FinanceDepartments = { "Finance" };
+
     /// <summary>Resolves the staff member's department to an access group and shows the matching
-    /// menus. Staff whose department can't be resolved (e.g. legacy/blank) get both groups so
+    /// menus. Staff whose department can't be resolved (e.g. blank) get both groups so
     /// nobody is locked out. Academic staff reach Student Management inside the Accounts menu but
     /// not the admin-only account tools.</summary>
     private void ApplyStaffDepartmentVisibility()
     {
         var deptName = _staffService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id)?.Department;
-        var accessGroup = deptName == null
-            ? null
-            : _departmentService.GetAll().FirstOrDefault(d => d.Name == deptName)?.AccessGroup;
 
-        var showAcademic = accessGroup is null or "ACADEMIC";
-        var showFinance = accessGroup is null or "FINANCE";
+        var isFinance = deptName != null
+            && FinanceDepartments.Contains(deptName, StringComparer.OrdinalIgnoreCase);
+
+        var showAcademic = deptName == null || !isFinance;
+        var showFinance = deptName == null || isFinance;
 
         if (showAcademic)
         {
@@ -159,10 +169,8 @@ public partial class MainWindow : Window
         => new SemesterWindow().Show();
     private void MenuCourses_Click(object sender, RoutedEventArgs e)
         => new CourseManagementWindow().Show();
-    private void MenuLanguages_Click(object sender, RoutedEventArgs e)
-        => new LanguageManagementWindow().Show();
-    private void MenuLevels_Click(object sender, RoutedEventArgs e)
-        => new LevelManagementWindow().Show();
+    private void MenuCatalogue_Click(object sender, RoutedEventArgs e)
+        => new CatalogueWindow().Show();
     private void MenuClassrooms_Click(object sender, RoutedEventArgs e)
         => new ClassroomManagementWindow().Show();
     private void MenuGradeTypeManagement_Click(object sender, RoutedEventArgs e)

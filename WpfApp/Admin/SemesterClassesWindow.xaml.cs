@@ -102,6 +102,35 @@ public partial class SemesterClassesWindow : Window
         LoadData(); // enrolled counts may have moved
     }
 
+    /// <summary>
+    /// Cancels or reinstates the selected class. UPCOMING / ONGOING / COMPLETED are not
+    /// offered anywhere: they follow the class's dates, so the only status left for a
+    /// human to decide is whether the class is called off.
+    /// </summary>
+    private void BtnCancelClass_Click(object sender, RoutedEventArgs e)
+    {
+        if (Selected() is not ClassRow row) return;
+
+        var cancelling = !row.Class.IsCancelled;
+        var verb = cancelling ? "Cancel" : "Reinstate";
+
+        var confirm = MessageBox.Show(
+            $"{verb} class \"{row.Name}\"?", "Confirm",
+            MessageBoxButton.YesNo, MessageBoxImage.Question);
+        if (confirm != MessageBoxResult.Yes) return;
+
+        try
+        {
+            _classService.SetCancelled(row.ClassId, cancelling);
+            LoadData();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Could not update the class:\n{ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
     private void BtnDelete_Click(object sender, RoutedEventArgs e)
     {
         if (Selected() is not ClassRow row) return;

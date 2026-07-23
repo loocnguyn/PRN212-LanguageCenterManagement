@@ -18,12 +18,6 @@ public partial class LevelDialog : Window
         InitializeComponent();
         _language = language;
         tbLanguage.Text = language.Name;
-
-        // Suggest the next rung so the common case needs no typing.
-        txtSortOrder.Text = (_service.GetLevels(language.LanguageId, activeOnly: false)
-            .Select(l => l.SortOrder)
-            .DefaultIfEmpty(0)
-            .Max() + 1).ToString();
     }
 
     public LevelDialog(Language language, Level level) : this(language)
@@ -31,19 +25,10 @@ public partial class LevelDialog : Window
         _editing = level;
         Title = "Edit Level";
         txtName.Text = level.Name;
-        txtSortOrder.Text = level.SortOrder.ToString();
-        chkActive.IsChecked = level.IsActive;
     }
 
     private void BtnSave_Click(object sender, RoutedEventArgs e)
     {
-        if (!int.TryParse(txtSortOrder.Text.Trim(), out var sortOrder) || sortOrder < 0)
-        {
-            MessageBox.Show("Order must be a non-negative whole number.", "Validation",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
-
         try
         {
             if (_editing == null)
@@ -51,16 +36,12 @@ public partial class LevelDialog : Window
                 _service.SaveLevel(new Level
                 {
                     LanguageId = _language.LanguageId,
-                    Name = txtName.Text,
-                    SortOrder = sortOrder,
-                    IsActive = chkActive.IsChecked ?? true
+                    Name = txtName.Text
                 });
             }
             else
             {
                 _editing.Name = txtName.Text;
-                _editing.SortOrder = sortOrder;
-                _editing.IsActive = chkActive.IsChecked ?? true;
                 _service.UpdateLevel(_editing);
             }
 
