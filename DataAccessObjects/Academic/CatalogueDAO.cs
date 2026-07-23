@@ -14,16 +14,17 @@ namespace DataAccessObjects;
 //  Reference data driving the course dialog: pick a language, then one of that
 //  language's levels. Levels are per-language because "N5" only means anything
 //  for Japanese and "B1" only for the CEFR languages.
+//
+//  Levels list by level_id, i.e. the order they were added — so a language's
+//  levels should be entered beginner-first.
 // ============================================================
 public class CatalogueDAO
 {
     // ---- 1. Reads ----------------------------------------------
-    public static List<Language> GetLanguages(bool activeOnly = true)
+    public static List<Language> GetLanguages()
     {
         using var context = new LanguageCenterContext();
-        var query = context.Languages.AsQueryable();
-        if (activeOnly) query = query.Where(l => l.IsActive);
-        return query.OrderBy(l => l.Name).ToList();
+        return context.Languages.OrderBy(l => l.Name).ToList();
     }
 
     public static Language? GetLanguage(int id)
@@ -32,13 +33,14 @@ public class CatalogueDAO
         return context.Languages.FirstOrDefault(l => l.LanguageId == id);
     }
 
-    /// <summary>Levels belonging to one language, in teaching order (A1 before A2).</summary>
-    public static List<Level> GetLevels(int languageId, bool activeOnly = true)
+    /// <summary>Levels belonging to one language, in the order they were added.</summary>
+    public static List<Level> GetLevels(int languageId)
     {
         using var context = new LanguageCenterContext();
-        var query = context.Levels.Where(l => l.LanguageId == languageId);
-        if (activeOnly) query = query.Where(l => l.IsActive);
-        return query.OrderBy(l => l.SortOrder).ThenBy(l => l.Name).ToList();
+        return context.Levels
+            .Where(l => l.LanguageId == languageId)
+            .OrderBy(l => l.LevelId)
+            .ToList();
     }
 
     public static List<Level> GetAllLevels()
@@ -46,7 +48,7 @@ public class CatalogueDAO
         using var context = new LanguageCenterContext();
         return context.Levels
             .Include(l => l.Language)
-            .OrderBy(l => l.Language.Name).ThenBy(l => l.SortOrder)
+            .OrderBy(l => l.Language.Name).ThenBy(l => l.LevelId)
             .ToList();
     }
 
@@ -70,7 +72,6 @@ public class CatalogueDAO
         var existing = context.Languages.Find(entity.LanguageId);
         if (existing == null) return;
         existing.Name = entity.Name;
-        existing.IsActive = entity.IsActive;
         context.SaveChanges();
     }
 
@@ -97,14 +98,6 @@ public class CatalogueDAO
                                        && (excludeId == null || l.LevelId != excludeId));
     }
 
-    /// <summary>Highest sort order in use for a language — used to append new levels at the end.</summary>
-    public static int MaxLevelSortOrder(int languageId)
-    {
-        using var context = new LanguageCenterContext();
-        return context.Levels.Where(l => l.LanguageId == languageId)
-            .Select(l => (int?)l.SortOrder).Max() ?? 0;
-    }
-
     public static void SaveLevel(Level entity)
     {
         using var context = new LanguageCenterContext();
@@ -118,8 +111,6 @@ public class CatalogueDAO
         var existing = context.Levels.Find(entity.LevelId);
         if (existing == null) return;
         existing.Name = entity.Name;
-        existing.SortOrder = entity.SortOrder;
-        existing.IsActive = entity.IsActive;
         context.SaveChanges();
     }
 

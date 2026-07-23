@@ -70,7 +70,10 @@ public class EnrollmentService : IEnrollmentService
             throw new InvalidOperationException(
                 $"Class '{cls.Name}' has no valid tuition fee recorded.");
 
-        if (cls.Status != "UPCOMING" && cls.Status != "ACTIVE")
+        // Previously this compared against "ACTIVE", which is not a class status at all
+        // (they are UPCOMING / ONGOING / COMPLETED / CANCELLED), so no ONGOING class
+        // could ever take an enrollment. Open means: not cancelled, not finished.
+        if (!cls.IsOpenForEnrollment)
             throw new InvalidOperationException($"Class '{cls.Name}' is not open for enrollment (status: {cls.Status}).");
 
         // Check capacity first — DROPPED reactivation must also validate capacity
@@ -179,7 +182,7 @@ public class EnrollmentService : IEnrollmentService
 
         var newClass = _classRepo.GetById(newClassId)
             ?? throw new InvalidOperationException($"Class {newClassId} not found.");
-        if (newClass.Status != "UPCOMING" && newClass.Status != "ACTIVE")
+        if (!newClass.IsOpenForEnrollment)
             throw new InvalidOperationException(
                 $"Class '{newClass.Name}' is not open for enrollment (status: {newClass.Status}).");
 

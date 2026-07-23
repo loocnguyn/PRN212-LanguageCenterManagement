@@ -27,13 +27,18 @@ public class EnrollmentServiceTests
 
     private static Student AStudent() => new() { StudentId = 1, FullName = "Test Student" };
 
+    /// <summary>
+    /// A class that is open for enrollment. Status is not settable — it follows the dates,
+    /// so "open" is expressed by ending in the future rather than by a magic string.
+    /// </summary>
     private static Class AClass(decimal snapFee = 3_500_000) => new()
     {
         ClassId = 5,
         CourseId = 3,
         Name = "A1-K01",
         MaxStudents = 20,
-        Status = "ACTIVE",
+        StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-7)),
+        EndDate = DateOnly.FromDateTime(DateTime.Today.AddDays(30)),
         SnapCourseCode = "ENG-A1",
         SnapCourseName = "English A1",
         SnapLanguage = "English",

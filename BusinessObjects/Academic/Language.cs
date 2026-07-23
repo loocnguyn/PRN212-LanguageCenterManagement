@@ -12,8 +12,6 @@ public partial class Language
 
     public string Name { get; set; } = null!;
 
-    public bool IsActive { get; set; } = true;
-
     /// <summary>Levels defined for this language (A1/B1 for English, N5/N4 for Japanese, …).</summary>
     public virtual ICollection<Level> Levels { get; set; } = new List<Level>();
 

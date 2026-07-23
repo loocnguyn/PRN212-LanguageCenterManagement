@@ -10,17 +10,16 @@ namespace Services;
 //  consistent whatever calls it:
 //    * A language name is unique; a level name is unique WITHIN its language
 //      (both "English B1" and "German B1" are fine).
-//    * Nothing still in use can be deleted — deactivate it instead, which keeps
-//      existing courses readable while hiding it from new ones.
+//    * Nothing still in use can be deleted — the counts say what is blocking.
 // ============================================================
 
 public interface ICatalogueService
 {
-    List<Language> GetLanguages(bool activeOnly = true);
+    List<Language> GetLanguages();
     Language? GetLanguage(int id);
 
-    /// <summary>Levels for one language, in teaching order.</summary>
-    List<Level> GetLevels(int languageId, bool activeOnly = true);
+    /// <summary>Levels for one language, in the order they were added.</summary>
+    List<Level> GetLevels(int languageId);
 
     List<Level> GetAllLevels();
     Level? GetLevel(int id);
@@ -45,9 +44,9 @@ public interface ICatalogueService
 public class CatalogueService : ICatalogueService
 {
     // ---- Reads -------------------------------------------------
-    public List<Language> GetLanguages(bool activeOnly = true) => CatalogueDAO.GetLanguages(activeOnly);
+    public List<Language> GetLanguages() => CatalogueDAO.GetLanguages();
     public Language? GetLanguage(int id) => CatalogueDAO.GetLanguage(id);
-    public List<Level> GetLevels(int languageId, bool activeOnly = true) => CatalogueDAO.GetLevels(languageId, activeOnly);
+    public List<Level> GetLevels(int languageId) => CatalogueDAO.GetLevels(languageId);
     public List<Level> GetAllLevels() => CatalogueDAO.GetAllLevels();
     public Level? GetLevel(int id) => CatalogueDAO.GetLevel(id);
 
@@ -92,7 +91,7 @@ public class CatalogueService : ICatalogueService
 
             throw new InvalidOperationException(
                 $"Cannot delete this language — it still has {string.Join(" and ", parts)}.\n" +
-                "Remove those first, or untick Active to hide it from new courses while keeping existing ones readable.");
+                "Remove those first.");
         }
 
         CatalogueDAO.DeleteLanguage(id);
@@ -102,11 +101,6 @@ public class CatalogueService : ICatalogueService
     public void SaveLevel(Level entity)
     {
         ValidateLevel(entity, excludeId: null);
-
-        // New levels go to the end of the language's order unless one was given.
-        if (entity.SortOrder <= 0)
-            entity.SortOrder = CatalogueDAO.MaxLevelSortOrder(entity.LanguageId) + 1;
-
         CatalogueDAO.SaveLevel(entity);
     }
 
@@ -136,8 +130,7 @@ public class CatalogueService : ICatalogueService
         var courses = CatalogueDAO.CountCoursesUsingLevel(id);
         if (courses > 0)
             throw new InvalidOperationException(
-                $"Cannot delete this level — {courses} course(s) still use it.\n" +
-                "Untick Active instead to hide it from new courses.");
+                $"Cannot delete this level — {courses} course(s) still use it.");
 
         CatalogueDAO.DeleteLevel(id);
     }

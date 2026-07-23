@@ -17,7 +17,8 @@ public interface IClassRepository
 
     void Delete(int id);
     List<Class> GetBySemesterId(int semesterId);
-    void UpdateStatus(int classId, string status);
+    /// <summary>Cancels or reinstates a class. The other statuses follow the dates.</summary>
+    void SetCancelled(int classId, bool cancelled);
     List<Class> GetBySemesterIdWithDetails(int semesterId);
 
     void SetTeachers(int classId, IList<int> teacherIds, int? primaryTeacherId);

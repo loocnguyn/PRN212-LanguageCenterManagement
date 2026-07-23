@@ -27,13 +27,36 @@ public partial class Class
 
     public int MaxStudents { get; set; }
 
-    public DateOnly? StartDate { get; set; }
+    public DateOnly StartDate { get; set; }
 
-    public DateOnly? EndDate { get; set; }
+    public DateOnly EndDate { get; set; }
 
-    public string Status { get; set; } = null!;
+    /// <summary>The one state the dates cannot express — set by cancelling the class.</summary>
+    public bool IsCancelled { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    /// <summary>
+    /// UPCOMING / ONGOING / COMPLETED derived from today against the class's dates,
+    /// or CANCELLED when the class was called off. Derived rather than stored so a
+    /// class cannot claim to be ONGOING while its semester has not started —
+    /// do not use inside an EF query, filter on the dates instead.
+    /// </summary>
+    public string Status
+    {
+        get
+        {
+            if (IsCancelled) return "CANCELLED";
+
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            if (today < StartDate) return "UPCOMING";
+            if (today > EndDate) return "COMPLETED";
+            return "ONGOING";
+        }
+    }
+
+    /// <summary>True while the class can still take enrollments — not yet finished or cancelled.</summary>
+    public bool IsOpenForEnrollment => !IsCancelled && DateOnly.FromDateTime(DateTime.Today) <= EndDate;
 
     // ---- Frozen copy of the course at creation time -------------
     public string SnapCourseCode { get; set; } = null!;

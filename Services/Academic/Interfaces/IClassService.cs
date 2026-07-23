@@ -22,7 +22,9 @@ public interface IClassService
     void Update(Class entity);
 
     void Delete(int id);
-    void UpdateStatus(int classId, string status);
+
+    /// <summary>Cancels or reinstates a class. The other statuses follow the dates.</summary>
+    void SetCancelled(int classId, bool cancelled);
 
     void SetTeachers(int classId, IList<int> teacherIds, int? primaryTeacherId);
 

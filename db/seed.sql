@@ -23,11 +23,11 @@ INSERT INTO Admins (user_id, full_name, phone, email) VALUES
 (1, N'System Admin', '0900000000', 'admin@center.edu.vn');
 GO
 
--- Department names must match the values used in Staff.department below; access_group
--- drives menu visibility (see MainWindow.ApplyStaffDepartmentVisibility).
-INSERT INTO Departments (name, access_group) VALUES
-(N'Academic Setup', 'ACADEMIC'),
-(N'Finance',        'FINANCE');
+-- Department names must match the values used in Staff.department below, and are
+-- matched in code to decide menu access — see MainWindow.ApplyStaffDepartmentVisibility.
+INSERT INTO Departments (name) VALUES
+(N'Academic Setup'),
+(N'Finance');
 GO
 
 -- staff01 = Academic Setup (class/semester setup), staff02 = Finance (tuition collection)
@@ -57,7 +57,8 @@ GO
 --    Japanese         — JLPT      (N5 → N1, note N5 is the BEGINNER end)
 --    Chinese          — HSK       (1 → 6)
 --    Korean           — TOPIK
---  sort_order is beginner-first so course dropdowns read in teaching order.
+--  Levels list by level_id, so each ladder is inserted beginner-first and course
+--  dropdowns read in teaching order.
 -- ============================================================
 INSERT INTO Languages (name) VALUES
 (N'English'),    -- 1
@@ -67,19 +68,19 @@ INSERT INTO Languages (name) VALUES
 (N'Korean');     -- 5
 GO
 
-INSERT INTO Levels (language_id, name, sort_order) VALUES
+-- Inserted beginner-first: level_id doubles as the display order.
+INSERT INTO Levels (language_id, name) VALUES
 -- English (CEFR) — level_id 1..6
-(1, N'A1', 1), (1, N'A2', 2), (1, N'B1', 3), (1, N'B2', 4), (1, N'C1', 5), (1, N'C2', 6),
+(1, N'A1'), (1, N'A2'), (1, N'B1'), (1, N'B2'), (1, N'C1'), (1, N'C2'),
 -- German (CEFR) — level_id 7..12
-(2, N'A1', 1), (2, N'A2', 2), (2, N'B1', 3), (2, N'B2', 4), (2, N'C1', 5), (2, N'C2', 6),
+(2, N'A1'), (2, N'A2'), (2, N'B1'), (2, N'B2'), (2, N'C1'), (2, N'C2'),
 -- Japanese (JLPT), easiest first — level_id 13..17
-(3, N'N5', 1), (3, N'N4', 2), (3, N'N3', 3), (3, N'N2', 4), (3, N'N1', 5),
+(3, N'N5'), (3, N'N4'), (3, N'N3'), (3, N'N2'), (3, N'N1'),
 -- Chinese (HSK) — level_id 18..23
-(4, N'HSK 1', 1), (4, N'HSK 2', 2), (4, N'HSK 3', 3),
-(4, N'HSK 4', 4), (4, N'HSK 5', 5), (4, N'HSK 6', 6),
+(4, N'HSK 1'), (4, N'HSK 2'), (4, N'HSK 3'), (4, N'HSK 4'), (4, N'HSK 5'), (4, N'HSK 6'),
 -- Korean (TOPIK) — level_id 24..29
-(5, N'TOPIK 1', 1), (5, N'TOPIK 2', 2), (5, N'TOPIK 3', 3),
-(5, N'TOPIK 4', 4), (5, N'TOPIK 5', 5), (5, N'TOPIK 6', 6);
+(5, N'TOPIK 1'), (5, N'TOPIK 2'), (5, N'TOPIK 3'),
+(5, N'TOPIK 4'), (5, N'TOPIK 5'), (5, N'TOPIK 6');
 GO
 
 -- level_id values follow the Levels insert above. Kept explicit rather than
@@ -140,15 +141,17 @@ GO
 -- filled by ClassService from the course; here they are written out literally so
 -- the seed still demonstrates the freeze: edit a course's tuition_fee afterwards
 -- and these classes (and their invoices) keep the original price.
+-- No status column: these classes read as ONGOING purely because their dates
+-- straddle today. Nothing has to be kept in sync as time passes.
 INSERT INTO Classes
-    (semester_id, course_id, classroom_id, name, max_students, start_date, end_date, status,
+    (semester_id, course_id, classroom_id, name, max_students, start_date, end_date,
      snap_course_code, snap_course_name, snap_language, snap_level, snap_duration_sessions, snap_tuition_fee)
 VALUES
-(2, 1, 1, 'A1-K01', 20, '2026-06-01', '2026-08-31', 'ONGOING',
+(2, 1, 1, 'A1-K01', 20, '2026-06-08', '2026-08-31',
  'ENG-A1', N'English Beginner A1',     N'English',  'A1', 40, 3500000),
-(2, 2, 2, 'B1-K01', 18, '2026-06-01', '2026-08-31', 'ONGOING',
+(2, 2, 2, 'B1-K01', 18, '2026-06-08', '2026-08-31',
  'ENG-B1', N'English Intermediate B1', N'English',  'B1', 60, 5000000),
-(2, 3, 3, 'N5-K01', 15, '2026-06-01', '2026-08-31', 'UPCOMING',
+(2, 3, 3, 'N5-K01', 15, '2026-06-08', '2026-08-31',
  'JPN-N5', N'Japanese N5',             N'Japanese', 'N5', 50, 4500000);
 GO
 

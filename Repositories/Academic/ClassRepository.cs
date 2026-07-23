@@ -16,7 +16,7 @@ public class ClassRepository : IClassRepository
     public void Update(Class entity) => ClassDAO.Update(entity);
     public void Delete(int id) => ClassDAO.Delete(id);
     public List<Class> GetBySemesterId(int semesterId) => ClassDAO.GetBySemesterId(semesterId);
-    public void UpdateStatus(int classId, string status) => ClassDAO.UpdateStatus(classId, status);
+    public void SetCancelled(int classId, bool cancelled) => ClassDAO.SetCancelled(classId, cancelled);
     public List<Class> GetBySemesterIdWithDetails(int semesterId) => ClassDAO.GetBySemesterIdWithDetails(semesterId);
 
     public void SetTeachers(int classId, IList<int> teacherIds, int? primaryTeacherId)

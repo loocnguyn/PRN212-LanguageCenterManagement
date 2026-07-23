@@ -266,7 +266,12 @@ public class ClassDAO
         }
     }
 
-    public static void UpdateStatus(int classId, string status)
+    /// <summary>
+    /// Cancels or reinstates a class. UPCOMING / ONGOING / COMPLETED are not settable:
+    /// they follow the class's dates (see Class.Status), so cancellation is the only
+    /// status an operator actually decides.
+    /// </summary>
+    public static void SetCancelled(int classId, bool cancelled)
     {
         try
         {
@@ -274,12 +279,12 @@ public class ClassDAO
             var existing = context.Classes.Find(classId);
             if (existing == null)
                 throw new Exception($"Class with ID {classId} not found.");
-            existing.Status = status;
+            existing.IsCancelled = cancelled;
             context.SaveChanges();
         }
         catch (Exception ex)
         {
-            throw new Exception($"Error updating status for class {classId}: {ex.Message}", ex);
+            throw new Exception($"Error updating class {classId}: {ex.Message}", ex);
         }
     }
 
@@ -310,11 +315,8 @@ public class ClassDAO
         if (entity.MaxStudents <= 0)
             throw new ArgumentException("MaxStudents must be greater than 0.");
 
-        if (string.IsNullOrWhiteSpace(entity.Status))
-            throw new ArgumentException("Class status is required.");
-
-        if (entity.StartDate.HasValue && entity.EndDate.HasValue
-            && entity.StartDate > entity.EndDate)
+        // No status check: it is derived from the dates below, not supplied.
+        if (entity.StartDate > entity.EndDate)
             throw new ArgumentException("Start date cannot be later than end date.");
     }
 }

@@ -37,11 +37,11 @@ public class ClassService : IClassService
             ?? throw new InvalidOperationException($"Semester {entity.SemesterId} not found.");
 
         // A class that runs outside its semester would generate sessions outside it too.
-        if (entity.StartDate.HasValue && entity.StartDate.Value < semester.StartDate)
+        if (entity.StartDate < semester.StartDate)
             throw new InvalidOperationException(
                 $"Class cannot start before its semester ({semester.StartDate:dd/MM/yyyy}).");
 
-        if (entity.EndDate.HasValue && entity.EndDate.Value > semester.EndDate)
+        if (entity.EndDate > semester.EndDate)
             throw new InvalidOperationException(
                 $"Class cannot end after its semester ({semester.EndDate:dd/MM/yyyy}).");
 
@@ -52,7 +52,12 @@ public class ClassService : IClassService
     public void Update(Class entity) => _repo.Update(entity);
 
     public void Delete(int id) => _repo.Delete(id);
-    public void UpdateStatus(int classId, string status) => _repo.UpdateStatus(classId, status);
+
+    /// <summary>
+    /// Cancels or reinstates a class. UPCOMING / ONGOING / COMPLETED are not settable —
+    /// they follow the class's dates, so cancellation is the only status a human decides.
+    /// </summary>
+    public void SetCancelled(int classId, bool cancelled) => _repo.SetCancelled(classId, cancelled);
 
     public void SetTeachers(int classId, IList<int> teacherIds, int? primaryTeacherId)
     {

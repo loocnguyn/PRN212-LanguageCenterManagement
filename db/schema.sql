@@ -64,14 +64,11 @@ CREATE TABLE Teachers (
 );
 GO
 
--- Staff departments. access_group decides which menu group a department's
--- staff can reach: 'ACADEMIC' (students/classes/enrollment) or 'FINANCE'
--- (invoices/payments/reports/discounts). Managed via the Departments screen.
+-- Staff departments. Which menus a department's staff can reach is decided in
+-- code (MainWindow.ApplyStaffDepartmentVisibility), not stored here.
 CREATE TABLE Departments (
     department_id INT           IDENTITY(1,1) PRIMARY KEY,
-    name          NVARCHAR(100) NOT NULL UNIQUE,
-    access_group  NVARCHAR(20)  NOT NULL DEFAULT 'ACADEMIC'
-                  CHECK (access_group IN ('ACADEMIC', 'FINANCE'))
+    name          NVARCHAR(100) NOT NULL UNIQUE
 );
 GO
 
@@ -106,17 +103,15 @@ GO
 -- "B1" only for the CEFR languages.
 CREATE TABLE Languages (
     language_id INT           IDENTITY(1,1) PRIMARY KEY,
-    name        NVARCHAR(50)  NOT NULL UNIQUE,
-    is_active   BIT           NOT NULL DEFAULT 1
+    name        NVARCHAR(50)  NOT NULL UNIQUE
 );
 GO
 
+-- Levels list in insertion order (level_id), so add them beginner-first.
 CREATE TABLE Levels (
     level_id    INT           IDENTITY(1,1) PRIMARY KEY,
     language_id INT           NOT NULL REFERENCES Languages(language_id),
     name        NVARCHAR(50)  NOT NULL,
-    sort_order  INT           NOT NULL DEFAULT 0,
-    is_active   BIT           NOT NULL DEFAULT 1,
     CONSTRAINT uq_level_language_name UNIQUE (language_id, name)
 );
 GO
@@ -181,11 +176,17 @@ CREATE TABLE Classes (
     classroom_id INT           NOT NULL REFERENCES Classrooms(classroom_id),
     name         NVARCHAR(100) NOT NULL,
     max_students INT           NOT NULL DEFAULT 30,
-    start_date   DATE          NULL,
-    end_date     DATE          NULL,
-    status       NVARCHAR(20)  NOT NULL DEFAULT 'UPCOMING'
-                               CHECK (status IN ('UPCOMING', 'ONGOING', 'COMPLETED', 'CANCELLED')),
+    start_date   DATE          NOT NULL,
+    end_date     DATE          NOT NULL,
+
+    -- No stored status: UPCOMING / ONGOING / COMPLETED are decided by today's
+    -- date against the two columns above (see Class.Status). A stored value
+    -- could be set to ONGOING while the semester had not even started.
+    -- Cancelling is the one state a date cannot express, so it is a flag.
+    is_cancelled BIT           NOT NULL DEFAULT 0,
     created_at   DATETIME2     NOT NULL DEFAULT GETDATE(),
+
+    CONSTRAINT chk_class_dates CHECK (end_date >= start_date),
 
     -- Frozen copy of the course at creation time. Immutable.
     snap_course_code       NVARCHAR(20)  NOT NULL,
@@ -197,8 +198,7 @@ CREATE TABLE Classes (
 );
 GO
 
-CREATE INDEX idx_classes_semester ON Classes(semester_id);
-GO
+-- (idx_classes_semester lives in section 6 with the other Classes indexes.)
 
 -- Teachers assigned to a class. Exactly one is flagged primary; reports and
 -- finance filters use that one, while the class screens show the full list.
@@ -443,9 +443,10 @@ CREATE INDEX idx_staff_user         ON Staff(user_id);
 CREATE INDEX idx_admins_user        ON Admins(user_id);
 CREATE INDEX idx_classes_semester   ON Classes(semester_id);
 CREATE INDEX idx_classes_course     ON Classes(course_id);
-CREATE INDEX idx_classes_teacher    ON Classes(teacher_id);
+-- No idx_classes_teacher: a class has no teacher_id column any more. Teachers
+-- hang off ClassTeachers, which is indexed next to that table.
 CREATE INDEX idx_classes_classroom  ON Classes(classroom_id);
-CREATE INDEX idx_classes_status     ON Classes(status);
+-- No idx_classes_status: status is derived from the dates, not a column.
 CREATE INDEX idx_schedule_conflict  ON ClassSchedules(class_id, day_of_week, start_time, end_time);
 CREATE INDEX idx_enrollment_student ON Enrollments(student_id, status);
 CREATE INDEX idx_enrollment_class   ON Enrollments(class_id, status);

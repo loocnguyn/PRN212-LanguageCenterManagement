@@ -177,8 +177,6 @@ public partial class LanguageCenterContext : DbContext
 
             entity.HasIndex(e => e.CourseId, "idx_classes_course");
 
-            entity.HasIndex(e => e.Status, "idx_classes_status");
-
             entity.HasIndex(e => e.SemesterId, "idx_classes_semester");
 
             entity.Property(e => e.ClassId).HasColumnName("class_id");
@@ -196,10 +194,13 @@ public partial class LanguageCenterContext : DbContext
                 .HasMaxLength(100)
                 .HasColumnName("name");
             entity.Property(e => e.StartDate).HasColumnName("start_date");
-            entity.Property(e => e.Status)
-                .HasMaxLength(20)
-                .HasDefaultValue("UPCOMING")
-                .HasColumnName("status");
+            entity.Property(e => e.IsCancelled)
+                .HasDefaultValue(false)
+                .HasColumnName("is_cancelled");
+
+            // Derived from the dates in memory — see Class.Status.
+            entity.Ignore(e => e.Status);
+            entity.Ignore(e => e.IsOpenForEnrollment);
 
             // Frozen copy of the course — written once by ClassService.Create.
             entity.Property(e => e.SnapCourseCode)
@@ -306,9 +307,6 @@ public partial class LanguageCenterContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .HasColumnName("name");
-            entity.Property(e => e.IsActive)
-                .HasDefaultValue(true)
-                .HasColumnName("is_active");
         });
 
         modelBuilder.Entity<Level>(entity =>
@@ -326,12 +324,6 @@ public partial class LanguageCenterContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .HasColumnName("name");
-            entity.Property(e => e.SortOrder)
-                .HasDefaultValue(0)
-                .HasColumnName("sort_order");
-            entity.Property(e => e.IsActive)
-                .HasDefaultValue(true)
-                .HasColumnName("is_active");
 
             entity.HasOne(d => d.Language).WithMany(p => p.Levels)
                 .HasForeignKey(d => d.LanguageId)
@@ -394,10 +386,8 @@ public partial class LanguageCenterContext : DbContext
             entity.HasKey(e => e.DepartmentId);
             entity.ToTable("Departments");
             entity.HasIndex(e => e.Name).IsUnique();
-            entity.Ignore(e => e.AccessGroupDisplay);
             entity.Property(e => e.DepartmentId).HasColumnName("department_id");
             entity.Property(e => e.Name).HasMaxLength(100).HasColumnName("name");
-            entity.Property(e => e.AccessGroup).HasMaxLength(20).HasColumnName("access_group");
         });
 
         modelBuilder.Entity<Classroom>(entity =>

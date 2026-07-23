@@ -2,18 +2,13 @@ using System.Collections.Generic;
 
 namespace BusinessObjects;
 
-// Department — domain model.
+// Department — a staff department. Just an id and a name: which menus a
+// department's staff can reach is decided in code
+// (MainWindow.ApplyStaffDepartmentVisibility), not stored per row.
 
 public partial class Department
 {
     public int DepartmentId { get; set; }
 
     public string Name { get; set; } = null!;
-
-    /// <summary>Which functional menu group this department unlocks for its staff:
-    /// "ACADEMIC" (students/enrollment/classes) or "FINANCE" (invoices/payments/reports).</summary>
-    public string AccessGroup { get; set; } = "ACADEMIC";
-
-    /// <summary>Human-friendly label for the access group, shown in pickers/grids.</summary>
-    public string AccessGroupDisplay => AccessGroup == "FINANCE" ? "Finance" : "Academic Setup";
 }

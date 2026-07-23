@@ -3,6 +3,10 @@ using Repositories;
 
 namespace Services;
 
+/// <summary>One meeting a class's weekly schedule would produce, before the course's
+/// session count is applied. See SessionService.GetAvailableSessionDates.</summary>
+public sealed record PlannedSession(DateOnly Date, int ScheduleId);
+
 // ============================================================
 //  SessionService — the concrete class meetings (one row per
 //  date a class actually meets). These are AUTO-GENERATED from
@@ -17,10 +21,28 @@ namespace Services;
 public class SessionService : ISessionService
 {
     // ---- 1. CRUD & queries -------------------------------------
-    private readonly ISessionRepository _sessionRepo = new SessionRepository();
-    private readonly IClassRepository _classRepo = new ClassRepository();
-    private readonly ISemesterRepository _semesterRepo = new SemesterRepository();
-    private readonly IClassScheduleRepository _scheduleRepo = new ClassScheduleRepository();
+    private readonly ISessionRepository _sessionRepo;
+    private readonly IClassRepository _classRepo;
+    private readonly ISemesterRepository _semesterRepo;
+    private readonly IClassScheduleRepository _scheduleRepo;
+
+    public SessionService() : this(
+        new SessionRepository(), new ClassRepository(),
+        new SemesterRepository(), new ClassScheduleRepository())
+    { }
+
+    // Injectable overload — lets unit tests supply mocked repositories.
+    public SessionService(
+        ISessionRepository sessionRepo,
+        IClassRepository classRepo,
+        ISemesterRepository semesterRepo,
+        IClassScheduleRepository scheduleRepo)
+    {
+        _sessionRepo = sessionRepo;
+        _classRepo = classRepo;
+        _semesterRepo = semesterRepo;
+        _scheduleRepo = scheduleRepo;
+    }
 
     public List<Session> GetAll() => _sessionRepo.GetAll();
     public Session? GetById(int id) => _sessionRepo.GetById(id);
@@ -32,12 +54,17 @@ public class SessionService : ISessionService
     public List<Session> GetByClassIds(List<int> classIds) => _sessionRepo.GetByClassIds(classIds);
     public List<Session> GetByClassIdWithDetails(int classId) => _sessionRepo.GetByClassIdWithDetails(classId);
 
-    // ---- 2. Generate a single class's sessions -----------------
-    /// <summary>Expands each of the class's weekly schedule slots into concrete dated sessions,
-    /// from the day after the semester's setup phase ends through the semester end date.
-    /// No-ops if the class already has any sessions (the CountByClassId guard), so it is safe
-    /// to call repeatedly.</summary>
-    public void GenerateSessionsForClass(int classId)
+    // ---- 2. Plan / generate a single class's sessions ----------
+    /// <summary>
+    /// Every meeting date the class's weekly schedule yields inside its semester's teaching
+    /// window, in chronological order and NOT capped by the course's session count.
+    ///
+    /// This is the single source of truth for "how many meetings can this schedule produce":
+    /// GenerateSessionsForClass takes from the front of this list, and the schedule editor
+    /// validates against its length. Keeping both on the same method is what stops validation
+    /// approving a schedule that generation then comes up short on.
+    /// </summary>
+    public List<PlannedSession> GetAvailableSessionDates(int classId)
     {
         var cls = _classRepo.GetById(classId)
             ?? throw new InvalidOperationException($"Class {classId} not found.");
@@ -45,40 +72,57 @@ public class SessionService : ISessionService
         var semester = _semesterRepo.GetById(cls.SemesterId)
             ?? throw new InvalidOperationException($"Semester {cls.SemesterId} not found.");
 
+        var planned = new List<PlannedSession>();
+
+        // Teaching starts the day after setup ends — see SemesterService.GetPhase.
+        var teachingStart = semester.SetupEndDate.AddDays(1);
+
+        foreach (var schedule in _scheduleRepo.GetByClassId(classId))
+        {
+            var targetDay = MapDayOfWeek(schedule.DayOfWeek);
+            var firstDate = FindFirstMatchingDay(teachingStart, targetDay);
+
+            for (var date = firstDate; date <= semester.EndDate; date = date.AddDays(7))
+                planned.Add(new PlannedSession(date, schedule.ScheduleId));
+        }
+
+        // Chronological across ALL slots, not slot by slot. A class meeting Mon+Wed must
+        // alternate Mon, Wed, Mon, Wed — capping a slot-ordered list would otherwise fill
+        // the quota with Mondays and drop every Wednesday.
+        return planned.OrderBy(p => p.Date).ThenBy(p => p.ScheduleId).ToList();
+    }
+
+    /// <summary>
+    /// Expands the class's weekly schedule into concrete dated sessions, stopping once the
+    /// course's session count (frozen onto the class as SnapDurationSessions) is met.
+    /// No-ops if the class already has sessions, so it is safe to call repeatedly.
+    /// </summary>
+    public void GenerateSessionsForClass(int classId)
+    {
+        var cls = _classRepo.GetById(classId)
+            ?? throw new InvalidOperationException($"Class {classId} not found.");
+
         if (_sessionRepo.CountByClassId(classId) > 0)
             return; // already generated
 
-        var schedules = _scheduleRepo.GetByClassId(classId);
-        var sessions = new List<Session>();
-
-        foreach (var schedule in schedules)
-        {
-            var targetDay = MapDayOfWeek(schedule.DayOfWeek);
-            var startDate = semester.SetupEndDate.AddDays(1);
-            var firstSessionDate = FindFirstMatchingDay(startDate, targetDay);
-
-            for (var date = firstSessionDate; date <= semester.EndDate; date = date.AddDays(7))
+        // The course decides how many meetings the class runs; the semester only bounds
+        // when they can happen. The schedule editor refuses to leave a class whose
+        // schedule cannot reach this count, so falling short here means the semester or
+        // schedule was changed afterwards — generate what fits rather than throwing on startup.
+        var sessions = GetAvailableSessionDates(classId)
+            .Take(cls.SnapDurationSessions)
+            .Select(p => new Session
             {
-                sessions.Add(new Session
-                {
-                    ClassId = classId,
-                    ScheduleId = schedule.ScheduleId,
-                    SessionDate = date,
-                    Status = "SCHEDULED"
-                });
-            }
-        }
+                ClassId = classId,
+                ScheduleId = p.ScheduleId,
+                SessionDate = p.Date,
+                Status = "SCHEDULED"
+            })
+            .ToList();
 
-        try
-        {
-            _sessionRepo.BulkSave(sessions);
-        }
-        catch
-        {
-            // If BulkSave fails, the CountByClassId guard at the top of this method
-            // prevents re-generation on the next call — no explicit transaction needed.
-            throw;
-        }
+        // If BulkSave fails, the CountByClassId guard above prevents re-generation on the
+        // next call — no explicit transaction needed.
+        _sessionRepo.BulkSave(sessions);
     }
 
     // ---- 3. Generate for a whole semester ----------------------

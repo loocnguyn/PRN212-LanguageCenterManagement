@@ -1,4 +1,5 @@
 using BusinessObjects;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
@@ -6,6 +7,9 @@ namespace DataAccessObjects;
 //  CourseDAO — EF data access for the course catalog
 //  (name, level, language, session count, tuition fee).
 //  CONTENTS: CRUD only — GetAll / GetById / Save / Update / Delete.
+//
+//  Language and Level are always Included: Course.LanguageName / LevelName read
+//  through those navigations, so without them every grid shows a blank column.
 // ============================================================
 public class CourseDAO
 {
@@ -14,7 +18,10 @@ public class CourseDAO
         try
         {
             using var context = new LanguageCenterContext();
-            return context.Courses.ToList();
+            return context.Courses
+                .Include(c => c.Language)
+                .Include(c => c.Level)
+                .ToList();
         }
         catch (Exception ex)
         {
@@ -27,7 +34,10 @@ public class CourseDAO
         try
         {
             using var context = new LanguageCenterContext();
-            return context.Courses.FirstOrDefault(x => x.CourseId == id);
+            return context.Courses
+                .Include(c => c.Language)
+                .Include(c => c.Level)
+                .FirstOrDefault(x => x.CourseId == id);
         }
         catch (Exception ex)
         {
