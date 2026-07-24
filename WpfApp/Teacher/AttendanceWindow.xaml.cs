@@ -189,7 +189,35 @@ public partial class AttendanceWindow : Window
             }).ToList();
 
             dgAttendance.ItemsSource = attendanceRows;
-            tbSummary.Text = $"Session {session.SessionDate:dd/MM/yyyy}: {attendanceRows.Count} student(s).";
+
+            // Enforce slot-based business rules: Only allow editing if session is TODAY and CURRENT TIME falls within the slot duration
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            bool isToday = session.SessionDate == today;
+            bool isCurrentSlot = false;
+            string slotTimeText = "";
+
+            if (session.Schedule != null)
+            {
+                var currentTime = TimeOnly.FromDateTime(DateTime.Now);
+                isCurrentSlot = isToday && (currentTime >= session.Schedule.StartTime && currentTime <= session.Schedule.EndTime);
+                slotTimeText = $"Slot: {session.Schedule.StartTime:HH\\:mm} - {session.Schedule.EndTime:HH\\:mm}";
+            }
+            else
+            {
+                slotTimeText = "No slot schedule linked";
+            }
+
+            dgAttendance.IsReadOnly = !isCurrentSlot;
+            btnSave.IsEnabled = isCurrentSlot;
+
+            if (!isCurrentSlot)
+            {
+                tbSummary.Text = $"Session {session.SessionDate:dd/MM/yyyy} ({slotTimeText}) [READ-ONLY] — Attendance can only be modified during its scheduled slot today.";
+            }
+            else
+            {
+                tbSummary.Text = $"Session {session.SessionDate:dd/MM/yyyy} ({slotTimeText}) [EDITABLE] — {attendanceRows.Count} student(s) enrolled.";
+            }
         }
         catch (Exception ex)
         {

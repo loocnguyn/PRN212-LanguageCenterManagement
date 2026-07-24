@@ -49,8 +49,6 @@
                         <x:Array Type="sys:String">
                             <sys:String>PRESENT</sys:String>
                             <sys:String>ABSENT</sys:String>
-                            <sys:String>LATE</sys:String>
-                            <sys:String>EXCUSED</sys:String>
                         </x:Array>
                     </DataGridComboBoxColumn.ItemsSource>
                 </DataGridComboBoxColumn>
@@ -60,7 +58,7 @@
 
         <!-- Actions -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
-            <Button Content="Save Attendance" Width="140" Height="32" Click="BtnSave_Click"/>
+            <Button x:Name="btnSave" Content="Save Attendance" Width="140" Height="32" Click="BtnSave_Click"/>
         </StackPanel>
     </Grid>
 </Window>
