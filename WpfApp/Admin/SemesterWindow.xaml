@@ -76,7 +76,8 @@
                 <Grid>
                     <DataGrid x:Name="dgSemesters" AutoGenerateColumns="False" IsReadOnly="True"
                               SelectionMode="Single" RowHeight="52" BorderThickness="0"
-                              Background="Transparent" MouseDoubleClick="DgSemesters_MouseDoubleClick">
+                              Background="Transparent" MouseDoubleClick="DgSemesters_MouseDoubleClick"
+                              SelectionChanged="DgSemesters_SelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Header="Semester" Width="*" CellTemplate="{StaticResource SemesterCellTemplate}"/>
                             <DataGridTextColumn Header="Setup ends"
@@ -106,7 +107,8 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="Classes" Style="{StaticResource PillButtonInfo}"    Width="110" Margin="0,0,8,0" Click="BtnClasses_Click"/>
                     <Button Content="Add"     Style="{StaticResource PillButton}"        Width="90"  Margin="0,0,8,0" Click="BtnAdd_Click"/>
-                    <Button Content="Edit"    Style="{StaticResource PillButtonSuccess}" Width="90"  Margin="0,0,8,0" Click="BtnEdit_Click"/>
+                    <!-- Disabled for semesters past SETUP; ToolTip carries the reason. -->
+                    <Button x:Name="btnEdit" Content="Edit" Style="{StaticResource PillButtonSuccess}" Width="90"  Margin="0,0,8,0" Click="BtnEdit_Click"/>
                     <Button Content="Delete"  Style="{StaticResource PillButtonDanger}"  Width="90"  Click="BtnDelete_Click"/>
                 </StackPanel>
             </Grid>

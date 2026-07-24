@@ -9,7 +9,8 @@ namespace WpfApp;
 //  CONTENTS:
 //    1. Fields & load     — semesters + class counts into the grid
 //    2. Current banner    — which semester contains today, and its phase
-//    3. Add / edit / delete — SemesterDialog; delete surfaces the service guard
+//    3. Add / edit / delete — SemesterDialog; edit is locked once the semester
+//                             leaves SETUP, delete surfaces the service guard
 //    4. SemesterRow       — grid-facing view model (status badge fields)
 //
 //  There is no "set active" action: the current semester is derived from
@@ -96,6 +97,23 @@ public partial class SemesterWindow : Window
         LoadData(); // class counts may have changed
     }
 
+    /// <summary>Only a semester still in SETUP can be edited, so the button follows the selection.</summary>
+    private void DgSemesters_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (btnEdit == null) return;
+
+        if (dgSemesters.SelectedItem is not SemesterRow row)
+        {
+            btnEdit.IsEnabled = true;   // nothing selected — EditSelected() explains
+            btnEdit.ToolTip = null;
+            return;
+        }
+
+        var editable = _service.IsEditable(row.Semester);
+        btnEdit.IsEnabled = editable;
+        btnEdit.ToolTip = editable ? null : SemesterService.LockedMessage(row.Semester);
+    }
+
     private void BtnEdit_Click(object sender, RoutedEventArgs e) => EditSelected();
 
     private void EditSelected()
@@ -103,6 +121,15 @@ public partial class SemesterWindow : Window
         if (dgSemesters.SelectedItem is not SemesterRow row)
         {
             MessageBox.Show("Please select a semester to edit.", "Info",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        // Checked here too, not just on the button: the service is the real guard, but
+        // saying why up-front beats letting the user fill in a dialog that gets rejected.
+        if (!_service.IsEditable(row.Semester))
+        {
+            MessageBox.Show(SemesterService.LockedMessage(row.Semester), "Cannot edit",
                 MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }

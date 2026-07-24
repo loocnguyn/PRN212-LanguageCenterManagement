@@ -15,7 +15,10 @@ public interface ISemesterService
     /// <summary>Validates then inserts. Throws InvalidOperationException with a user-facing message.</summary>
     void Save(Semester semester);
 
-    /// <summary>Validates then updates. Throws InvalidOperationException with a user-facing message.</summary>
+    /// <summary>
+    /// Validates then updates. Throws InvalidOperationException with a user-facing message —
+    /// including when the semester has already left SETUP (see <see cref="IsEditable"/>).
+    /// </summary>
     void Update(Semester semester);
 
     /// <summary>Throws InvalidOperationException if the semester still has classes.</summary>
@@ -23,4 +26,7 @@ public interface ISemesterService
 
     Phase GetPhase(Semester semester);
     Phase? GetActivePhase();
+
+    /// <summary>True while the semester's details may still be changed — i.e. it is still in SETUP.</summary>
+    bool IsEditable(Semester semester);
 }

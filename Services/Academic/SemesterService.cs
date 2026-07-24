@@ -7,11 +7,14 @@ namespace Services;
 //  SemesterService — semester rules live here, not in the window.
 //  CONTENTS:
 //    1. Reads            — GetAll / GetById / GetActive
-//    2. Save / Update    — validated writes (dates, name, overlap)
+//    2. Save / Update    — validated writes (dates, name, overlap, edit lock)
 //    3. Delete           — blocked while the semester still has classes
-//    4. Phase            — SETUP / LEARNING / COMPLETED from the dates
+//    4. Phase            — SETUP / LEARNING / COMPLETED + IsEditable
 //
-//  Two invariants this class exists to protect:
+//  Three invariants this class exists to protect:
+//    * A semester is only editable while it is still in SETUP. Once teaching
+//      starts, its dates have already been baked into generated sessions; once
+//      it ends, it is a historical record.
 //    * Semesters never overlap. "Which semester is now?" must have exactly one
 //      answer, because activeness is derived from today's date rather than a
 //      stored flag (see Semester.IsActive).
@@ -22,7 +25,12 @@ namespace Services;
 
 public class SemesterService : ISemesterService
 {
-    private readonly ISemesterRepository _repo = new SemesterRepository();
+    private readonly ISemesterRepository _repo;
+
+    public SemesterService() : this(new SemesterRepository()) { }
+
+    // Injectable overload — lets unit tests supply a mocked repository.
+    public SemesterService(ISemesterRepository repo) => _repo = repo;
 
     // ---- 1. Reads ----------------------------------------------
     public List<Semester> GetAll() => _repo.GetAll();
@@ -40,9 +48,30 @@ public class SemesterService : ISemesterService
 
     public void Update(Semester semester)
     {
+        var stored = _repo.GetById(semester.SemesterId)
+            ?? throw new InvalidOperationException("This semester no longer exists.");
+
+        // Judge editability from the STORED dates, never the submitted ones: otherwise
+        // pushing the dates into the future would be enough to unlock a semester that
+        // is already teaching, which is exactly what this guard exists to prevent.
+        if (!IsEditable(stored))
+            throw new InvalidOperationException(LockedMessage(stored));
+
         Validate(semester, excludeId: semester.SemesterId);
         _repo.Update(semester);
     }
+
+    /// <summary>
+    /// Explains why a semester can no longer be edited. Split out so the window can show the
+    /// same reason up-front instead of letting the user fill in a dialog that will be rejected.
+    /// </summary>
+    public static string LockedMessage(Semester stored) => GetPhaseOf(stored) == Phase.LEARNING
+        ? $"\"{stored.Name}\" has been teaching since "
+          + $"{stored.SetupEndDate.AddDays(1):dd/MM/yyyy} — its details can no longer be changed.\n\n"
+          + "Its classes, schedules and generated sessions are all built from these dates, so moving "
+          + "them now would not match the sessions students and teachers already have."
+        : $"\"{stored.Name}\" finished on {stored.EndDate:dd/MM/yyyy} — "
+          + "a completed semester is a historical record and can no longer be changed.";
 
     /// <summary>
     /// Throws <see cref="InvalidOperationException"/> with a user-facing message if the
@@ -96,7 +125,9 @@ public class SemesterService : ISemesterService
     /// COMPLETED after that. The SETUP boundary is inclusive so it lines up with
     /// SessionService, which generates the first session on SetupEndDate + 1.
     /// </summary>
-    public Phase GetPhase(Semester semester)
+    public Phase GetPhase(Semester semester) => GetPhaseOf(semester);
+
+    private static Phase GetPhaseOf(Semester semester)
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
 
@@ -104,6 +135,12 @@ public class SemesterService : ISemesterService
         if (today <= semester.EndDate) return Phase.LEARNING;
         return Phase.COMPLETED;
     }
+
+    /// <summary>
+    /// A semester's details are only editable while it is still in SETUP. Once teaching starts
+    /// its dates are baked into generated sessions, and once it is over it is a historical record.
+    /// </summary>
+    public bool IsEditable(Semester semester) => GetPhaseOf(semester) == Phase.SETUP;
 
     public Phase? GetActivePhase()
     {
