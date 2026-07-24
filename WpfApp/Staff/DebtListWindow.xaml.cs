@@ -16,6 +16,10 @@ namespace WpfApp;
 public partial class DebtListWindow : Window
 {
     private readonly IInvoiceService _service = new InvoiceService();
+    private readonly ISemesterService _semesterService = new SemesterService();
+    private readonly ICourseService _courseService = new CourseService();
+    private readonly IClassService _classService = new ClassService();
+    private readonly ITeacherService _teacherService = new TeacherService();
     private List<DebtItem> _items = new();
     private List<DebtItem> _baseItems = new();
 
@@ -102,10 +106,10 @@ public partial class DebtListWindow : Window
 
     private void RefreshAcademicFilterOptions()
     {
-        SetComboOptions(cmbSemester, _baseItems.Select(x => x.SemesterName));
-        SetComboOptions(cmbCourse, _baseItems.Select(x => x.CourseName));
-        SetComboOptions(cmbClass, _baseItems.Select(x => x.ClassName));
-        SetComboOptions(cmbTeacher, _baseItems.Select(x => x.TeacherName));
+        SetComboOptions(cmbSemester, _semesterService.GetAll().Select(x => x.Name));
+        SetComboOptions(cmbCourse, _courseService.GetAll().Select(x => x.Name));
+        SetComboOptions(cmbClass, _classService.GetAll().Select(x => x.Name));
+        SetComboOptions(cmbTeacher, _teacherService.GetAll().Select(x => x.FullName));
     }
 
     private static void SetComboOptions(ComboBox combo, IEnumerable<string> values)

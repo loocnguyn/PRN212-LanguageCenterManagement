@@ -52,13 +52,11 @@ public class PaymentDAO
     }
 
     public static List<Payment> GetPaymentsByDateRange(
-        DateTime fromDate,
-        DateTime toDate,
+        DateTime? fromDate,
+        DateTime? toDate,
         string? method)
     {
         using var context = new LanguageCenterContext();
-        var from = fromDate.Date;
-        var toExclusive = toDate.Date.AddDays(1);
 
         var query = context.Payments
             .Include(x => x.Invoice)
@@ -77,7 +75,19 @@ public class PaymentDAO
                 .ThenInclude(x => x.Semester)
             .Include(x => x.Staff)
             .AsNoTracking()
-            .Where(x => x.PaidAt >= from && x.PaidAt < toExclusive);
+            .AsQueryable();
+
+        if (fromDate.HasValue)
+        {
+            var from = fromDate.Value.Date;
+            query = query.Where(x => x.PaidAt >= from);
+        }
+
+        if (toDate.HasValue)
+        {
+            var toExclusive = toDate.Value.Date.AddDays(1);
+            query = query.Where(x => x.PaidAt < toExclusive);
+        }
 
         if (!string.IsNullOrWhiteSpace(method) && method != "All")
             query = query.Where(x => x.PaymentMethod == method);

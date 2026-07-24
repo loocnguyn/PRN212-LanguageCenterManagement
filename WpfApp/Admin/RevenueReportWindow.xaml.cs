@@ -1,6 +1,7 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using BusinessObjects;
+using Microsoft.Win32;
 using Services;
 
 namespace WpfApp;
@@ -16,13 +17,20 @@ namespace WpfApp;
 public partial class RevenueReportWindow : Window
 {
     private readonly IPaymentService _service = new PaymentService();
+    private readonly ISemesterService _semesterService = new SemesterService();
+    private readonly ICourseService _courseService = new CourseService();
+    private readonly IClassService _classService = new ClassService();
+    private readonly ITeacherService _teacherService = new TeacherService();
+    private readonly IStaffService _staffService = new StaffService();
+    private readonly IExcelExportService _excelExportService = new ExcelExportService();
     private List<PaymentDisplayItem> _baseItems = new();
     private List<PaymentDisplayItem> _items = new();
 
     public RevenueReportWindow()
     {
         InitializeComponent();
-        SetThisMonth();
+        ClearDateRange();
+        RefreshAdvancedFilterOptions();
         GenerateReport();
     }
 
@@ -30,12 +38,8 @@ public partial class RevenueReportWindow : Window
 
     private void GenerateReport()
     {
-        if (dpFrom.SelectedDate == null || dpTo.SelectedDate == null)
-        {
-            MessageBox.Show("Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc.");
-            return;
-        }
-        if (dpFrom.SelectedDate.Value.Date > dpTo.SelectedDate.Value.Date)
+        if (dpFrom.SelectedDate.HasValue && dpTo.SelectedDate.HasValue
+            && dpFrom.SelectedDate.Value.Date > dpTo.SelectedDate.Value.Date)
         {
             MessageBox.Show("Ngày bắt đầu không được lớn hơn ngày kết thúc.");
             return;
@@ -45,8 +49,8 @@ public partial class RevenueReportWindow : Window
         {
             var method = (cmbMethod.SelectedItem as ComboBoxItem)?.Content?.ToString();
             var payments = _service.GetPaymentsByDateRange(
-                dpFrom.SelectedDate.Value,
-                dpTo.SelectedDate.Value,
+                dpFrom.SelectedDate,
+                dpTo.SelectedDate,
                 method);
 
             _baseItems = payments.Select(ToDisplayItem).ToList();
@@ -61,6 +65,15 @@ public partial class RevenueReportWindow : Window
             lblTransferTotal.Text = FormatMoney(SumByMethod(_items, "Transfer"));
             lblCardTotal.Text = FormatMoney(SumByMethod(_items, "Card"));
             lblWalletTotal.Text = FormatMoney(SumByMethod(_items, "Wallet"));
+
+            if (_items.Count == 0)
+            {
+                MessageBox.Show(
+                    "Không có thanh toán nào phù hợp với điều kiện tìm kiếm.",
+                    "Không có dữ liệu",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
         }
         catch (Exception ex)
         {
@@ -107,8 +120,7 @@ public partial class RevenueReportWindow : Window
 
     private void BtnClear_Click(object sender, RoutedEventArgs e)
     {
-        dpFrom.SelectedDate = null;
-        dpTo.SelectedDate = null;
+        ClearDateRange();
         cmbMethod.SelectedIndex = 0;
         cmbSemester.SelectedIndex = 0;
         cmbCourse.SelectedIndex = 0;
@@ -118,16 +130,95 @@ public partial class RevenueReportWindow : Window
         txtStudentSearch.Clear();
         txtAmountMin.Clear();
         txtAmountMax.Clear();
-        _baseItems.Clear();
-        _items.Clear();
-        pager.Reset();
-        BindPage();
-        lblTotalRevenue.Text = "0";
-        lblTotalPayments.Text = "0";
-        lblCashTotal.Text = "0";
-        lblTransferTotal.Text = "0";
-        lblCardTotal.Text = "0";
-        lblWalletTotal.Text = "0";
+        GenerateReport();
+    }
+
+    private void BtnExport_Click(object sender, RoutedEventArgs e)
+    {
+        if (_items.Count == 0)
+        {
+            MessageBox.Show(
+                "Không có dữ liệu để xuất file.",
+                "Export Excel",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        var dialog = new SaveFileDialog
+        {
+            Title = "Lưu báo cáo doanh thu",
+            Filter = "Excel Workbook (*.xlsx)|*.xlsx",
+            FileName = $"RevenueReport_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx",
+            AddExtension = true,
+            DefaultExt = ".xlsx",
+            OverwritePrompt = true
+        };
+
+        if (dialog.ShowDialog() != true)
+            return;
+
+        try
+        {
+            var headers = new[]
+            {
+                "Payment ID",
+                "Invoice ID",
+                "Student ID",
+                "Student Name",
+                "Semester",
+                "Course",
+                "Class",
+                "Teacher",
+                "Amount Paid",
+                "Payment Method",
+                "Paid At",
+                "Invoice Status",
+                "Staff ID",
+                "Staff Name",
+                "Note"
+            };
+
+            var rows = _items.Select(x => new object?[]
+            {
+                x.PaymentId,
+                x.InvoiceId,
+                x.StudentId,
+                x.StudentName,
+                x.SemesterName,
+                x.CourseName,
+                x.ClassName,
+                x.TeacherName,
+                x.AmountPaid,
+                x.PaymentMethod,
+                x.PaidAt,
+                x.InvoiceStatus,
+                x.StaffId,
+                x.StaffName,
+                x.Note
+            });
+
+            _excelExportService.ExportToExcel(dialog.FileName, "Revenue Report", headers, rows);
+            MessageBox.Show(
+                $"Đã xuất {_items.Count} dòng báo cáo doanh thu ra file:\n{dialog.FileName}",
+                "Export Excel",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"Không thể xuất file Excel: {GetFullMessage(ex)}",
+                "Lỗi",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+    }
+
+    private void ClearDateRange()
+    {
+        dpFrom.SelectedDate = null;
+        dpTo.SelectedDate = null;
     }
 
     private void SetThisMonth()
@@ -139,11 +230,11 @@ public partial class RevenueReportWindow : Window
 
     private void RefreshAdvancedFilterOptions()
     {
-        SetComboOptions(cmbSemester, _baseItems.Select(x => x.SemesterName));
-        SetComboOptions(cmbCourse, _baseItems.Select(x => x.CourseName));
-        SetComboOptions(cmbClass, _baseItems.Select(x => x.ClassName));
-        SetComboOptions(cmbTeacher, _baseItems.Select(x => x.TeacherName));
-        SetComboOptions(cmbStaff, _baseItems.Select(x => x.StaffName));
+        SetComboOptions(cmbSemester, _semesterService.GetAll().Select(x => x.Name));
+        SetComboOptions(cmbCourse, _courseService.GetAll().Select(x => x.Name));
+        SetComboOptions(cmbClass, _classService.GetAll().Select(x => x.Name));
+        SetComboOptions(cmbTeacher, _teacherService.GetAll().Select(x => x.FullName));
+        SetComboOptions(cmbStaff, _staffService.GetAll().Select(x => x.FullName));
     }
 
     private static void SetComboOptions(ComboBox combo, IEnumerable<string> values)
