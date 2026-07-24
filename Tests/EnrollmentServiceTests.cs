@@ -144,4 +144,162 @@ public class EnrollmentServiceTests
         var ex = Assert.Throws<InvalidOperationException>(() => service.Enroll(1, 5));
         Assert.Contains("already enrolled", ex.Message);
     }
+
+    // ============================================================
+    //  GetEnrollableStudents — who the picker is allowed to offer.
+    //  These exist to keep the offer list and the enroll guards in step: anyone the
+    //  list shows must be someone Enroll would actually accept.
+    // ============================================================
+
+    private static Student AStudent(int id, string name, string status = "ACTIVE")
+        => new() { StudentId = id, FullName = name, Status = status };
+
+    [Fact]
+    public void GetEnrollableStudents_ExcludesStudentsAlreadyHoldingAPlace()
+    {
+        _studentRepo.Setup(r => r.GetAll()).Returns(new List<Student>
+        {
+            AStudent(1, "Already Active"),
+            AStudent(2, "Locked In"),
+            AStudent(3, "Free Agent")
+        });
+        _enrollmentRepo.Setup(r => r.GetByClassId(5)).Returns(new List<Enrollment>
+        {
+            new() { StudentId = 1, ClassId = 5, Status = "ACTIVE" },
+            new() { StudentId = 2, ClassId = 5, Status = "LOCKED" }
+        });
+
+        var result = CreateService().GetEnrollableStudents(5);
+
+        Assert.Single(result);
+        Assert.Equal(3, result[0].Student.StudentId);
+    }
+
+    /// <summary>
+    /// Enrolling a dropped student revives their existing row, so they must stay on offer —
+    /// but flagged, because they are not a fresh enrollment.
+    /// </summary>
+    [Fact]
+    public void GetEnrollableStudents_KeepsDroppedStudentsAndFlagsThem()
+    {
+        _studentRepo.Setup(r => r.GetAll()).Returns(new List<Student> { AStudent(7, "Came Back") });
+        _enrollmentRepo.Setup(r => r.GetByClassId(5)).Returns(new List<Enrollment>
+        {
+            new() { StudentId = 7, ClassId = 5, Status = "DROPPED" }
+        });
+
+        var result = CreateService().GetEnrollableStudents(5);
+
+        Assert.Single(result);
+        Assert.True(result[0].PreviouslyDropped);
+    }
+
+    [Fact]
+    public void GetEnrollableStudents_ExcludesInactiveStudents()
+    {
+        _studentRepo.Setup(r => r.GetAll()).Returns(new List<Student>
+        {
+            AStudent(1, "Active One"),
+            AStudent(2, "Deactivated", status: "INACTIVE")
+        });
+        _enrollmentRepo.Setup(r => r.GetByClassId(5)).Returns(new List<Enrollment>());
+
+        var result = CreateService().GetEnrollableStudents(5);
+
+        Assert.Single(result);
+        Assert.Equal(1, result[0].Student.StudentId);
+    }
+
+    // ============================================================
+    //  EnrollMany — batch enroll, deliberately not all-or-nothing.
+    // ============================================================
+
+    [Fact]
+    public void EnrollMany_EnrollsEachStudentWithTheirOwnDiscount()
+    {
+        _studentRepo.Setup(r => r.GetById(1)).Returns(AStudent(1, "First"));
+        _studentRepo.Setup(r => r.GetById(2)).Returns(AStudent(2, "Second"));
+        _classRepo.Setup(r => r.GetById(5)).Returns(AClass());
+        _enrollmentRepo.Setup(r => r.CountByClassId(5)).Returns(0);
+        _enrollmentRepo.Setup(r => r.GetByStudentAndClass(It.IsAny<int>(), 5)).Returns((Enrollment?)null);
+
+        var result = CreateService().EnrollMany(5, new List<EnrollRequest>
+        {
+            new(1, null),
+            new(2, null)
+        });
+
+        Assert.All(result, o => Assert.True(o.Success));
+        _enrollmentRepo.Verify(r => r.EnrollWithInvoice(
+            It.IsAny<Enrollment>(), It.IsAny<decimal>(),
+            It.IsAny<DateOnly>(), It.IsAny<string>()), Times.Exactly(2));
+    }
+
+    /// <summary>
+    /// One student being refused must not cost the others their place — the whole reason
+    /// this is a loop of independent enrollments rather than a single transaction.
+    /// </summary>
+    [Fact]
+    public void EnrollMany_KeepsGoingAfterOneStudentIsRefused()
+    {
+        _studentRepo.Setup(r => r.GetById(1)).Returns(AStudent(1, "Good One"));
+        _studentRepo.Setup(r => r.GetById(2)).Returns(AStudent(2, "Duplicate"));
+        _studentRepo.Setup(r => r.GetById(3)).Returns(AStudent(3, "Also Good"));
+        _classRepo.Setup(r => r.GetById(5)).Returns(AClass());
+        _enrollmentRepo.Setup(r => r.CountByClassId(5)).Returns(0);
+        _enrollmentRepo.Setup(r => r.GetByStudentAndClass(It.IsAny<int>(), 5)).Returns((Enrollment?)null);
+        _enrollmentRepo.Setup(r => r.GetByStudentAndClass(2, 5))
+            .Returns(new Enrollment { StudentId = 2, ClassId = 5, Status = "ACTIVE" });
+
+        var result = CreateService().EnrollMany(5, new List<EnrollRequest>
+        {
+            new(1, null), new(2, null), new(3, null)
+        });
+
+        Assert.Equal(2, result.Count(o => o.Success));
+
+        var refused = Assert.Single(result, o => !o.Success);
+        Assert.Equal(2, refused.StudentId);
+        Assert.Contains("already enrolled", refused.Error);
+
+        // The two valid students still got in.
+        _enrollmentRepo.Verify(r => r.EnrollWithInvoice(
+            It.IsAny<Enrollment>(), It.IsAny<decimal>(),
+            It.IsAny<DateOnly>(), It.IsAny<string>()), Times.Exactly(2));
+    }
+
+    /// <summary>
+    /// Capacity is recounted inside every iteration, so a class filling up mid-batch admits
+    /// the students who fit and refuses the rest — rather than reading a stale count once.
+    /// </summary>
+    [Fact]
+    public void EnrollMany_StopsAdmittingOnceTheClassFillsUp()
+    {
+        _studentRepo.Setup(r => r.GetById(It.IsAny<int>()))
+            .Returns((int id) => AStudent(id, $"Student {id}"));
+        _classRepo.Setup(r => r.GetById(5)).Returns(AClass());
+        _enrollmentRepo.Setup(r => r.GetByStudentAndClass(It.IsAny<int>(), 5)).Returns((Enrollment?)null);
+
+        // 19 of 20 seats gone, then full from the next check onwards.
+        var counts = new Queue<int>(new[] { 19, 20, 20 });
+        _enrollmentRepo.Setup(r => r.CountByClassId(5)).Returns(() => counts.Dequeue());
+
+        var result = CreateService().EnrollMany(5, new List<EnrollRequest>
+        {
+            new(1, null), new(2, null), new(3, null)
+        });
+
+        Assert.True(result[0].Success);
+        Assert.False(result[1].Success);
+        Assert.False(result[2].Success);
+        Assert.Contains("is full", result[1].Error);
+    }
+
+    [Fact]
+    public void PreviewFinalAmount_ReturnsTheFrozenFeeWhenNoDiscountChosen()
+    {
+        _classRepo.Setup(r => r.GetById(5)).Returns(AClass(snapFee: 3_500_000));
+
+        Assert.Equal(3_500_000m, CreateService().PreviewFinalAmount(5, null));
+    }
 }

@@ -7,19 +7,21 @@ namespace WpfApp;
 // ============================================================
 //  ClassEnrollmentWindow — enrol students into ONE class.
 //  CONTENTS:
-//    1. Construction & load  — class header, capacity, discounts
-//    2. Enroll / Drop        — service does the validation
+//    1. Construction & load  — class header, capacity
+//    2. Enroll / Drop        — picker dialog; service does the validation
 //    3. Paging
 //
 //  Enrollment happens inside a class rather than on a global screen: the class
 //  is what carries the price (its frozen SnapTuitionFee) and the capacity, so
 //  both are visible at the moment the decision is made.
+//
+//  Choosing WHO to enrol, and on which discount, belongs to StudentPickerDialog —
+//  this window only shows who is already in and how many seats are left.
 // ============================================================
 public partial class ClassEnrollmentWindow : Window
 {
     private readonly IEnrollmentService _enrollmentService = new EnrollmentService();
     private readonly IClassService _classService = new ClassService();
-    private readonly ITuitionDiscountService _discountService = new TuitionDiscountService();
 
     private readonly int _classId;
     private Class? _class;
@@ -48,19 +50,7 @@ public partial class ClassEnrollmentWindow : Window
         tbSubtitle.Text = $"{_class.SnapCourseCode} — {_class.SnapCourseName}"
                         + (string.IsNullOrEmpty(_class.SnapLevel) ? "" : $" ({_class.SnapLevel})");
 
-        LoadDiscounts();
         LoadEnrollments();
-    }
-
-    private void LoadDiscounts()
-    {
-        var today = DateOnly.FromDateTime(DateTime.Today);
-        var options = new List<DiscountOption> { new(null, "None") };
-        options.AddRange(_discountService.GetActive(today)
-            .Select(d => new DiscountOption(d.DiscountId, $"{d.Code} - {d.Name} ({FormatDiscount(d)})")));
-
-        cboDiscount.ItemsSource = options;
-        cboDiscount.SelectedIndex = 0;
     }
 
     private void LoadEnrollments()
@@ -85,37 +75,19 @@ public partial class ClassEnrollmentWindow : Window
     private void Pager_PageChanged(object sender, EventArgs e) => BindPage();
 
     // ---- 2. Enroll / Drop --------------------------------------
+    /// <summary>
+    /// Opens the picker. It reports back through EnrolledAnyone rather than DialogResult
+    /// alone, because a partly-successful batch still committed real enrollments — treating
+    /// that as "cancelled" would leave this window showing stale counts.
+    /// </summary>
     private void BtnEnroll_Click(object sender, RoutedEventArgs e)
     {
-        if (!int.TryParse(txtStudentId.Text.Trim(), out var studentId))
-        {
-            MessageBox.Show("Enter a valid student ID.", "Validation",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
+        if (_class == null) return;
 
-        try
-        {
-            var discountId = (cboDiscount.SelectedItem as DiscountOption)?.DiscountId;
-            _enrollmentService.Enroll(studentId, _classId, discountId);
+        var picker = new StudentPickerDialog(_class) { Owner = this };
+        picker.ShowDialog();
 
-            MessageBox.Show($"Student {studentId} enrolled in '{_class?.Name}'.", "Success",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-
-            txtStudentId.Text = "";
-            cboDiscount.SelectedIndex = 0;
-            LoadEnrollments();
-        }
-        catch (InvalidOperationException ex)
-        {
-            // Capacity, duplicate, closed class — the service message is user-facing.
-            MessageBox.Show(ex.Message, "Cannot enroll", MessageBoxButton.OK, MessageBoxImage.Warning);
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Unexpected error: {ex.Message}", "Error",
-                MessageBoxButton.OK, MessageBoxImage.Error);
-        }
+        if (picker.EnrolledAnyone) LoadEnrollments();
     }
 
     private void BtnDrop_Click(object sender, RoutedEventArgs e)
@@ -145,11 +117,6 @@ public partial class ClassEnrollmentWindow : Window
     }
 
     private void BtnRefresh_Click(object sender, RoutedEventArgs e) => LoadAll();
-
-    private static string FormatDiscount(TuitionDiscount d)
-        => d.DiscountType == "PERCENT" ? $"{d.DiscountValue:0.##}%" : $"{d.DiscountValue:N0} đ";
-
-    private sealed record DiscountOption(int? DiscountId, string DisplayText);
 
     private sealed record EnrollmentRow(Enrollment Enrollment)
     {

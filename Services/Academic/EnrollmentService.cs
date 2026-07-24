@@ -56,6 +56,72 @@ public class EnrollmentService : IEnrollmentService
 
     public void Enroll(int studentId, int classId, int? discountId) => EnrollInternal(studentId, classId, discountId, useDiscountPricing: true);
 
+    /// <summary>
+    /// Who can still be enrolled here. The two exclusions mirror EnrollInternal exactly:
+    /// an inactive student is not a candidate, and neither is one already holding an
+    /// ACTIVE/LOCKED place. A DROPPED student stays on the list because enrolling them
+    /// again revives their old row — hiding them would remove a working feature.
+    /// </summary>
+    public List<EnrollableStudent> GetEnrollableStudents(int classId)
+    {
+        var taken = _enrollmentRepo.GetByClassId(classId);
+
+        var blocked = taken.Where(e => e.Status != "DROPPED")
+                           .Select(e => e.StudentId).ToHashSet();
+        var dropped = taken.Where(e => e.Status == "DROPPED")
+                           .Select(e => e.StudentId).ToHashSet();
+
+        return _studentRepo.GetAll()
+            .Where(s => s.Status == "ACTIVE" && !blocked.Contains(s.StudentId))
+            .Select(s => new EnrollableStudent(s, dropped.Contains(s.StudentId)))
+            .OrderBy(x => x.Student.FullName)
+            .ToList();
+    }
+
+    /// <summary>
+    /// Batch enroll. Each request runs through the same EnrollInternal as a single enroll —
+    /// capacity, duplicates, closed classes and invoicing are not re-implemented here.
+    /// Because capacity is recounted inside every iteration, filling up mid-batch correctly
+    /// admits the students who fit and rejects the rest.
+    /// </summary>
+    public List<EnrollOutcome> EnrollMany(int classId, IList<EnrollRequest> requests)
+    {
+        var results = new List<EnrollOutcome>();
+
+        foreach (var req in requests)
+        {
+            var name = _studentRepo.GetById(req.StudentId)?.FullName ?? $"Student #{req.StudentId}";
+            try
+            {
+                EnrollInternal(req.StudentId, classId, req.DiscountId, useDiscountPricing: true);
+                results.Add(new EnrollOutcome(req.StudentId, name, true, null));
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Only business refusals are absorbed into the report. Anything else
+                // (a dropped connection, a bad mapping) is a real fault: let it surface
+                // instead of being flattened into "could not enrol this student".
+                results.Add(new EnrollOutcome(req.StudentId, name, false, ex.Message));
+            }
+        }
+
+        return results;
+    }
+
+    /// <summary>
+    /// Quote for one student. Routes through CalculateInvoicePricing rather than repeating
+    /// the percent/fixed arithmetic, so what is shown before enrolling and what lands on the
+    /// invoice cannot disagree.
+    /// </summary>
+    public decimal PreviewFinalAmount(int classId, int? discountId)
+    {
+        var fee = _classRepo.GetById(classId)?.SnapTuitionFee ?? 0m;
+        if (discountId is null) return fee;
+
+        return CalculateInvoicePricing(fee, discountId.Value,
+            DateOnly.FromDateTime(DateTime.Today)).FinalAmount;
+    }
+
     private void EnrollInternal(int studentId, int classId, int? discountId, bool useDiscountPricing)
     {
         var student = _studentRepo.GetById(studentId)

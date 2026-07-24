@@ -76,17 +76,18 @@
                 </Border>
             </UniformGrid>
 
-            <!-- Enrol a student into THIS class -->
+            <!-- Enrol into THIS class. Picking happens in StudentPickerDialog: it lists who is
+                 actually enrollable and carries the per-student discount, which a single ID
+                 box could not express. -->
             <Border Grid.Row="1" Style="{StaticResource Card}" Padding="12" Margin="0,0,0,14">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Student ID:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBox x:Name="txtStudentId" Width="110" Height="34"/>
-                    <TextBlock Text="Discount:" VerticalAlignment="Center" Margin="16,0,6,0"/>
-                    <ComboBox x:Name="cboDiscount" MinWidth="280" DisplayMemberPath="DisplayText"/>
-                    <Button Content="Enroll" Style="{StaticResource PillButton}" Width="100"
-                            Margin="16,0,0,0" Click="BtnEnroll_Click"/>
+                    <Button Content="Add students…" Style="{StaticResource PillButton}" Width="150"
+                            Click="BtnEnroll_Click"/>
                     <Button Content="Refresh" Style="{StaticResource PillButtonSubtle}" Width="90"
                             Margin="8,0,0,0" Click="BtnRefresh_Click"/>
+                    <TextBlock VerticalAlignment="Center" Margin="16,0,0,0" FontSize="12"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Text="Choose students from a list and set each one's discount."/>
                 </StackPanel>
             </Border>
 
@@ -110,7 +111,7 @@
                                        Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
                         <TextBlock Text="Nobody enrolled yet" FontSize="15" FontWeight="SemiBold"
                                    Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center" Margin="0,10,0,2"/>
-                        <TextBlock Text="Enter a student ID above to enrol them."
+                        <TextBlock Text="Click &quot;Add students…&quot; above to enrol them."
                                    FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
