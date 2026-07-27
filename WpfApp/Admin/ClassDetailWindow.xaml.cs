@@ -92,7 +92,17 @@ public partial class ClassDetailWindow : Window
         // A running class has already produced sessions, attendance and invoices, so the
         // fields those hang off are locked for the rest of the run (ClassService.Update
         // enforces the same rules — this only saves the user from typing into a dead end).
-        if (classEntity.Status == "ONGOING")
+        if (classEntity.IsFinished)
+        {
+            // Finished: the whole form is a read-only record. Opened rather than
+            // refused so the details can still be looked up.
+            Title = "Class details";
+            tbTitle.Text = $"“{classEntity.Name}” — finished";
+            MakeReadOnly();
+            tbStatusNote.Text = $"finished on {classEntity.EndDate:dd/MM/yyyy} — this class is a "
+                              + "closed record and can no longer be edited";
+        }
+        else if (classEntity.Status == "ONGOING")
         {
             dpStartDate.IsEnabled = false;
             dpEndDate.IsEnabled = false;
@@ -117,6 +127,24 @@ public partial class ClassDetailWindow : Window
             pick.IsSelected = true;
             pick.IsPrimary = ct.IsPrimary;
         }
+    }
+
+    /// <summary>
+    /// Turns the dialog into a viewer: every input dead, Save gone, Cancel becomes
+    /// Close. ClassService refuses the write anyway — this is so nobody types a page
+    /// of changes before finding that out.
+    /// </summary>
+    private void MakeReadOnly()
+    {
+        txtName.IsReadOnly = true;
+        txtMaxStudents.IsReadOnly = true;
+        cmbClassroom.IsEnabled = false;
+        dpStartDate.IsEnabled = false;
+        dpEndDate.IsEnabled = false;
+        lstTeachers.IsEnabled = false;
+
+        btnSave.Visibility = Visibility.Collapsed;
+        btnCancel.Content = "Close";
     }
 
     private void LoadPickers()

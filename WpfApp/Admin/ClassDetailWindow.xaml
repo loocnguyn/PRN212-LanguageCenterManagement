@@ -135,8 +135,8 @@
 
                 <StackPanel Grid.Row="7" Grid.ColumnSpan="2"
                             Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
-                    <Button Content="Save"   Style="{StaticResource PillButton}"       Width="90" Margin="0,0,8,0" Click="BtnSave_Click"/>
-                    <Button Content="Cancel" Style="{StaticResource PillButtonSubtle}" Width="90" Click="BtnCancel_Click"/>
+                    <Button x:Name="btnSave" Content="Save" Style="{StaticResource PillButton}" Width="90" Margin="0,0,8,0" Click="BtnSave_Click"/>
+                    <Button x:Name="btnCancel" Content="Cancel" Style="{StaticResource PillButtonSubtle}" Width="90" Click="BtnCancel_Click"/>
                 </StackPanel>
             </Grid>
         </ScrollViewer>
