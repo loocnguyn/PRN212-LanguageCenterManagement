@@ -87,6 +87,11 @@
                 <MenuItem Header="Session Room Change" Click="MenuSessionRoom_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="Building24"/></MenuItem.Icon>
                 </MenuItem>
+                <Separator/>
+                <!-- Academic, not financial: it reports on marks and awards nothing. -->
+                <MenuItem Header="Top Students (by average)" Click="MenuTopStudents_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="BookStar24"/></MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
 
             <!-- ADMIN, and STAFF (Finance department) -->

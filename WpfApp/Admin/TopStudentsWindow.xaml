@@ -1,0 +1,150 @@
+<Window x:Class="WpfApp.TopStudentsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:WpfApp"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:ctl="clr-namespace:WpfApp.Controls"
+        Title="Top Students" Height="660" Width="980"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}">
+
+    <Window.Resources>
+        <local:InitialsConverter x:Key="Initials"/>
+
+        <DataTemplate x:Key="StudentCellTemplate">
+            <StackPanel Orientation="Horizontal">
+                <Border Width="34" Height="34" CornerRadius="17"
+                        Background="{StaticResource RoleStudentBrush}" Margin="0,0,12,0">
+                    <TextBlock Text="{Binding StudentName, Converter={StaticResource Initials}}"
+                               Foreground="White" FontWeight="SemiBold" FontSize="12"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding StudentName}" FontWeight="SemiBold" FontSize="13"/>
+                    <TextBlock Text="{Binding StudentEmail}" FontSize="11"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- The average, with how complete it is underneath. A 9.2 over 40% of the
+             weights is not the same claim as a 9.2 over all of them. -->
+        <DataTemplate x:Key="AverageCellTemplate">
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock x:Name="avg" Text="{Binding AverageDisplay}" FontSize="15" FontWeight="Bold"
+                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                <TextBlock Text="{Binding ProgressDisplay}" FontSize="10"
+                           Foreground="{StaticResource TextSecondaryBrush}"/>
+            </StackPanel>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding MeetsThreshold}" Value="True">
+                    <Setter TargetName="avg" Property="Foreground" Value="{StaticResource SecondaryBrush}"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </Window.Resources>
+
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Background="{StaticResource PrimaryBrush}" Padding="20,14">
+            <StackPanel Orientation="Horizontal">
+                <ui:SymbolIcon Symbol="BookStar24" Foreground="White" FontSize="26" Margin="0,0,12,0"/>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Top Students" Foreground="White" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock Text="Rank a course's students by weighted average and see who clears a mark"
+                               Foreground="#DCEBFF" FontSize="12"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Filters -->
+            <Border Grid.Row="0" Style="{StaticResource Card}" Padding="12" Margin="0,0,0,12">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Semester" VerticalAlignment="Center" Margin="0,0,6,0"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <ComboBox x:Name="cboSemester" MinWidth="170" Height="34" DisplayMemberPath="Name"
+                              SelectedValuePath="SemesterId" VerticalContentAlignment="Center"/>
+
+                    <TextBlock Text="Course" VerticalAlignment="Center" Margin="16,0,6,0"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <ComboBox x:Name="cboCourse" MinWidth="210" Height="34" DisplayMemberPath="Name"
+                              SelectedValuePath="CourseId" VerticalContentAlignment="Center"/>
+
+                    <TextBlock Text="Average at least" VerticalAlignment="Center" Margin="16,0,6,0"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <TextBox x:Name="txtThreshold" Width="56" Height="34" Text="8.0"
+                             VerticalContentAlignment="Center" Padding="6,0"/>
+
+                    <CheckBox x:Name="chkOnlyAbove" Content="Only those who clear it"
+                              VerticalAlignment="Center" Margin="16,0,0,0" IsChecked="True"
+                              Checked="Filter_Changed" Unchecked="Filter_Changed"/>
+
+                    <Button Content="Show" Style="{StaticResource PillButton}" Width="90"
+                            Margin="16,0,0,0" Click="BtnShow_Click"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Counts -->
+            <StackPanel Grid.Row="1" x:Name="summaryPanel" Orientation="Horizontal"
+                        Margin="0,0,0,12" Visibility="Collapsed">
+                <Border Style="{StaticResource Card}" Padding="14,10" Margin="0,0,10,0" MinWidth="140">
+                    <StackPanel>
+                        <TextBlock x:Name="statTotal" Text="0" FontSize="20" FontWeight="Bold"
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock Text="students taking it" FontSize="11"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Padding="14,10" Margin="0,0,10,0" MinWidth="140">
+                    <StackPanel>
+                        <TextBlock x:Name="statAbove" Text="0" FontSize="20" FontWeight="Bold"
+                                   Foreground="{StaticResource SecondaryBrush}"/>
+                        <TextBlock x:Name="statAboveLabel" Text="clear the mark" FontSize="11"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Padding="14,10" MinWidth="140">
+                    <StackPanel>
+                        <TextBlock x:Name="statPending" Text="0" FontSize="20" FontWeight="Bold"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <TextBlock Text="not fully marked yet" FontSize="11"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Ranking -->
+            <Border Grid.Row="2" Style="{StaticResource Card}" Padding="0">
+                <Grid>
+                    <DataGrid x:Name="dgRanking" AutoGenerateColumns="False" IsReadOnly="True"
+                              SelectionMode="Single" RowHeight="50" BorderThickness="0"
+                              Background="Transparent">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="50"/>
+                            <DataGridTemplateColumn Header="Student" Width="*"
+                                                    CellTemplate="{StaticResource StudentCellTemplate}"/>
+                            <DataGridTextColumn Header="Class" Binding="{Binding ClassName}" Width="140"/>
+                            <DataGridTemplateColumn Header="Weighted average" Width="160"
+                                                    CellTemplate="{StaticResource AverageCellTemplate}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <TextBlock x:Name="emptyState" TextAlignment="Center"
+                               Text="Pick a semester and a course, then press Show."
+                               Foreground="{StaticResource TextSecondaryBrush}" FontSize="13"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <ctl:PagerBar Grid.Row="3" x:Name="pager" HorizontalAlignment="Left"
+                          Margin="0,12,0,0" PageChanged="Pager_PageChanged"/>
+        </Grid>
+    </DockPanel>
+</Window>
