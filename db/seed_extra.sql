@@ -13,8 +13,10 @@
 --  to the wrong records and corrupt the data silently.
 --
 --  What it adds:
---    · 42 accounts — 1 admin, 3 staff, 8 teachers, 30 students
---    · 3 departments, 7 classrooms, 6 courses, 5 discounts
+--    · 42 accounts — 4 staff, 8 teachers, 30 students
+--      (no extra admin: the centre runs on the single admin01 from seed.sql)
+--    · 7 classrooms, 6 courses, 5 discounts
+--      (no extra departments: Academic Setup and Finance are the only two)
 --    · 4 semesters filling the gaps around the existing three
 --    · 16 classes spanning completed / ongoing / upcoming / cancelled
 --    · 43 enrollments with invoices, payments, grades
@@ -58,9 +60,9 @@ GO
 DECLARE @pw NVARCHAR(256) = '$2a$11$U7t7m.JhCoIZBzC.edRuMeKLroLVwOrI05B.WnVSrJPbQT3qrLPiK';
 
 INSERT INTO Users (username, password_hash, role, is_active) VALUES
--- Admin — id 9
-('admin02',   @pw, 'ADMIN',   1),
--- Staff — id 10..12
+-- Staff — id 9..12. There is deliberately no second ADMIN account: the system
+-- has exactly one administrator, admin01 from seed.sql.
+('staff06',   @pw, 'STAFF',   1),
 ('staff03',   @pw, 'STAFF',   1),
 ('staff04',   @pw, 'STAFF',   1),
 ('staff05',   @pw, 'STAFF',   1),
@@ -95,24 +97,19 @@ GO
 --  2. ORGANISATION
 -- ============================================================
 
--- Departments — id 3..5. Only "Finance" unlocks the finance menus; every
--- other name falls through to the academic group (MainWindow).
-INSERT INTO Departments (name) VALUES
-(N'Student Services'),   -- 3
-(N'Marketing'),          -- 4
-(N'IT Support');         -- 5
-GO
+-- No departments are added. The centre has exactly the two seed.sql created —
+-- Academic Setup and Finance — and every staff member below belongs to one of
+-- them. Only "Finance" unlocks the finance menus; Academic Setup falls through
+-- to the academic group (MainWindow.ApplyStaffDepartmentVisibility).
 
--- Staff — staff_id 3..5, users 10..12
+-- Staff — staff_id 3..6, users 10..12 then 9
 INSERT INTO Staff (user_id, full_name, date_of_birth, gender, phone, email, department) VALUES
 (10, N'Vo Thi Hanh',    '1993-04-18', 'Female', '0901000003', 'hanh@center.edu.vn',  N'Finance'),
-(11, N'Dang Quoc Toan', '1990-11-02', 'Male',   '0901000004', 'toan@center.edu.vn',  N'Student Services'),
-(12, N'Bui Ngoc Lan',   '1995-07-25', 'Female', '0901000005', 'lan@center.edu.vn',   N'Academic Setup');
-GO
-
--- Admin — users 9
-INSERT INTO Admins (user_id, full_name, phone, email) VALUES
-(9, N'Le Hoang Nam', '0900000001', 'nam.admin@center.edu.vn');
+(11, N'Dang Quoc Toan', '1990-11-02', 'Male',   '0901000004', 'toan@center.edu.vn',  N'Academic Setup'),
+(12, N'Bui Ngoc Lan',   '1995-07-25', 'Female', '0901000005', 'lan@center.edu.vn',   N'Academic Setup'),
+-- staff06 (user 9) is inserted last on purpose: staff_id 3..5 keep the values the
+-- Payments section further down collects money under.
+(9,  N'Le Hoang Nam',   '1989-03-12', 'Male',   '0900000001', 'nam@center.edu.vn',   N'Finance');
 GO
 
 -- Teachers — teacher_id 3..10, users 13..20.

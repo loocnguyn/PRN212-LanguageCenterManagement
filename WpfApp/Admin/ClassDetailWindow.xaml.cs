@@ -89,6 +89,17 @@ public partial class ClassDetailWindow : Window
             _ => "PrimaryBrush"
         });
 
+        // A running class has already produced sessions, attendance and invoices, so the
+        // fields those hang off are locked for the rest of the run (ClassService.Update
+        // enforces the same rules — this only saves the user from typing into a dead end).
+        if (classEntity.Status == "ONGOING")
+        {
+            dpStartDate.IsEnabled = false;
+            cmbClassroom.IsEnabled = false;
+            tbStatusNote.Text = "class already running — start date and room are locked; "
+                              + "capacity cannot drop below the students already enrolled";
+        }
+
         // The snapshot is immutable — show it, don't offer to change it.
         cmbCourse.IsEnabled = false;
         ShowSnapshot(
