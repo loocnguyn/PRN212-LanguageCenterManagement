@@ -58,6 +58,16 @@ public partial class Class
     /// <summary>True while the class can still take enrollments — not yet finished or cancelled.</summary>
     public bool IsOpenForEnrollment => !IsCancelled && DateOnly.FromDateTime(DateTime.Today) <= EndDate;
 
+    /// <summary>
+    /// The run is over: the last session has been and gone. Editing is closed from
+    /// here — the marks are final, the invoices are settled, and the transcripts
+    /// students already downloaded have to keep matching what the class says.
+    ///
+    /// Deliberately NOT `Status == "COMPLETED"`: a cancelled class whose dates have
+    /// passed reports CANCELLED, and it is just as finished as any other.
+    /// </summary>
+    public bool IsFinished => DateOnly.FromDateTime(DateTime.Today) > EndDate;
+
     // ---- Frozen copy of the course at creation time -------------
     public string SnapCourseCode { get; set; } = null!;
     public string SnapCourseName { get; set; } = null!;

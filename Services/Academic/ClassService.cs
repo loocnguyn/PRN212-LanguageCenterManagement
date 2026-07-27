@@ -71,6 +71,15 @@ public class ClassService : IClassService
         var existing = _repo.GetById(entity.ClassId)
             ?? throw new InvalidOperationException($"Class {entity.ClassId} not found.");
 
+        // A finished class is a closed record, not a form. Its marks are final and its
+        // invoices are settled, and moving its dates would silently reopen it — which
+        // is exactly the bug this rule replaces: nudging the end date of a completed
+        // class turned it back into an ONGOING one.
+        if (existing.IsFinished)
+            throw new InvalidOperationException(
+                $"'{existing.Name}' finished on {existing.EndDate:dd/MM/yyyy} and can no longer be edited. " +
+                "Create a new class for the next intake.");
+
         if (existing.Status == "ONGOING")
         {
             if (entity.StartDate != existing.StartDate)
@@ -124,8 +133,17 @@ public class ClassService : IClassService
     /// <summary>
     /// Cancels or reinstates a class. UPCOMING / ONGOING / COMPLETED are not settable —
     /// they follow the class's dates, so cancellation is the only status a human decides.
+    /// A class that has already run to its end date cannot be called off after the fact.
     /// </summary>
-    public void SetCancelled(int classId, bool cancelled) => _repo.SetCancelled(classId, cancelled);
+    public void SetCancelled(int classId, bool cancelled)
+    {
+        var cls = _repo.GetById(classId);
+        if (cls != null && cls.IsFinished)
+            throw new InvalidOperationException(
+                $"'{cls.Name}' finished on {cls.EndDate:dd/MM/yyyy} — it is too late to cancel it.");
+
+        _repo.SetCancelled(classId, cancelled);
+    }
 
     /// <summary>
     /// Replaces the class's teaching team.
@@ -141,6 +159,11 @@ public class ClassService : IClassService
     {
         if (teacherIds == null || teacherIds.Count == 0)
             throw new InvalidOperationException("A class must keep at least one teacher.");
+
+        var cls = _repo.GetById(classId);
+        if (cls != null && cls.IsFinished)
+            throw new InvalidOperationException(
+                $"'{cls.Name}' finished on {cls.EndDate:dd/MM/yyyy} — its teaching team is part of the record now.");
 
         var taught = _teacherAttendanceRepo.GetTeacherIdsWithAttendance(classId);
         var removed = taught.Except(teacherIds).ToList();
