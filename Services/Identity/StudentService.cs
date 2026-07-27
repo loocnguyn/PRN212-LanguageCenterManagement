@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+using BusinessObjects;
 using Repositories;
 
 namespace Services;
@@ -11,6 +11,7 @@ public class StudentService : IStudentService
 
     public List<Student> GetAll() => _repo.GetAll();
     public Student? GetById(int id) => _repo.GetById(id);
+    public Student? GetByUserId(int userId) => _repo.GetByUserId(userId);
     public void Save(Student entity) => _repo.Save(entity);
     public void Update(Student entity) => _repo.Update(entity);
     public void Delete(int id) => _repo.Delete(id);

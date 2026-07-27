@@ -24,4 +24,15 @@ public interface ISessionService
 
     void GenerateSessionsForClass(int classId);
     void EnsureSessionsForSemester(int semesterId);
+
+    /// <summary>A class's sessions (with default room, override room and schedule) for the
+    /// room-change screen.</summary>
+    List<Session> GetSessionsForRoomEditing(int classId);
+
+    /// <summary>
+    /// Moves ONE session to another room (or clears the override when newRoomId is null),
+    /// recording the reason. Throws InvalidOperationException with a user-facing message if the
+    /// target room is already used by another class at an overlapping time that same day.
+    /// </summary>
+    void ChangeSessionRoom(int sessionId, int? newRoomId, string? note);
 }

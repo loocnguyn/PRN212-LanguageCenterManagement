@@ -18,6 +18,7 @@ public class ClassService : IClassService
 {
     private readonly IClassRepository _repo = new ClassRepository();
     private readonly ISemesterRepository _semesterRepo = new SemesterRepository();
+    private readonly IEnrollmentRepository _enrollmentRepo = new EnrollmentRepository();
 
     public List<Class> GetAll() => _repo.GetAll();
     public Class? GetById(int id) => _repo.GetById(id);
@@ -48,8 +49,61 @@ public class ClassService : IClassService
         return _repo.CreateWithSnapshot(entity, courseId, teacherIds, primaryTeacherId);
     }
 
-    /// <summary>Updates the editable fields. The course snapshot is preserved by the DAO.</summary>
-    public void Update(Class entity) => _repo.Update(entity);
+    /// <summary>
+    /// Updates the editable fields. The course snapshot is preserved by the DAO.
+    ///
+    /// Once a class is ONGOING it has already produced facts — sessions were laid out
+    /// from its start date in its room, students are attending, invoices are raised —
+    /// so the fields those facts depend on are frozen for the rest of the run. Name and
+    /// teachers stay editable; everything blocked here has a proper path elsewhere
+    /// (cancel the class, or move a single session's room).
+    /// </summary>
+    public void Update(Class entity)
+    {
+        var existing = _repo.GetById(entity.ClassId)
+            ?? throw new InvalidOperationException($"Class {entity.ClassId} not found.");
+
+        if (existing.Status == "ONGOING")
+        {
+            if (entity.StartDate != existing.StartDate)
+                throw new InvalidOperationException(
+                    "This class is already running — its start date can no longer be changed. " +
+                    "Its sessions were laid out from that date.");
+
+            if (entity.ClassroomId != existing.ClassroomId)
+                throw new InvalidOperationException(
+                    "This class is already running — its room cannot be reassigned. " +
+                    "Change the room of the sessions that still lie ahead instead.");
+
+            if (entity.EndDate < DateOnly.FromDateTime(DateTime.Today))
+                throw new InvalidOperationException(
+                    "A running class cannot be given an end date in the past. " +
+                    "Cancel the class if it is not going to finish.");
+
+            var enrolled = _enrollmentRepo.GetByClassId(entity.ClassId)
+                .Count(e => e.Status != "DROPPED");
+            if (entity.MaxStudents < enrolled)
+                throw new InvalidOperationException(
+                    $"This class is already running with {enrolled} enrolled student(s); " +
+                    $"its capacity cannot be lowered to {entity.MaxStudents}.");
+        }
+
+        // The run must stay inside its semester, exactly as Create() requires — an
+        // edit is not a way around that.
+        var semester = _semesterRepo.GetById(existing.SemesterId);
+        if (semester != null)
+        {
+            if (entity.StartDate < semester.StartDate)
+                throw new InvalidOperationException(
+                    $"Class cannot start before its semester ({semester.StartDate:dd/MM/yyyy}).");
+
+            if (entity.EndDate > semester.EndDate)
+                throw new InvalidOperationException(
+                    $"Class cannot end after its semester ({semester.EndDate:dd/MM/yyyy}).");
+        }
+
+        _repo.Update(entity);
+    }
 
     public void Delete(int id) => _repo.Delete(id);
 

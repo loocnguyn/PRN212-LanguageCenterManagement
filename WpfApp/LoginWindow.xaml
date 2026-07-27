@@ -51,12 +51,12 @@
                            Foreground="{StaticResource TextSecondaryBrush}"/>
 
                 <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,0,0,4">
-                    <ui:SymbolIcon Symbol="PersonCircle24" FontSize="14" Margin="0,0,4,0"
+                    <ui:SymbolIcon Symbol="Mail24" FontSize="14" Margin="0,0,4,0"
                                    Foreground="{StaticResource TextSecondaryBrush}"/>
-                    <TextBlock Text="Username" FontSize="13"
+                    <TextBlock Text="Email" FontSize="13"
                                Foreground="{StaticResource TextSecondaryBrush}"/>
                 </StackPanel>
-                <TextBox Grid.Row="5" x:Name="txtUsername"
+                <TextBox Grid.Row="5" x:Name="txtEmail"
                          Height="36" FontSize="14"
                          VerticalContentAlignment="Center" Padding="8,0"/>
 

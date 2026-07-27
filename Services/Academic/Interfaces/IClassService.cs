@@ -18,7 +18,11 @@ public interface IClassService
     /// </summary>
     int Create(Class entity, int courseId, IList<int> teacherIds, int? primaryTeacherId);
 
-    /// <summary>Updates the editable fields only; the course snapshot is preserved.</summary>
+    /// <summary>
+    /// Updates the editable fields only; the course snapshot is preserved.
+    /// While the class is ONGOING its start date, room and capacity are locked too —
+    /// sessions, attendance and invoices already depend on them.
+    /// </summary>
     void Update(Class entity);
 
     void Delete(int id);

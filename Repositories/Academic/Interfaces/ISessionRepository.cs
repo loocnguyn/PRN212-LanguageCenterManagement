@@ -16,4 +16,8 @@ public interface ISessionRepository
     List<Session> GetByClassIdWithDetails(int classId);
     int CountByClassId(int classId);
     void BulkSave(List<Session> sessions);
+
+    List<Session> GetForRoomEditing(int classId);
+    List<Session> GetSessionsInRoomOnDate(int roomId, DateOnly date, int excludeSessionId);
+    void ChangeRoom(int sessionId, int? roomId, string? note);
 }

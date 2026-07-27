@@ -49,7 +49,8 @@ public static class ScheduleGridBuilder
                 HasSession = true,
                 SessionId = session.SessionId,
                 ClassName = session.Class?.Name ?? "",
-                RoomName = session.Class?.Classroom?.Name ?? "",
+                // Effective room: a per-session override wins over the class's default room.
+                RoomName = session.EffectiveRoomName,
                 CounterpartName = counterpartNameSelector(session),
                 TimeDisplay = $"{session.Schedule.StartTime:hh\\:mm}-{session.Schedule.EndTime:hh\\:mm}",
                 Status = statusTextSelector(session)

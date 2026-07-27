@@ -668,6 +668,12 @@ public partial class LanguageCenterContext : DbContext
             entity.Property(e => e.Topic)
                 .HasMaxLength(200)
                 .HasColumnName("topic");
+            entity.Property(e => e.RoomId).HasColumnName("room_id");
+            entity.Property(e => e.RoomChangeNote)
+                .HasMaxLength(255)
+                .HasColumnName("room_change_note");
+            entity.Ignore(e => e.EffectiveRoomName);
+            entity.Ignore(e => e.HasRoomOverride);
 
             entity.HasOne(d => d.Class).WithMany(p => p.Sessions)
                 .HasForeignKey(d => d.ClassId)
@@ -677,6 +683,10 @@ public partial class LanguageCenterContext : DbContext
             entity.HasOne(d => d.Schedule).WithMany(p => p.Sessions)
                 .HasForeignKey(d => d.ScheduleId)
                 .HasConstraintName("FK__Sessions__schedu__59FA5E80");
+
+            entity.HasOne(d => d.Room).WithMany()
+                .HasForeignKey(d => d.RoomId)
+                .OnDelete(DeleteBehavior.NoAction);
         });
 
         modelBuilder.Entity<Staff>(entity =>
@@ -824,7 +834,7 @@ public partial class LanguageCenterContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Users__3213E83F64D5B981");
 
-            entity.HasIndex(e => e.Username, "UQ__Users__F3DBC572EC69ECFB").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Users__Email").IsUnique();
 
             entity.HasIndex(e => e.Role, "idx_users_role");
 
@@ -832,18 +842,21 @@ public partial class LanguageCenterContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnName("created_at");
+            entity.Property(e => e.Email)
+                .HasMaxLength(100)
+                .HasColumnName("email");
             entity.Property(e => e.IsActive)
                 .HasDefaultValue(true)
                 .HasColumnName("is_active");
+            entity.Property(e => e.MustChangePassword)
+                .HasDefaultValue(false)
+                .HasColumnName("must_change_password");
             entity.Property(e => e.PasswordHash)
                 .HasMaxLength(256)
                 .HasColumnName("password_hash");
             entity.Property(e => e.Role)
                 .HasMaxLength(20)
                 .HasColumnName("role");
-            entity.Property(e => e.Username)
-                .HasMaxLength(50)
-                .HasColumnName("username");
         });
 
         modelBuilder.Entity<Semester>(entity =>
@@ -870,7 +883,11 @@ public partial class LanguageCenterContext : DbContext
         {
             entity.HasKey(e => e.TransactionId).HasName("PK__WalletTr__55F68FC0");
 
-            entity.HasIndex(e => e.ProviderOrderId, "UQ__WalletTr__ProviderOrderId").IsUnique();
+            // Filtered, matching schema.sql: unique per ZaloPay order, but the many
+            // rows with no order id at all (spends, refunds) are not duplicates.
+            entity.HasIndex(e => e.ProviderOrderId, "UQ__WalletTr__ProviderOrderId")
+                .IsUnique()
+                .HasFilter("[provider_order_id] IS NOT NULL");
 
             entity.HasIndex(e => e.StudentId, "idx_wallet_student");
 

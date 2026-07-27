@@ -1,0 +1,12 @@
+FullName,DateOfBirth,Gender,Phone,Email,Address
+Truong Van Hoa,10/03/2004,Male,0913000001,hoa.truong@mail.com,"This row is fine - it will be created"
+Nguyen Thi Bich,05/06/2003,Female,0913000002,,"Row 3: no email at all"
+Le Van Thanh,18/09/2002,Male,0913000003,thanh.le[at]mail.com,"Row 4: email is not a valid address"
+Dinh Thi Mai,22/01/2004,Female,0913000004,hoa.truong@mail.com,"Row 5: same email as row 2 in this file"
+Pham Thi Cam,12/05/2003,Female,0913000005,cam.pham.new@mail.com,"Row 6: same name and DOB as a student already in the system"
+Hoang Van Long,14/07/2003,Male,0913000006,cam@mail.com,"Row 7: this email already has an account"
+Vu Thi Ngoc,2004-02-30,Female,0913000007,ngoc.vu@mail.com,"Row 8: date is not dd/MM/yyyy"
+Do Minh Tuan,09/11/2003,Male,091300,tuan.do@mail.com,"Row 9: phone is not 10 digits starting with 0"
+Ly Thi Hong,25/05/2004,Other,0913000009,hong.ly@mail.com,"Row 10: gender must be Male or Female"
+Cao Van Sang,01/01/2030,Male,0913000010,sang.cao@mail.com,"Row 11: date of birth is in the future"
+,17/08/2003,Female,0913000011,noname@mail.com,"Row 12: full name is missing"

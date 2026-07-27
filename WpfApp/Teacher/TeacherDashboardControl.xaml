@@ -40,12 +40,6 @@
                 <TextBlock Text="OVERVIEW" FontSize="11" FontWeight="SemiBold"
                            Foreground="{StaticResource TextSecondaryBrush}" Margin="2,0,0,10"/>
                 <WrapPanel x:Name="panelTiles" Margin="0,0,0,18"/>
-
-                <TextBlock Text="CLASSES NEEDING ATTENTION" FontSize="11" FontWeight="SemiBold"
-                           Foreground="{StaticResource TextSecondaryBrush}" Margin="2,0,0,10"/>
-                <Border Style="{StaticResource Card}" HorizontalAlignment="Left" MinWidth="420">
-                    <ListBox x:Name="lstWarnings" BorderThickness="0" Background="Transparent"/>
-                </Border>
             </StackPanel>
         </ScrollViewer>
     </Grid>

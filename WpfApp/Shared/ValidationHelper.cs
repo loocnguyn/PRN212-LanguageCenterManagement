@@ -7,14 +7,9 @@ public static class ValidationHelper
 {
     public const int MinPasswordLength = 6;
 
-    private static readonly Regex UsernameRegex = new(@"^[a-z0-9]+$");
     private static readonly Regex FullNameRegex = new(@"^[\p{L}\s]+$");
     private static readonly Regex PhoneRegex = new(@"^0\d{9}$");
     private static readonly Regex EmailRegex = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-
-    /// <summary>5-20 characters, lowercase letters and digits only.</summary>
-    public static bool IsValidUsername(string username)
-        => username.Length is >= 5 and <= 20 && UsernameRegex.IsMatch(username);
 
     /// <summary>Letters and spaces only (Unicode-aware, so Vietnamese names pass).</summary>
     public static bool IsValidFullName(string fullName)

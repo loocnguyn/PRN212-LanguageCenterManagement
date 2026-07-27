@@ -1,7 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
 using BusinessObjects;
-using DataAccessObjects;
 using Services;
 
 namespace WpfApp;
@@ -10,7 +9,11 @@ namespace WpfApp;
 //  AccountDetailWindow — the Add/Edit dialog for one user account.
 //  One dialog serves every role; the visible fields change with the
 //  selected role. On Add the role is chosen (or preset+locked); on
-//  Edit the role/username are read-only.
+//  Edit the role is read-only.
+//
+//  The Email field is the account's LOGIN. It is written to Users.email (unique,
+//  the credential) and to the role's profile row (contact detail) at the same
+//  time, so the two can never disagree.
 //  CONTENTS:
 //    1. Fields & construction   — edit vs add vs preset-role modes
 //    2. LoadProfileFields       — fill fields from the role's profile table
@@ -23,6 +26,10 @@ public partial class AccountDetailWindow : Window
 {
     private readonly IUserService _service = new UserService();
     private readonly IDepartmentService _departmentService = new DepartmentService();
+    private readonly IStudentService _studentService = new StudentService();
+    private readonly ITeacherService _teacherService = new TeacherService();
+    private readonly IStaffService _staffService = new StaffService();
+    private readonly IAdminService _adminService = new AdminService();
     private readonly User? _editUser;
 
     public AccountDetailWindow(User? user = null, string? presetRole = null)
@@ -39,8 +46,6 @@ public partial class AccountDetailWindow : Window
             cmbRole.SelectedItem = cmbRole.Items.Cast<ComboBoxItem>()
                 .FirstOrDefault(i => i.Content.ToString() == user.Role);
             cmbRole.IsEnabled = false;
-            txtUsername.Text = user.Username;
-            txtUsername.IsEnabled = false;
             lblPasswordHint.Visibility = Visibility.Visible;
             LoadProfileFields(user);
         }
@@ -60,49 +65,52 @@ public partial class AccountDetailWindow : Window
     {
         ShowFieldsForRole(user.Role);
 
+        // Users.email is the credential and therefore the source of truth; the
+        // profile tables just keep a copy of it.
+        txtEmail.Text = user.Email;
+
         switch (user.Role)
         {
             case "STUDENT":
-                var s = StudentDAO.GetAll().FirstOrDefault(x => x.UserId == user.Id);
+                var s = _studentService.GetByUserId(user.Id);
                 if (s != null)
                 {
                     txtFullName.Text = s.FullName;
                     txtPhone.Text = s.Phone ?? "";
-                    txtEmail.Text = s.Email ?? "";
                     if (s.DateOfBirth.HasValue)
                         dpDob.SelectedDate = s.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue);
                     SelectComboItem(cmbGender, s.Gender);
                 }
                 break;
+
             case "TEACHER":
-                var t = TeacherDAO.GetByUserId(user.Id);
+                var t = _teacherService.GetByUserId(user.Id);
                 if (t != null)
                 {
                     txtFullName.Text = t.FullName;
                     txtPhone.Text = t.Phone ?? "";
-                    txtEmail.Text = t.Email ?? "";
                     SelectComboItem(cmbGender, t.Gender);
                     SelectComboItem(txtSpec, t.Specialization);
                     SelectComboItem(cmbDegree, t.Degree);
                 }
                 break;
+
             case "STAFF":
-                var st = StaffDAO.GetAll().FirstOrDefault(x => x.UserId == user.Id);
+                var st = _staffService.GetByUserId(user.Id);
                 if (st != null)
                 {
                     txtFullName.Text = st.FullName;
                     txtPhone.Text = st.Phone ?? "";
-                    txtEmail.Text = st.Email ?? "";
                     txtDept.SelectedItem = st.Department;
                 }
                 break;
+
             case "ADMIN":
-                var a = AdminDAO.GetAll().FirstOrDefault(x => x.UserId == user.Id);
+                var a = _adminService.GetByUserId(user.Id);
                 if (a != null)
                 {
                     txtFullName.Text = a.FullName;
                     txtPhone.Text = a.Phone ?? "";
-                    txtEmail.Text = a.Email ?? "";
                 }
                 break;
         }
@@ -165,7 +173,6 @@ public partial class AccountDetailWindow : Window
     // ---- 4. Save & validation ----------------------------------
     private void BtnSave_Click(object sender, RoutedEventArgs e)
     {
-        var username = txtUsername.Text.Trim().ToLower();
         var password = pwdPassword.Password;
         var role = _editUser?.Role ?? (cmbRole.SelectedItem as ComboBoxItem)?.Content.ToString();
 
@@ -173,21 +180,6 @@ public partial class AccountDetailWindow : Window
         {
             MessageBox.Show("Role is required.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
-        }
-
-        if (_editUser == null)
-        {
-            if (string.IsNullOrEmpty(username))
-            {
-                MessageBox.Show("Username is required.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            if (!ValidationHelper.IsValidUsername(username))
-            {
-                MessageBox.Show("Username must be 5-20 characters, letters (a-z) and digits only.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
         }
 
         var fullName = txtFullName.Text.Trim();
@@ -216,10 +208,23 @@ public partial class AccountDetailWindow : Window
             return;
         }
 
-        var email = txtEmail.Text.Trim();
+        // The email is the login, so it is required for every role and must be free.
+        var email = txtEmail.Text.Trim().ToLower();
+        if (string.IsNullOrEmpty(email))
+        {
+            MessageBox.Show("Email is required — it is what this person signs in with.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
         if (!ValidationHelper.IsValidEmail(email))
         {
             MessageBox.Show("Invalid email format.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        if (_service.IsEmailTaken(email, _editUser?.Id))
+        {
+            MessageBox.Show($"{email} is already used by another account.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
@@ -231,19 +236,15 @@ public partial class AccountDetailWindow : Window
                 return;
             }
 
-            if (_service.GetAll().Any(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase)))
-            {
-                MessageBox.Show("Username already exists.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
             if (role == "ADMIN" && _service.GetAll().Any(u => u.Role == "ADMIN" && u.IsActive))
             {
                 MessageBox.Show("Only one ADMIN account is allowed.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            var newUser = new User { Username = username, Role = role, IsActive = true };
+            // Save(...) defaults MustChangePassword to true: the admin picked this
+            // password, so the owner has to replace it at their first login.
+            var newUser = new User { Email = email, Role = role, IsActive = true };
             _service.Save(newUser, password);
             SaveProfile(newUser.Id, role, fullName, phone, email, isNew: true);
         }
@@ -251,12 +252,19 @@ public partial class AccountDetailWindow : Window
         {
             if (!string.IsNullOrEmpty(password))
             {
-                if (password.Length < 6)
+                if (!ValidationHelper.IsValidPassword(password))
                 {
-                    MessageBox.Show("Password must be at least 6 characters.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show($"Password must be at least {ValidationHelper.MinPasswordLength} characters.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
                 _service.UpdatePassword(_editUser.Id, password);
+            }
+
+            // Changing the email here changes how this person signs in.
+            if (!_editUser.Email.Equals(email, StringComparison.OrdinalIgnoreCase))
+            {
+                _editUser.Email = email;
+                _service.Update(_editUser);
             }
 
             SaveProfile(_editUser.Id, role, fullName, phone, email, isNew: false);
@@ -266,58 +274,75 @@ public partial class AccountDetailWindow : Window
     }
 
     // ---- 5. Save the role-specific profile row -----------------
+    //
+    //  Each role writes to a different table but the shape is identical: take the
+    //  existing row (or a new one), copy the form onto it, then Save or Update.
+    //  Writing that out twice per role is what made this method four times longer
+    //  than it needed to be, and is how the create and edit paths drift apart.
     private void SaveProfile(int userId, string role, string fullName, string phone, string email, bool isNew)
     {
+        var gender = (cmbGender.SelectedItem as ComboBoxItem)?.Content.ToString();
+
         switch (role)
         {
             case "STUDENT":
-                DateOnly? dob = dpDob.SelectedDate.HasValue
-                    ? DateOnly.FromDateTime(dpDob.SelectedDate.Value) : null;
-                var gender = (cmbGender.SelectedItem as ComboBoxItem)?.Content.ToString();
-                if (isNew)
-                {
-                    StudentDAO.Save(new Student { UserId = userId, FullName = fullName, DateOfBirth = dob, Gender = gender, Phone = phone, Email = email, Status = "ACTIVE" });
-                }
-                else
-                {
-                    var s = StudentDAO.GetAll().FirstOrDefault(x => x.UserId == userId);
-                    if (s != null) { s.FullName = fullName; s.DateOfBirth = dob; s.Gender = gender; s.Phone = phone; s.Email = email; StudentDAO.Update(s); }
-                }
+                var student = isNew
+                    ? new Student { UserId = userId, Status = "ACTIVE" }
+                    : _studentService.GetByUserId(userId);
+                if (student == null) return;
+
+                student.FullName = fullName;
+                student.Phone = phone;
+                student.Email = email;
+                student.Gender = gender;
+                student.DateOfBirth = dpDob.SelectedDate.HasValue
+                    ? DateOnly.FromDateTime(dpDob.SelectedDate.Value)
+                    : null;
+
+                if (isNew) _studentService.Save(student); else _studentService.Update(student);
                 break;
+
             case "TEACHER":
-                var tGender = (cmbGender.SelectedItem as ComboBoxItem)?.Content.ToString();
-                var degree = (cmbDegree.SelectedItem as ComboBoxItem)?.Content.ToString();
-                if (isNew)
-                {
-                    TeacherDAO.Save(new Teacher { UserId = userId, FullName = fullName, Gender = tGender, Phone = phone, Email = email, Specialization = (txtSpec.SelectedItem as ComboBoxItem)?.Content.ToString(), Degree = degree, Status = "ACTIVE" });
-                }
-                else
-                {
-                    var t = TeacherDAO.GetByUserId(userId);
-                    if (t != null) { t.FullName = fullName; t.Gender = tGender; t.Phone = phone; t.Email = email; t.Specialization = (txtSpec.SelectedItem as ComboBoxItem)?.Content.ToString(); t.Degree = degree; TeacherDAO.Update(t); }
-                }
+                var teacher = isNew
+                    ? new Teacher { UserId = userId, Status = "ACTIVE" }
+                    : _teacherService.GetByUserId(userId);
+                if (teacher == null) return;
+
+                teacher.FullName = fullName;
+                teacher.Phone = phone;
+                teacher.Email = email;
+                teacher.Gender = gender;
+                teacher.Specialization = (txtSpec.SelectedItem as ComboBoxItem)?.Content.ToString();
+                teacher.Degree = (cmbDegree.SelectedItem as ComboBoxItem)?.Content.ToString();
+
+                if (isNew) _teacherService.Save(teacher); else _teacherService.Update(teacher);
                 break;
+
             case "STAFF":
-                if (isNew)
-                {
-                    StaffDAO.Save(new Staff { UserId = userId, FullName = fullName, Phone = phone, Email = email, Department = txtDept.SelectedItem as string });
-                }
-                else
-                {
-                    var st = StaffDAO.GetAll().FirstOrDefault(x => x.UserId == userId);
-                    if (st != null) { st.FullName = fullName; st.Phone = phone; st.Email = email; st.Department = txtDept.SelectedItem as string; StaffDAO.Update(st); }
-                }
+                var staff = isNew
+                    ? new Staff { UserId = userId }
+                    : _staffService.GetByUserId(userId);
+                if (staff == null) return;
+
+                staff.FullName = fullName;
+                staff.Phone = phone;
+                staff.Email = email;
+                staff.Department = txtDept.SelectedItem as string;
+
+                if (isNew) _staffService.Save(staff); else _staffService.Update(staff);
                 break;
+
             case "ADMIN":
-                if (isNew)
-                {
-                    AdminDAO.Save(new Admin { UserId = userId, FullName = fullName, Phone = phone, Email = email });
-                }
-                else
-                {
-                    var a = AdminDAO.GetAll().FirstOrDefault(x => x.UserId == userId);
-                    if (a != null) { a.FullName = fullName; a.Phone = phone; a.Email = email; AdminDAO.Update(a); }
-                }
+                var admin = isNew
+                    ? new Admin { UserId = userId }
+                    : _adminService.GetByUserId(userId);
+                if (admin == null) return;
+
+                admin.FullName = fullName;
+                admin.Phone = phone;
+                admin.Email = email;
+
+                if (isNew) _adminService.Save(admin); else _adminService.Update(admin);
                 break;
         }
     }

@@ -53,7 +53,7 @@ public partial class AccountManagementWindow : Window
         var role = (cmbFilterRole.SelectedItem as ComboBoxItem)?.Content.ToString();
 
         _filtered = _all.AsEnumerable()
-            .Where(u => string.IsNullOrEmpty(kw) || u.Username.ToLower().Contains(kw))
+            .Where(u => string.IsNullOrEmpty(kw) || u.Email.ToLower().Contains(kw))
             .Where(u => role == "All" || string.IsNullOrEmpty(role) || u.Role == role)
             .ToList();
 
@@ -129,7 +129,7 @@ public partial class AccountManagementWindow : Window
             return;
         }
 
-        var confirm = MessageBox.Show($"Deactivate account \"{u.Username}\"?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        var confirm = MessageBox.Show($"Deactivate account \"{u.Email}\"?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (confirm == MessageBoxResult.Yes)
         {
             _service.Delete(u.Id);

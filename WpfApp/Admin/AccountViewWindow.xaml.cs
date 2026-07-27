@@ -32,20 +32,20 @@ public partial class AccountViewWindow : Window
         header.Background = accent;
         rolePill.Background = new SolidColorBrush(Color.FromArgb(0x33, 0xFF, 0xFF, 0xFF));
         txtAvatar.Foreground = accent;
-        txtAvatar.Text = Initials(user.Username);
-        txtHeaderUser.Text = $"@{user.Username}";
+        txtAvatar.Text = Initials(user.Email);
+        txtHeaderUser.Text = user.Email;
         txtHeaderRole.Text = user.Role;
 
         // Account section (same for every role)
         AddRow(accountPanel, "Account ID", $"#{user.Id}");
-        AddRow(accountPanel, "Username", user.Username);
+        AddRow(accountPanel, "Email (login)", user.Email);
         AddRow(accountPanel, "Role", user.Role);
         AddRow(accountPanel, "Status", user.IsActive ? "Active" : "Inactive");
         AddRow(accountPanel, "Created At", user.CreatedAt.ToString("dd/MM/yyyy HH:mm"));
 
         // Role-specific profile section
         var displayName = LoadProfile(user);
-        txtHeaderName.Text = string.IsNullOrWhiteSpace(displayName) ? user.Username : displayName;
+        txtHeaderName.Text = string.IsNullOrWhiteSpace(displayName) ? user.Email : displayName;
     }
 
     /// <summary>Fills profilePanel from the role-specific profile record; returns the full name for the header.</summary>
@@ -54,7 +54,7 @@ public partial class AccountViewWindow : Window
         switch (user.Role)
         {
             case "STUDENT":
-                var student = _studentService.GetAll().FirstOrDefault(x => x.UserId == user.Id);
+                var student = _studentService.GetByUserId(user.Id);
                 if (student == null) return ShowMissingProfile();
                 AddRow(profilePanel, "Full name", student.FullName);
                 AddRow(profilePanel, "Date of birth", student.DateOfBirth?.ToString("dd/MM/yyyy"));
@@ -80,7 +80,7 @@ public partial class AccountViewWindow : Window
                 return teacher.FullName;
 
             case "STAFF":
-                var staff = _staffService.GetAll().FirstOrDefault(x => x.UserId == user.Id);
+                var staff = _staffService.GetByUserId(user.Id);
                 if (staff == null) return ShowMissingProfile();
                 AddRow(profilePanel, "Full name", staff.FullName);
                 AddRow(profilePanel, "Date of birth", staff.DateOfBirth?.ToString("dd/MM/yyyy"));
@@ -91,7 +91,7 @@ public partial class AccountViewWindow : Window
                 return staff.FullName;
 
             case "ADMIN":
-                var admin = _adminService.GetAll().FirstOrDefault(x => x.UserId == user.Id);
+                var admin = _adminService.GetByUserId(user.Id);
                 if (admin == null) return ShowMissingProfile();
                 AddRow(profilePanel, "Full name", admin.FullName);
                 AddRow(profilePanel, "Phone", admin.Phone);
