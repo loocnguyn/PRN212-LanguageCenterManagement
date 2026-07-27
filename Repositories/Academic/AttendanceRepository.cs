@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+using BusinessObjects;
 using DataAccessObjects;
 
 namespace Repositories;
@@ -15,4 +15,5 @@ public class AttendanceRepository : IAttendanceRepository
     public List<Attendance> GetBySessionId(int sessionId) => AttendanceDAO.GetBySessionId(sessionId);
     public void Upsert(Attendance entity) => AttendanceDAO.Upsert(entity);
     public List<Attendance> GetByStudentId(int studentId) => AttendanceDAO.GetByStudentId(studentId);
+    public void BulkUpsert(List<Attendance> entities) => AttendanceDAO.BulkUpsert(entities);
 }

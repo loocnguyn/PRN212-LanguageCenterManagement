@@ -23,4 +23,8 @@ public class ClassRepository : IClassRepository
         => ClassDAO.SetTeachers(classId, teacherIds, primaryTeacherId);
 
     public List<ClassGradeComponent> GetGradeComponents(int classId) => ClassDAO.GetGradeComponents(classId);
+
+    public List<Class> GetClassesForTeacher(int teacherId, int semesterId) => ClassDAO.GetClassesForTeacher(teacherId, semesterId);
+
+    public List<Course> GetCoursesForTeacher(int teacherId, int semesterId) => ClassDAO.GetCoursesForTeacher(teacherId, semesterId);
 }

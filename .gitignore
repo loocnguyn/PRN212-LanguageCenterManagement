@@ -1,4 +1,4 @@
-﻿# Build outputs
+# Build outputs
 bin/
 obj/
 *.user
@@ -18,3 +18,6 @@ appsettings.Development.json
 
 .pi/
 nul
+
+# Local exports
+export_grade/

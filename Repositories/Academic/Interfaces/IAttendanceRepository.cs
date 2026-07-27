@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+using BusinessObjects;
 
 namespace Repositories;
 
@@ -14,4 +14,5 @@ public interface IAttendanceRepository
     List<Attendance> GetBySessionId(int sessionId);
     void Upsert(Attendance entity);
     List<Attendance> GetByStudentId(int studentId);
+    void BulkUpsert(List<Attendance> entities);
 }

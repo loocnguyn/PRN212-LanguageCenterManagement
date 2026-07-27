@@ -34,4 +34,7 @@ public interface IClassService
 
     /// <summary>The class's frozen grading structure.</summary>
     List<ClassGradeComponent> GetGradeComponents(int classId);
+
+    List<Class> GetClassesForTeacher(int teacherId, int semesterId);
+    List<Course> GetCoursesForTeacher(int teacherId, int semesterId);
 }

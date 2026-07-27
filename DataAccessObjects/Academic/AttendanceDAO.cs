@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+using BusinessObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
@@ -74,6 +74,39 @@ public class AttendanceDAO
             context.Attendances.Add(entity);
         }
         context.SaveChanges();
+    }
+
+    public static void BulkUpsert(List<Attendance> entities)
+    {
+        if (entities == null || !entities.Any()) return;
+
+        using var context = new LanguageCenterContext();
+        using var transaction = context.Database.BeginTransaction();
+        try
+        {
+            foreach (var entity in entities)
+            {
+                var existing = context.Attendances
+                    .FirstOrDefault(a => a.SessionId == entity.SessionId && a.StudentId == entity.StudentId);
+                if (existing != null)
+                {
+                    existing.Status = entity.Status;
+                    existing.Note = entity.Note;
+                    existing.RecordedAt = entity.RecordedAt;
+                }
+                else
+                {
+                    context.Attendances.Add(entity);
+                }
+            }
+            context.SaveChanges();
+            transaction.Commit();
+        }
+        catch (Exception ex)
+        {
+            transaction.Rollback();
+            throw new Exception($"Error during bulk saving attendance: {ex.Message}", ex);
+        }
     }
 
     public static List<Attendance> GetByStudentId(int studentId)
