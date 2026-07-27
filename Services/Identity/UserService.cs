@@ -15,6 +15,10 @@ namespace Services;
 public class UserService : IUserService
 {
     private readonly IUserRepository _repo = new UserRepository();
+    private readonly IStudentRepository _studentRepo = new StudentRepository();
+    private readonly ITeacherRepository _teacherRepo = new TeacherRepository();
+    private readonly IStaffRepository _staffRepo = new StaffRepository();
+    private readonly IAdminRepository _adminRepo = new AdminRepository();
 
     public List<User> GetAll() => _repo.GetAll();
 
@@ -24,6 +28,22 @@ public class UserService : IUserService
 
     public bool IsEmailTaken(string email, int? exceptUserId = null)
         => _repo.IsEmailTaken(email, exceptUserId);
+
+    /// <summary>
+    /// Four small reads rather than one per account: the profile tables are tiny, and
+    /// a list of 30 accounts would otherwise be 30 round trips.
+    /// </summary>
+    public Dictionary<int, string> GetDisplayNames()
+    {
+        var names = new Dictionary<int, string>();
+
+        foreach (var s in _studentRepo.GetAll()) names[s.UserId] = s.FullName;
+        foreach (var t in _teacherRepo.GetAll()) names[t.UserId] = t.FullName;
+        foreach (var f in _staffRepo.GetAll())   names[f.UserId] = f.FullName;
+        foreach (var a in _adminRepo.GetAll())   names[a.UserId] = a.FullName;
+
+        return names;
+    }
 
     public void Update(User user)
     {
