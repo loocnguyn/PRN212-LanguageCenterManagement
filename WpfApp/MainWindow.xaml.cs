@@ -153,6 +153,8 @@ public partial class MainWindow : Window
         => new SlotSettingWindow().Show();
     private void MenuSessionRoom_Click(object sender, RoutedEventArgs e)
         => new SessionRoomWindow().Show();
+    private void MenuTopStudents_Click(object sender, RoutedEventArgs e)
+        => new TopStudentsWindow().Show();
     private void MenuAccountManagement_Click(object sender, RoutedEventArgs e)
         => new AccountManagementWindow(_currentUser).Show();
     private void MenuDeactivatedAccounts_Click(object sender, RoutedEventArgs e)
