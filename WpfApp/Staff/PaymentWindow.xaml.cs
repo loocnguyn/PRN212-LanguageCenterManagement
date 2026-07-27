@@ -47,7 +47,7 @@ public partial class PaymentWindow : Window
             {
                 // Admins have no Staff profile; payments they record are stored with a null StaffId.
                 _currentStaffId = null;
-                txtStaff.Text = $"{_currentUser.Username} ({_currentUser.Role})";
+                txtStaff.Text = $"{_currentUser.Email} ({_currentUser.Role})";
                 return;
             }
 

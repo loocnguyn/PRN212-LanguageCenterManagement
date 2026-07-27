@@ -17,7 +17,6 @@ public partial class StaffDashboardControl : UserControl, IDashboardControl
 {
     private readonly User _currentUser;
     private readonly IStaffService _staffService = new StaffService();
-    private readonly IEnrollmentService _enrollmentService = new EnrollmentService();
     private readonly IInvoiceService _invoiceService = new InvoiceService();
     private readonly IPaymentService _paymentService = new PaymentService();
     private readonly ISemesterService _semesterService = new SemesterService();
@@ -36,7 +35,7 @@ public partial class StaffDashboardControl : UserControl, IDashboardControl
         {
             var staff = _staffService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id);
             var department = staff?.Department;
-            tbHeader.Text = $"Welcome back, {staff?.FullName ?? _currentUser.Username}";
+            tbHeader.Text = $"Welcome back, {staff?.FullName ?? _currentUser.Email}";
 
             panelTiles.Children.Clear();
 
@@ -89,11 +88,6 @@ public partial class StaffDashboardControl : UserControl, IDashboardControl
 
     private void LoadAcademicTiles()
     {
-        var today = DateOnly.FromDateTime(DateTime.Today);
-
-        var newEnrollments7d = _enrollmentService.GetAll()
-            .Count(e => e.EnrolledDate >= today.AddDays(-7));
-
         var semester = _semesterService.GetActive();
         var ongoingClasses = 0;
         string semesterText = "No active semester";
@@ -105,8 +99,6 @@ public partial class StaffDashboardControl : UserControl, IDashboardControl
             semesterText = $"{semester.Name} — {phase}";
         }
 
-        panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
-            "New Enrollments (7d)", newEnrollments7d.ToString(), "PersonAdd24", FindBrush("PrimaryBrush")));
         panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
             "Ongoing Classes", ongoingClasses.ToString(), "ClipboardTask24", FindBrush("SecondaryBrush"), semesterText));
     }

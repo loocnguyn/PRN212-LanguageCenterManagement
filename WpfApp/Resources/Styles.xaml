@@ -321,31 +321,4 @@
         <Setter Property="Padding" Value="0"/>
     </Style>
 
-    <!-- Clickable shortcut card for dashboards (icon + title + subtitle) -->
-    <Style x:Key="DashboardActionCard" TargetType="Button">
-        <Setter Property="Width" Value="190"/>
-        <Setter Property="Height" Value="98"/>
-        <Setter Property="Margin" Value="0,0,12,12"/>
-        <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="HorizontalContentAlignment" Value="Left"/>
-        <Setter Property="VerticalContentAlignment" Value="Top"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="bd" Background="{StaticResource SurfaceBrush}"
-                            BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1"
-                            CornerRadius="8" Padding="14">
-                        <ContentPresenter/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="bd" Property="Background" Value="{StaticResource PrimaryLightBrush}"/>
-                            <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
 </ResourceDictionary>

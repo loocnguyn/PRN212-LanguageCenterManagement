@@ -57,10 +57,6 @@
                         <ComboBoxItem Content="STUDENT"/>
                     </ComboBox>
 
-                    <!-- Username -->
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Username" VerticalAlignment="Center" Margin="0,0,0,12"/>
-                    <TextBox   Grid.Row="1" Grid.Column="1" x:Name="txtUsername" Height="34" VerticalContentAlignment="Center" Padding="8,0" Margin="0,0,0,12"/>
-
                     <!-- Password -->
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="Password" VerticalAlignment="Center" Margin="0,0,0,4"/>
                     <PasswordBox Grid.Row="2" Grid.Column="1" x:Name="pwdPassword" Height="34" Padding="8,0" Margin="0,0,0,4"
@@ -78,8 +74,8 @@
                     <TextBlock Grid.Row="5" Grid.Column="0" x:Name="lblPhone" Text="Phone" VerticalAlignment="Center" Margin="0,0,0,12" Visibility="Collapsed"/>
                     <TextBox   Grid.Row="5" Grid.Column="1" x:Name="txtPhone" Height="34" VerticalContentAlignment="Center" Padding="8,0" Margin="0,0,0,12" Visibility="Collapsed"/>
 
-                    <!-- Email -->
-                    <TextBlock Grid.Row="6" Grid.Column="0" x:Name="lblEmail" Text="Email" VerticalAlignment="Center" Margin="0,0,0,12" Visibility="Collapsed"/>
+                    <!-- Email — this is the account's login, not just a contact field -->
+                    <TextBlock Grid.Row="6" Grid.Column="0" x:Name="lblEmail" Text="Email (login)" VerticalAlignment="Center" Margin="0,0,0,12" Visibility="Collapsed"/>
                     <TextBox   Grid.Row="6" Grid.Column="1" x:Name="txtEmail" Height="34" VerticalContentAlignment="Center" Padding="8,0" Margin="0,0,0,12" Visibility="Collapsed"/>
 
                     <!-- Student: Date of Birth -->

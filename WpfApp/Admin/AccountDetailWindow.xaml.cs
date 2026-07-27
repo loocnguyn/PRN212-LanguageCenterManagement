@@ -10,7 +10,11 @@ namespace WpfApp;
 //  AccountDetailWindow — the Add/Edit dialog for one user account.
 //  One dialog serves every role; the visible fields change with the
 //  selected role. On Add the role is chosen (or preset+locked); on
-//  Edit the role/username are read-only.
+//  Edit the role is read-only.
+//
+//  The Email field is the account's LOGIN. It is written to Users.email (unique,
+//  the credential) and to the role's profile row (contact detail) at the same
+//  time, so the two can never disagree.
 //  CONTENTS:
 //    1. Fields & construction   — edit vs add vs preset-role modes
 //    2. LoadProfileFields       — fill fields from the role's profile table
@@ -39,8 +43,6 @@ public partial class AccountDetailWindow : Window
             cmbRole.SelectedItem = cmbRole.Items.Cast<ComboBoxItem>()
                 .FirstOrDefault(i => i.Content.ToString() == user.Role);
             cmbRole.IsEnabled = false;
-            txtUsername.Text = user.Username;
-            txtUsername.IsEnabled = false;
             lblPasswordHint.Visibility = Visibility.Visible;
             LoadProfileFields(user);
         }
@@ -60,6 +62,10 @@ public partial class AccountDetailWindow : Window
     {
         ShowFieldsForRole(user.Role);
 
+        // Users.email is the credential and therefore the source of truth; the
+        // profile tables just keep a copy of it.
+        txtEmail.Text = user.Email;
+
         switch (user.Role)
         {
             case "STUDENT":
@@ -68,7 +74,6 @@ public partial class AccountDetailWindow : Window
                 {
                     txtFullName.Text = s.FullName;
                     txtPhone.Text = s.Phone ?? "";
-                    txtEmail.Text = s.Email ?? "";
                     if (s.DateOfBirth.HasValue)
                         dpDob.SelectedDate = s.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue);
                     SelectComboItem(cmbGender, s.Gender);
@@ -80,7 +85,6 @@ public partial class AccountDetailWindow : Window
                 {
                     txtFullName.Text = t.FullName;
                     txtPhone.Text = t.Phone ?? "";
-                    txtEmail.Text = t.Email ?? "";
                     SelectComboItem(cmbGender, t.Gender);
                     SelectComboItem(txtSpec, t.Specialization);
                     SelectComboItem(cmbDegree, t.Degree);
@@ -92,7 +96,6 @@ public partial class AccountDetailWindow : Window
                 {
                     txtFullName.Text = st.FullName;
                     txtPhone.Text = st.Phone ?? "";
-                    txtEmail.Text = st.Email ?? "";
                     txtDept.SelectedItem = st.Department;
                 }
                 break;
@@ -102,7 +105,6 @@ public partial class AccountDetailWindow : Window
                 {
                     txtFullName.Text = a.FullName;
                     txtPhone.Text = a.Phone ?? "";
-                    txtEmail.Text = a.Email ?? "";
                 }
                 break;
         }
@@ -165,7 +167,6 @@ public partial class AccountDetailWindow : Window
     // ---- 4. Save & validation ----------------------------------
     private void BtnSave_Click(object sender, RoutedEventArgs e)
     {
-        var username = txtUsername.Text.Trim().ToLower();
         var password = pwdPassword.Password;
         var role = _editUser?.Role ?? (cmbRole.SelectedItem as ComboBoxItem)?.Content.ToString();
 
@@ -173,21 +174,6 @@ public partial class AccountDetailWindow : Window
         {
             MessageBox.Show("Role is required.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
-        }
-
-        if (_editUser == null)
-        {
-            if (string.IsNullOrEmpty(username))
-            {
-                MessageBox.Show("Username is required.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            if (!ValidationHelper.IsValidUsername(username))
-            {
-                MessageBox.Show("Username must be 5-20 characters, letters (a-z) and digits only.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
         }
 
         var fullName = txtFullName.Text.Trim();
@@ -216,10 +202,23 @@ public partial class AccountDetailWindow : Window
             return;
         }
 
-        var email = txtEmail.Text.Trim();
+        // The email is the login, so it is required for every role and must be free.
+        var email = txtEmail.Text.Trim().ToLower();
+        if (string.IsNullOrEmpty(email))
+        {
+            MessageBox.Show("Email is required — it is what this person signs in with.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
         if (!ValidationHelper.IsValidEmail(email))
         {
             MessageBox.Show("Invalid email format.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        if (_service.IsEmailTaken(email, _editUser?.Id))
+        {
+            MessageBox.Show($"{email} is already used by another account.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
@@ -231,19 +230,15 @@ public partial class AccountDetailWindow : Window
                 return;
             }
 
-            if (_service.GetAll().Any(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase)))
-            {
-                MessageBox.Show("Username already exists.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
             if (role == "ADMIN" && _service.GetAll().Any(u => u.Role == "ADMIN" && u.IsActive))
             {
                 MessageBox.Show("Only one ADMIN account is allowed.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            var newUser = new User { Username = username, Role = role, IsActive = true };
+            // Save(...) defaults MustChangePassword to true: the admin picked this
+            // password, so the owner has to replace it at their first login.
+            var newUser = new User { Email = email, Role = role, IsActive = true };
             _service.Save(newUser, password);
             SaveProfile(newUser.Id, role, fullName, phone, email, isNew: true);
         }
@@ -251,12 +246,19 @@ public partial class AccountDetailWindow : Window
         {
             if (!string.IsNullOrEmpty(password))
             {
-                if (password.Length < 6)
+                if (!ValidationHelper.IsValidPassword(password))
                 {
-                    MessageBox.Show("Password must be at least 6 characters.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show($"Password must be at least {ValidationHelper.MinPasswordLength} characters.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
                 _service.UpdatePassword(_editUser.Id, password);
+            }
+
+            // Changing the email here changes how this person signs in.
+            if (!_editUser.Email.Equals(email, StringComparison.OrdinalIgnoreCase))
+            {
+                _editUser.Email = email;
+                _service.Update(_editUser);
             }
 
             SaveProfile(_editUser.Id, role, fullName, phone, email, isNew: false);

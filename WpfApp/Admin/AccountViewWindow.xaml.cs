@@ -32,20 +32,20 @@ public partial class AccountViewWindow : Window
         header.Background = accent;
         rolePill.Background = new SolidColorBrush(Color.FromArgb(0x33, 0xFF, 0xFF, 0xFF));
         txtAvatar.Foreground = accent;
-        txtAvatar.Text = Initials(user.Username);
-        txtHeaderUser.Text = $"@{user.Username}";
+        txtAvatar.Text = Initials(user.Email);
+        txtHeaderUser.Text = user.Email;
         txtHeaderRole.Text = user.Role;
 
         // Account section (same for every role)
         AddRow(accountPanel, "Account ID", $"#{user.Id}");
-        AddRow(accountPanel, "Username", user.Username);
+        AddRow(accountPanel, "Email (login)", user.Email);
         AddRow(accountPanel, "Role", user.Role);
         AddRow(accountPanel, "Status", user.IsActive ? "Active" : "Inactive");
         AddRow(accountPanel, "Created At", user.CreatedAt.ToString("dd/MM/yyyy HH:mm"));
 
         // Role-specific profile section
         var displayName = LoadProfile(user);
-        txtHeaderName.Text = string.IsNullOrWhiteSpace(displayName) ? user.Username : displayName;
+        txtHeaderName.Text = string.IsNullOrWhiteSpace(displayName) ? user.Email : displayName;
     }
 
     /// <summary>Fills profilePanel from the role-specific profile record; returns the full name for the header.</summary>

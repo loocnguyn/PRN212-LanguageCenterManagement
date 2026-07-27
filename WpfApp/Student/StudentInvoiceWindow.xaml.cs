@@ -40,7 +40,7 @@ public partial class StudentInvoiceWindow : Window
             }
             _studentId = student.StudentId;
 
-            tbStudentName.Text = $"Student: {student.FullName}";
+            tbStudentName.Text = student.FullName;
             RefreshBalance();
 
             _invoices = _invoiceService.Search(_studentId.ToString(), null)
@@ -52,8 +52,11 @@ public partial class StudentInvoiceWindow : Window
                     return new InvoiceDisplayItem
                     {
                         InvoiceId = x.InvoiceId,
+                        ClassName = x.Enrollment?.Class?.Name ?? "Tuition",
                         OriginalAmount = x.OriginalAmount > 0 ? x.OriginalAmount : x.Amount,
-                        DiscountText = x.Discount == null ? "" : $"{x.Discount.Code} - {x.Discount.Name}",
+                        DiscountText = x.Discount == null
+                            ? ""
+                            : $"{x.Discount.Name} — saves {x.DiscountAmount:N0} đ",
                         DiscountAmount = x.DiscountAmount,
                         Amount = x.Amount,
                         PaidAmount = paidAmount,
@@ -66,8 +69,10 @@ public partial class StudentInvoiceWindow : Window
                     };
                 })
                 .Where(x => x.RemainingAmount > 0)
+                .OrderBy(x => x.DueDate)
                 .ToList();
 
+            UpdateSummary();
             pager.Reset();
             BindPage();
         }
@@ -77,12 +82,25 @@ public partial class StudentInvoiceWindow : Window
         }
     }
 
-    private void BindPage() => dgInvoices.ItemsSource = pager.Slice(_invoices);
+    private void BindPage()
+    {
+        dgInvoices.ItemsSource = pager.Slice(_invoices);
+        emptyState.Visibility = _invoices.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
 
     private void Pager_PageChanged(object sender, EventArgs e) => BindPage();
 
+    /// <summary>The four tiles above the grid — the totals a student actually asks about.</summary>
+    private void UpdateSummary()
+    {
+        statOutstanding.Text = $"{_invoices.Sum(i => i.RemainingAmount):N0} đ";
+        statPaid.Text = $"{_invoices.Sum(i => i.PaidAmount):N0} đ";
+        statSaved.Text = $"{_invoices.Sum(i => i.DiscountAmount):N0} đ";
+        statOverdue.Text = _invoices.Count(i => i.IsOverdue).ToString();
+    }
+
     private void RefreshBalance()
-        => tbBalance.Text = $"Wallet balance: {_walletService.GetBalance(_studentId):N0} VND";
+        => tbBalance.Text = $"{_walletService.GetBalance(_studentId):N0} đ";
 
     private void BtnTopUp_Click(object sender, RoutedEventArgs e)
     {
@@ -144,6 +162,10 @@ public partial class StudentInvoiceWindow : Window
     private sealed class InvoiceDisplayItem
     {
         public int InvoiceId { get; init; }
+
+        /// <summary>The class this invoice is for — what the student recognises it by.</summary>
+        public string ClassName { get; init; } = "";
+
         public decimal OriginalAmount { get; init; }
         public string DiscountText { get; init; } = "";
         public decimal DiscountAmount { get; init; }
@@ -155,5 +177,18 @@ public partial class StudentInvoiceWindow : Window
         public DateOnly? DueDate { get; init; }
         public string Status { get; init; } = "";
         public string? Note { get; init; }
+
+        // ---- Display-only helpers the grid binds to ----
+        public bool HasDiscount => DiscountAmount > 0;
+
+        /// <summary>Past its due date and not settled — the row turns red on this.</summary>
+        public bool IsOverdue => DueDate.HasValue
+                                 && DueDate.Value < DateOnly.FromDateTime(DateTime.Today)
+                                 && RemainingAmount > 0;
+
+        public string AmountText => $"{Amount:N0} đ";
+        public string PaidText => $"{PaidAmount:N0} đ";
+        public string RemainingText => $"{RemainingAmount:N0} đ";
+        public string DueText => DueDate?.ToString("dd/MM/yyyy") ?? "—";
     }
 }

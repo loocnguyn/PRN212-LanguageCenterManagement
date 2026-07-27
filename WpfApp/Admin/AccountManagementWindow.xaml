@@ -30,17 +30,17 @@
             </DataTemplate.Triggers>
         </DataTemplate>
 
-        <!-- Avatar bubble + username + id. Bubble color matches the role. -->
+        <!-- Avatar bubble + login email + id. Bubble color matches the role. -->
         <DataTemplate x:Key="AccountCellTemplate">
             <StackPanel Orientation="Horizontal">
                 <Border x:Name="avatar" Width="36" Height="36" CornerRadius="18"
                         Background="{StaticResource RoleStaffBrush}" Margin="0,0,12,0">
-                    <TextBlock Text="{Binding Username, Converter={StaticResource Initials}}"
+                    <TextBlock Text="{Binding Email, Converter={StaticResource Initials}}"
                                Foreground="White" FontWeight="SemiBold" FontSize="13"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Username}" FontWeight="SemiBold" FontSize="14"/>
+                    <TextBlock Text="{Binding Email}" FontWeight="SemiBold" FontSize="14"/>
                     <TextBlock Text="{Binding Id, StringFormat='Account #{0}'}"
                                FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
                 </StackPanel>

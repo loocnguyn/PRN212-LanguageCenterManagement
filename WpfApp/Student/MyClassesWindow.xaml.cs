@@ -63,7 +63,7 @@ public partial class MyClassesWindow : Window
                 return;
             }
             _studentId = student.StudentId;
-            tbStudentInfo.Text = $"Student: {student.FullName}";
+            tbStudentInfo.Text = student.FullName;
 
             // Load all enrollments for this student
             _allEnrollments = _enrollmentService.GetByStudentId(_studentId);
@@ -163,6 +163,9 @@ public partial class MyClassesWindow : Window
             if (!displayEnrollments.Any())
             {
                 dgClasses.ItemsSource = null;
+                tbNoClasses.Text = cbShowAll.IsChecked.GetValueOrDefault(false)
+                    ? "No class matches this filter."
+                    : "No class you are currently taking matches this filter.\nTick \"Include finished and dropped\" to see the rest.";
                 tbNoClasses.Visibility = Visibility.Visible;
                 tbSummary.Text = "";
                 return;
@@ -195,7 +198,8 @@ public partial class MyClassesWindow : Window
 
             dgClasses.ItemsSource = displayItems;
             tbNoClasses.Visibility = Visibility.Collapsed;
-            tbSummary.Text = $"Showing {displayItems.Count} class(es)";
+            var ongoing = displayItems.Count(i => i.ClassStatus == "ONGOING");
+            tbSummary.Text = $"{displayItems.Count} class(es) shown · {ongoing} running right now";
         }
         catch (Exception ex)
         {

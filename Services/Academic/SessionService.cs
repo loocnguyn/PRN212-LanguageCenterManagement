@@ -125,6 +125,41 @@ public class SessionService : ISessionService
         _sessionRepo.BulkSave(sessions);
     }
 
+    // ---- 2b. Per-session room change ---------------------------
+    public List<Session> GetSessionsForRoomEditing(int classId)
+        => _sessionRepo.GetForRoomEditing(classId);
+
+    public void ChangeSessionRoom(int sessionId, int? newRoomId, string? note)
+    {
+        var session = _sessionRepo.GetById(sessionId)
+            ?? throw new InvalidOperationException("This session no longer exists.");
+
+        // Only a real room needs a conflict check; clearing the override never clashes.
+        if (newRoomId is int roomId)
+        {
+            // This session's time window comes from its weekly schedule slot.
+            var mySchedule = session.ScheduleId.HasValue
+                ? _scheduleRepo.GetById(session.ScheduleId.Value)
+                : null;
+
+            foreach (var other in _sessionRepo.GetSessionsInRoomOnDate(roomId, session.SessionDate, sessionId))
+            {
+                // If either side has no schedule we cannot compare times — treat any
+                // same-day, same-room session as a clash rather than risk a double-booking.
+                var clash = mySchedule == null || other.Schedule == null
+                    || (mySchedule.StartTime < other.Schedule.EndTime
+                        && other.Schedule.StartTime < mySchedule.EndTime);
+
+                if (clash)
+                    throw new InvalidOperationException(
+                        $"That room is already booked on {session.SessionDate:dd/MM/yyyy} by class "
+                        + $"'{other.Class?.Name}' at an overlapping time. Choose another room.");
+            }
+        }
+
+        _sessionRepo.ChangeRoom(sessionId, newRoomId, string.IsNullOrWhiteSpace(note) ? null : note.Trim());
+    }
+
     // ---- 3. Generate for a whole semester ----------------------
     /// <summary>Generates sessions for every class in the semester, but only while the semester
     /// is in its LEARNING phase (today is past setup-end and on/before end). Called on app startup.</summary>

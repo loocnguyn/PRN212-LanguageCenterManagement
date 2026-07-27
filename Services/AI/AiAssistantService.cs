@@ -24,10 +24,23 @@ namespace Services;
 // ============================================================
 public class AiAssistantService : IAiAssistantService
 {
+    /// <summary>
+    /// Used when appsettings has no "Gemini:SystemPrompt". Kept here only so the app
+    /// still works with a config file that predates the setting — edit the JSON, not this.
+    /// </summary>
+    private const string DefaultSystemPrompt =
+        "You are the study assistant of a student at a language center. " +
+        "Answer using ONLY the student data below - it is that student's own record and is complete. " +
+        "If something genuinely is not in the data, say so plainly instead of guessing. " +
+        "Reply in the same language the student wrote in (Vietnamese or English). " +
+        "Money is Vietnamese dong; dates are dd/MM/yyyy. Be concise, warm and specific: quote the " +
+        "actual class names, dates and amounts rather than describing them in general terms.";
+
     private readonly HttpClient _httpClient = new();
     private readonly string _apiKey;
     private readonly string _model;
     private readonly string _endpointBase;
+    private readonly string _systemPrompt;
 
     public AiAssistantService()
     {
@@ -44,11 +57,17 @@ public class AiAssistantService : IAiAssistantService
         // nonzero free quota, so default to that.
         _model = section["Model"] ?? "gemini-3.1-flash-lite";
         _endpointBase = section["Endpoint"] ?? "https://generativelanguage.googleapis.com/v1beta/models";
+
+        // How the assistant is told to behave is a setting, not code: it gets reworded
+        // far more often than anything else here, and doing so should not need a rebuild.
+        var configured = section["SystemPrompt"];
+        _systemPrompt = string.IsNullOrWhiteSpace(configured) ? DefaultSystemPrompt : configured;
     }
 
     public bool IsConfigured => !string.IsNullOrWhiteSpace(_apiKey);
 
-    public async Task<AiAssistantResult> AskAsync(string question, string studentContext)
+    public async Task<AiAssistantResult> AskAsync(
+        string question, string studentContext, IEnumerable<ChatTurn>? history = null)
     {
         if (!IsConfigured)
         {
@@ -59,20 +78,30 @@ public class AiAssistantService : IAiAssistantService
             };
         }
 
-        var systemPrompt =
-            "You are a helpful study assistant for a student at a language center. " +
-            "Answer the student's questions using ONLY the data below about their own schedule, grades, and tuition. " +
-            "If the answer is not in the data, say you don't have that information. Be concise and friendly.\n\n" +
-            "=== STUDENT DATA ===\n" + studentContext;
+        // Instructions come from appsettings; the student's own data is appended here,
+        // so a reworded prompt can never accidentally drop the context block.
+        var systemPrompt = _systemPrompt + "\n\n=== STUDENT DATA ===\n" + studentContext;
 
-        // Gemini generateContent request shape.
+        // Gemini wants the whole conversation each time — it keeps no state of its own.
+        // Oldest first, then the new question last.
+        var contents = new List<object>();
+        if (history != null)
+        {
+            foreach (var turn in history)
+            {
+                contents.Add(new
+                {
+                    role = turn.IsUser ? "user" : "model",
+                    parts = new[] { new { text = turn.Text } }
+                });
+            }
+        }
+        contents.Add(new { role = "user", parts = new[] { new { text = question } } });
+
         var payload = new
         {
             system_instruction = new { parts = new[] { new { text = systemPrompt } } },
-            contents = new[]
-            {
-                new { role = "user", parts = new[] { new { text = question } } }
-            }
+            contents
         };
 
         try

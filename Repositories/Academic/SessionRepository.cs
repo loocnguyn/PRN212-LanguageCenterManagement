@@ -17,4 +17,9 @@ public class SessionRepository : ISessionRepository
     public List<Session> GetByClassIdWithDetails(int classId) => SessionDAO.GetByClassIdWithDetails(classId);
     public int CountByClassId(int classId) => SessionDAO.CountByClassId(classId);
     public void BulkSave(List<Session> sessions) => SessionDAO.BulkSave(sessions);
+    public List<Session> GetForRoomEditing(int classId) => SessionDAO.GetForRoomEditing(classId);
+    public List<Session> GetSessionsInRoomOnDate(int roomId, DateOnly date, int excludeSessionId)
+        => SessionDAO.GetSessionsInRoomOnDate(roomId, date, excludeSessionId);
+    public void ChangeRoom(int sessionId, int? roomId, string? note)
+        => SessionDAO.ChangeRoom(sessionId, roomId, note);
 }

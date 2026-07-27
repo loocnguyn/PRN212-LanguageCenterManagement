@@ -39,7 +39,7 @@ public partial class MyProfileWindow : Window
     {
         try
         {
-            txtUsername.Text = _currentUser.Username;
+            txtEmail.Text = _currentUser.Email;
             tbRoleBadge.Text = _currentUser.Role;
             header.Background = RoleBrush(_currentUser.Role);
             txtAvatar.Foreground = RoleBrush(_currentUser.Role);
@@ -51,7 +51,6 @@ public partial class MyProfileWindow : Window
                     if (_student == null) { ShowNotFound(); return; }
                     txtFullName.Text = _student.FullName;
                     txtPhone.Text = _student.Phone ?? "";
-                    txtEmail.Text = _student.Email ?? "";
                     ShowField(lblAddress, txtAddress);
                     txtAddress.Text = _student.Address ?? "";
                     ShowField(lblGender, cmbGender);
@@ -63,7 +62,6 @@ public partial class MyProfileWindow : Window
                     if (_teacher == null) { ShowNotFound(); return; }
                     txtFullName.Text = _teacher.FullName;
                     txtPhone.Text = _teacher.Phone ?? "";
-                    txtEmail.Text = _teacher.Email ?? "";
                     ShowField(lblGender, cmbGender);
                     SelectComboItem(cmbGender, _teacher.Gender);
                     ShowField(lblSpec, cmbSpec);
@@ -76,7 +74,6 @@ public partial class MyProfileWindow : Window
                     if (_staff == null) { ShowNotFound(); return; }
                     txtFullName.Text = _staff.FullName;
                     txtPhone.Text = _staff.Phone ?? "";
-                    txtEmail.Text = _staff.Email ?? "";
                     ShowField(lblGender, cmbGender);
                     SelectComboItem(cmbGender, _staff.Gender);
                     ShowField(lblDept, cmbDept);
@@ -90,7 +87,6 @@ public partial class MyProfileWindow : Window
                     if (_admin == null) { ShowNotFound(); return; }
                     txtFullName.Text = _admin.FullName;
                     txtPhone.Text = _admin.Phone ?? "";
-                    txtEmail.Text = _admin.Email ?? "";
                     break;
             }
         }
@@ -128,12 +124,9 @@ public partial class MyProfileWindow : Window
             return;
         }
 
-        var email = txtEmail.Text.Trim();
-        if (!ValidationHelper.IsValidEmail(email))
-        {
-            MessageBox.Show("Invalid email format.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
+        // The email is the login, so it is not editable here — an Admin changes it
+        // from Account Management. Keep the profile copy in step with it.
+        var email = _currentUser.Email;
 
         var oldPassword = pwdOld.Password;
         var newPassword = pwdNew.Password;
@@ -149,7 +142,7 @@ public partial class MyProfileWindow : Window
                 MessageBox.Show($"New password must be at least {ValidationHelper.MinPasswordLength} characters.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            if (_userService.Login(_currentUser.Username, oldPassword) == null)
+            if (_userService.Login(_currentUser.Email, oldPassword) == null)
             {
                 MessageBox.Show("Old password is incorrect.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;

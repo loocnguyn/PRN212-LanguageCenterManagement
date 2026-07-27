@@ -21,6 +21,12 @@ public class ClassGradeSummaryItem
     public string ClassName { get; set; } = "";
     public int GradeCount { get; set; }
     public string WeightedAverageDisplay { get; set; } = "";
+
+    /// <summary>Just the number, for the pill in the grid.</summary>
+    public string AverageText { get; set; } = "";
+
+    /// <summary>False while only part of the weights have been marked — the pill greys out.</summary>
+    public bool IsComplete { get; set; }
 }
 
 public class GradeDetailDisplayItem
@@ -46,6 +52,7 @@ public partial class StudentGradeWindow : Window
     private readonly IGradeService _gradeService = new GradeService();
 
     private int _studentId;
+    private string _studentName = "";
     private List<Grade> _allGrades = new();
 
     public StudentGradeWindow(User currentUser)
@@ -63,28 +70,24 @@ public partial class StudentGradeWindow : Window
             if (student == null)
             {
                 tbStudentInfo.Text = "No student profile linked to this account.";
-                tbSummary.Text = "";
-                cbSemester.Visibility = Visibility.Collapsed;
-                cbCourse.Visibility = Visibility.Collapsed;
-                dgClasses.ItemsSource = null;
+                ShowEmpty("No student profile is linked to this account.");
                 return;
             }
             _studentId = student.StudentId;
-            tbStudentInfo.Text = $"Student: {student.FullName}";
+            _studentName = student.FullName;
+            tbStudentInfo.Text = student.FullName;
 
             _allGrades = _gradeService.GetByStudentId(_studentId);
 
             if (!_allGrades.Any())
             {
-                tbSummary.Text = "You have no grades yet.";
-                cbSemester.Visibility = Visibility.Collapsed;
-                cbCourse.Visibility = Visibility.Collapsed;
-                dgClasses.ItemsSource = null;
+                ShowEmpty("No marks have been entered for you yet.\nThey appear here as your teachers record them.");
                 return;
             }
 
             cbSemester.Visibility = Visibility.Visible;
             cbCourse.Visibility = Visibility.Visible;
+            emptyState.Visibility = Visibility.Collapsed;
 
             var semesterItems = _allGrades
                 .Select(g => g.Enrollment.Class.Semester)
@@ -178,7 +181,9 @@ public partial class StudentGradeWindow : Window
             if (!gradesInSemester.Any())
             {
                 dgClasses.ItemsSource = null;
-                tbSummary.Text = "No grades match this filter.";
+                emptyState.Text = "No marks match this filter.";
+                emptyState.Visibility = Visibility.Visible;
+                tbSummary.Text = "";
                 return;
             }
 
@@ -192,12 +197,18 @@ public partial class StudentGradeWindow : Window
                     CourseName = g.Key.Course?.Name ?? "N/A",
                     ClassName = g.Key.Name,
                     GradeCount = g.Count(),
-                    WeightedAverageDisplay = ComputeWeightedAverageDisplay(g.ToList())
+                    WeightedAverageDisplay = ComputeWeightedAverageDisplay(g.ToList()),
+                    AverageText = ComputeAverageNumber(g.ToList()),
+                    IsComplete = IsFullyMarked(g.ToList())
                 })
                 .ToList();
 
             dgClasses.ItemsSource = summaryItems;
-            tbSummary.Text = $"Showing {summaryItems.Count} class(es)";
+            emptyState.Visibility = Visibility.Collapsed;
+
+            var complete = summaryItems.Count(i => i.IsComplete);
+            tbSummary.Text = $"{summaryItems.Count} class(es) · {complete} fully marked · "
+                           + "double-click a class for the breakdown";
         }
         catch (Exception ex)
         {
@@ -251,8 +262,7 @@ public partial class StudentGradeWindow : Window
             return;
         }
 
-        var studentName = tbStudentInfo.Text.Replace("Student: ", "").Trim();
-        var safeName = string.Join("_", studentName.Split(Path.GetInvalidFileNameChars()));
+        var safeName = string.Join("_", _studentName.Split(Path.GetInvalidFileNameChars()));
 
         var dialog = new SaveFileDialog
         {
@@ -306,6 +316,29 @@ public partial class StudentGradeWindow : Window
             MessageBox.Show($"Error exporting CSV: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
+
+    /// <summary>Clears the grid and explains why, instead of leaving a blank panel.</summary>
+    private void ShowEmpty(string message)
+    {
+        cbSemester.Visibility = Visibility.Collapsed;
+        cbCourse.Visibility = Visibility.Collapsed;
+        dgClasses.ItemsSource = null;
+        tbSummary.Text = "";
+        emptyState.Text = message;
+        emptyState.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>The average on its own, without the "incomplete" wording — the pill says that.</summary>
+    private static string ComputeAverageNumber(List<Grade> grades)
+    {
+        var display = ComputeWeightedAverageDisplay(grades);
+        var space = display.IndexOf(' ');
+        return space < 0 ? display : display[..space];
+    }
+
+    /// <summary>True once every weight in the class has a mark against it.</summary>
+    private static bool IsFullyMarked(List<Grade> grades)
+        => grades.Where(g => g.MaxScore > 0).Sum(g => g.Component.WeightPercent) >= 100;
 
     private static string CsvEscape(string value)
     {

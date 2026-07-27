@@ -24,13 +24,21 @@ GO
 -- 1. AUTH & USER MANAGEMENT
 -- ============================================================
 
+-- Sign-in is by EMAIL. There is no username: one was only ever something a human
+-- had to invent, and inventing 30 of them while importing a class list is exactly
+-- where it fell apart. The profile tables (Students/Teachers/Staff/Admins) still
+-- carry a contact email, but THIS column is the credential and the only one that
+-- has to be unique — keep the two in step when either is edited.
 CREATE TABLE Users (
-    id            INT           IDENTITY(1,1) PRIMARY KEY,
-    username      NVARCHAR(50)  NOT NULL UNIQUE,
-    password_hash NVARCHAR(256) NOT NULL,
-    role          NVARCHAR(20)  NOT NULL CHECK (role IN ('ADMIN', 'TEACHER', 'STUDENT', 'STAFF')),
-    is_active     BIT           NOT NULL DEFAULT 1,
-    created_at    DATETIME2     NOT NULL DEFAULT GETDATE()
+    id                   INT           IDENTITY(1,1) PRIMARY KEY,
+    email                NVARCHAR(100) NOT NULL UNIQUE,
+    password_hash        NVARCHAR(256) NOT NULL,
+    role                 NVARCHAR(20)  NOT NULL CHECK (role IN ('ADMIN', 'TEACHER', 'STUDENT', 'STAFF')),
+    is_active            BIT           NOT NULL DEFAULT 1,
+    -- Set on every account somebody else created the password for (admin-created,
+    -- CSV-imported). The user cannot reach the app until they have replaced it.
+    must_change_password BIT           NOT NULL DEFAULT 0,
+    created_at           DATETIME2     NOT NULL DEFAULT GETDATE()
 );
 GO
 
@@ -314,7 +322,12 @@ CREATE TABLE Sessions (
     session_date DATE          NOT NULL,
     topic        NVARCHAR(200) NULL,
     status       NVARCHAR(20)  NOT NULL DEFAULT 'SCHEDULED'
-                               CHECK (status IN ('SCHEDULED', 'COMPLETED', 'CANCELLED', 'MAKEUP'))
+                               CHECK (status IN ('SCHEDULED', 'COMPLETED', 'CANCELLED', 'MAKEUP')),
+    -- Per-session room override. NULL = use the class's default classroom; set to
+    -- move just this one meeting to another room (e.g. the usual room is being fixed),
+    -- with the reason kept in room_change_note. Never touches the class's own room.
+    room_id          INT           NULL REFERENCES Classrooms(classroom_id),
+    room_change_note NVARCHAR(255) NULL
 );
 GO
 
@@ -409,7 +422,10 @@ CREATE TABLE WalletTransactions (
     amount            DECIMAL(18,2) NOT NULL CHECK (amount > 0),
     transaction_type NVARCHAR(20)  NOT NULL
                                    CHECK (transaction_type IN ('TOP_UP', 'PAYMENT', 'REFUND')),
-    provider_order_id NVARCHAR(100) NULL UNIQUE,
+    -- Only ZaloPay top-ups carry an order id; wallet spends and refunds leave it
+    -- NULL. A plain UNIQUE constraint counts two NULLs as duplicates, so the
+    -- uniqueness is a filtered index further down instead.
+    provider_order_id NVARCHAR(100) NULL,
     description      NVARCHAR(255) NULL,
     status           NVARCHAR(20)  NOT NULL DEFAULT 'PENDING'
                                    CHECK (status IN ('PENDING', 'COMPLETED', 'FAILED')),
@@ -445,6 +461,10 @@ CREATE INDEX idx_invoice_discount   ON Invoices(discount_id);
 CREATE INDEX idx_payment_invoice    ON Payments(invoice_id);
 CREATE INDEX idx_wallet_student     ON WalletTransactions(student_id);
 CREATE INDEX idx_wallet_status      ON WalletTransactions(status);
+
+-- One row per ZaloPay order, but any number of rows with no order at all.
+CREATE UNIQUE INDEX UQ__WalletTr__ProviderOrderId
+    ON WalletTransactions(provider_order_id) WHERE provider_order_id IS NOT NULL;
 GO
 
 PRINT '==> LanguageCenterDB schema created successfully. Now run seed.sql.';

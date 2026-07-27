@@ -1,0 +1,7 @@
+FullName,DateOfBirth,Gender,Phone,Email,Address
+Nguyen Van Minh,12/05/2004,Male,0912000001,minh.nguyen@mail.com,"12 Le Loi, Q1"
+Tran Thi Lan,03/09/2003,Female,0912000002,lan.tran@mail.com,"45 Nguyen Trai, Q5"
+Le Hoang Nam,27/11/2002,Male,0912000003,nam.le@mail.com,"7 Tran Hung Dao, Q1"
+Pham Thi Cam,12/05/2003,Female,0903000001,cam@mail.com,"already has an account - will be skipped"
+Vo Quoc Hung,,Male,0912000005,,"no email - will be skipped"
+Dang Thi Mai,15/07/2004,Female,091,mai.dang@mail.com,"bad phone - will be skipped"

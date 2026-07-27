@@ -31,12 +31,9 @@
                 <MenuItem Header="Student Management"  x:Name="menuMiStudentManagement" Click="MenuStudents_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="PeopleTeam24"/></MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Teacher Management"  x:Name="menuMiTeacherManagement" Click="MenuTeacherManagement_Click">
-                    <MenuItem.Icon><ui:SymbolIcon Symbol="Book24"/></MenuItem.Icon>
-                </MenuItem>
-                <MenuItem Header="Staff Management"    x:Name="menuMiStaffManagement" Click="MenuStaffManagement_Click">
-                    <MenuItem.Icon><ui:SymbolIcon Symbol="PersonAccounts24"/></MenuItem.Icon>
-                </MenuItem>
+                <!-- Teacher/Staff Management removed: Account Management (admin-only) already lists
+                     every user with a role filter, using the same view/edit dialogs. Student
+                     Management stays because academic staff reach it but not Account Management. -->
                 <MenuItem Header="Departments"         x:Name="menuMiDepartments" Click="MenuDepartments_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="Building24"/></MenuItem.Icon>
                 </MenuItem>
@@ -86,6 +83,9 @@
                 </MenuItem>
                 <MenuItem Header="Slot Time Setting" Click="MenuSlotSetting_Click">
                     <MenuItem.Icon><ui:SymbolIcon Symbol="Clock24"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Session Room Change" Click="MenuSessionRoom_Click">
+                    <MenuItem.Icon><ui:SymbolIcon Symbol="Building24"/></MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
 
@@ -190,12 +190,6 @@
         </StatusBar>
 
         <Grid Background="{StaticResource BackgroundBrush}">
-            <TextBlock x:Name="txtWelcome"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       FontSize="20" FontWeight="SemiBold"
-                       Foreground="{StaticResource TextSecondaryBrush}"
-                       Visibility="Collapsed"/>
             <ContentControl x:Name="dashboardHost"/>
         </Grid>
     </DockPanel>
