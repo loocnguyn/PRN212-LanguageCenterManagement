@@ -16,20 +16,23 @@
 --    Fall 2026 is upcoming     -> one class open for enrollment, and one that
 --                                 was cancelled.
 --
---  LOGINS - email is the login; password is 123456 for everyone.
---    admin@center.edu.vn      ADMIN     the only administrator
---    academic@center.edu.vn   STAFF     Academic Setup - classes, semesters
---    finance@center.edu.vn    STAFF     Finance - invoices, payments, revenue
---    binh@center.edu.vn       TEACHER   English, teaches the completed + ongoing class
---    khoa@center.edu.vn       TEACHER   Japanese
---    jiwoo@center.edu.vn      TEACHER   Korean, co-teaches the Japanese class
---    loc@center.edu.vn        TEACHER   DEACTIVATED - for Deactivated Accounts
---    cam@mail.com             STUDENT   finished A1, now in B1, everything paid
---    hung@mail.com            STUDENT   part-paid -> appears on the Debt List
---    ly@mail.com              STUDENT   discounted invoice, OVERDUE
---    minhkhoa@mail.com        STUDENT   paid out of the wallet
---    hoa@mail.com             STUDENT   dropped out, invoice cancelled + refunded
---    giabao@mail.com          STUDENT   MUST CHANGE PASSWORD at first login
+--  LOGINS - the email IS the login. Password is 123456 for every account.
+--  Addresses are numbered by role so they are guessable on stage: whatever you
+--  need mid-demo, it is <role><nn>@gmail.com.
+--
+--    admin@gmail.com       ADMIN     the only administrator
+--    staff01@gmail.com     STAFF     Academic Setup - classes, semesters, rooms
+--    staff02@gmail.com     STAFF     Finance - invoices, payments, revenue report
+--    teacher01@gmail.com   TEACHER   English  - the finished class + an ongoing one
+--    teacher02@gmail.com   TEACHER   Japanese - primary on the co-taught class
+--    teacher03@gmail.com   TEACHER   Korean   - co-teacher, and the upcoming class
+--    teacher04@gmail.com   TEACHER   DEACTIVATED - for the Deactivated Accounts screen
+--    student01@gmail.com   STUDENT   Pham Thi Cam   - finished A1, now in B1, all paid
+--    student02@gmail.com   STUDENT   Do Quoc Hung   - part-paid, appears on the Debt List
+--    student03@gmail.com   STUDENT   Nguyen Mai Ly  - discounted invoice, OVERDUE
+--    student04@gmail.com   STUDENT   Tran Minh Khoa - paid out of the wallet
+--    student05@gmail.com   STUDENT   Le Thi Hoa     - dropped out, cancelled + refunded
+--    student06@gmail.com   STUDENT   Vo Gia Bao     - MUST CHANGE PASSWORD at first login
 -- ============================================================
 
 USE LanguageCenterDB;
@@ -45,23 +48,23 @@ GO
 DECLARE @pw NVARCHAR(256) = '$2a$11$U7t7m.JhCoIZBzC.edRuMeKLroLVwOrI05B.WnVSrJPbQT3qrLPiK';
 
 INSERT INTO Users (email, password_hash, role, is_active, must_change_password) VALUES
-('admin@center.edu.vn',    @pw, 'ADMIN',   1, 0),   -- 1
-('academic@center.edu.vn', @pw, 'STAFF',   1, 0),   -- 2
-('finance@center.edu.vn',  @pw, 'STAFF',   1, 0),   -- 3
-('binh@center.edu.vn',     @pw, 'TEACHER', 1, 0),   -- 4
-('khoa@center.edu.vn',     @pw, 'TEACHER', 1, 0),   -- 5
-('jiwoo@center.edu.vn',    @pw, 'TEACHER', 1, 0),   -- 6
-('loc@center.edu.vn',      @pw, 'TEACHER', 0, 0),   -- 7  deactivated account
-('cam@mail.com',           @pw, 'STUDENT', 1, 0),   -- 8
-('hung@mail.com',          @pw, 'STUDENT', 1, 0),   -- 9
-('ly@mail.com',            @pw, 'STUDENT', 1, 0),   -- 10
-('minhkhoa@mail.com',      @pw, 'STUDENT', 1, 0),   -- 11
-('hoa@mail.com',           @pw, 'STUDENT', 1, 0),   -- 12
-('giabao@mail.com',        @pw, 'STUDENT', 1, 1);   -- 13 forced password change
+('admin@gmail.com',     @pw, 'ADMIN',   1, 0),   -- 1
+('staff01@gmail.com',   @pw, 'STAFF',   1, 0),   -- 2
+('staff02@gmail.com',   @pw, 'STAFF',   1, 0),   -- 3
+('teacher01@gmail.com', @pw, 'TEACHER', 1, 0),   -- 4
+('teacher02@gmail.com', @pw, 'TEACHER', 1, 0),   -- 5
+('teacher03@gmail.com', @pw, 'TEACHER', 1, 0),   -- 6
+('teacher04@gmail.com', @pw, 'TEACHER', 0, 0),   -- 7  deactivated account
+('student01@gmail.com', @pw, 'STUDENT', 1, 0),   -- 8
+('student02@gmail.com', @pw, 'STUDENT', 1, 0),   -- 9
+('student03@gmail.com', @pw, 'STUDENT', 1, 0),   -- 10
+('student04@gmail.com', @pw, 'STUDENT', 1, 0),   -- 11
+('student05@gmail.com', @pw, 'STUDENT', 1, 0),   -- 12
+('student06@gmail.com', @pw, 'STUDENT', 1, 1);   -- 13 forced password change
 GO
 
 INSERT INTO Admins (user_id, full_name, phone, email) VALUES
-(1, N'System Admin', '0900000000', 'admin@center.edu.vn');
+(1, N'System Admin', '0900000000', 'admin@gmail.com');
 GO
 
 -- Only "Finance" unlocks the finance menus; every other department falls through
@@ -72,24 +75,24 @@ INSERT INTO Departments (name) VALUES
 GO
 
 INSERT INTO Staff (user_id, full_name, date_of_birth, gender, phone, email, department) VALUES
-(2, N'Nguyen Van An',  '1992-03-14', 'Male',   '0901000001', 'academic@center.edu.vn', N'Academic Setup'),  -- 1
-(3, N'Tran Thi Kim',   '1990-08-22', 'Female', '0901000002', 'finance@center.edu.vn',  N'Finance');         -- 2
+(2, N'Nguyen Van An',  '1992-03-14', 'Male',   '0901000001', 'staff01@gmail.com',   N'Academic Setup'),  -- 1
+(3, N'Tran Thi Kim',   '1990-08-22', 'Female', '0901000002', 'staff02@gmail.com',   N'Finance');         -- 2
 GO
 
 INSERT INTO Teachers (user_id, full_name, date_of_birth, gender, phone, email, specialization, degree, status) VALUES
-(4, N'Tran Thi Binh',  '1988-02-14', 'Female', '0902000001', 'binh@center.edu.vn',  N'English',  N'Master',   'ACTIVE'),   -- 1
-(5, N'Le Minh Khoa',   '1985-09-30', 'Male',   '0902000002', 'khoa@center.edu.vn',  N'Japanese', N'Bachelor', 'ACTIVE'),   -- 2
-(6, N'Kim Ji Woo',     '1991-06-08', 'Female', '0902000003', 'jiwoo@center.edu.vn', N'Korean',   N'Master',   'ACTIVE'),   -- 3
-(7, N'Tran Van Loc',   '1987-01-23', 'Male',   '0902000004', 'loc@center.edu.vn',   N'German',   N'Bachelor', 'RESIGNED'); -- 4
+(4, N'Tran Thi Binh',  '1988-02-14', 'Female', '0902000001', 'teacher01@gmail.com', N'English',  N'Master',   'ACTIVE'),   -- 1
+(5, N'Le Minh Khoa',   '1985-09-30', 'Male',   '0902000002', 'teacher02@gmail.com', N'Japanese', N'Bachelor', 'ACTIVE'),   -- 2
+(6, N'Kim Ji Woo',     '1991-06-08', 'Female', '0902000003', 'teacher03@gmail.com', N'Korean',   N'Master',   'ACTIVE'),   -- 3
+(7, N'Tran Van Loc',   '1987-01-23', 'Male',   '0902000004', 'teacher04@gmail.com', N'German',   N'Bachelor', 'RESIGNED'); -- 4
 GO
 
 INSERT INTO Students (user_id, full_name, date_of_birth, gender, phone, email, address, balance, status) VALUES
-(8,  N'Pham Thi Cam',   '2003-05-12', 'Female', '0903000001', 'cam@mail.com',      N'12 Le Loi, Q1',        0, 'ACTIVE'),  -- 1
-(9,  N'Do Quoc Hung',   '2002-08-20', 'Male',   '0903000002', 'hung@mail.com',     N'45 Nguyen Trai, Q5',   0, 'ACTIVE'),  -- 2
-(10, N'Nguyen Mai Ly',  '2004-01-30', 'Female', '0903000003', 'ly@mail.com',       N'7 Tran Hung Dao, Q1',  0, 'ACTIVE'),  -- 3
-(11, N'Tran Minh Khoa', '2003-11-02', 'Male',   '0903000004', 'minhkhoa@mail.com', N'89 Cach Mang, Q3',     0, 'ACTIVE'),  -- 4
-(12, N'Le Thi Hoa',     '2002-04-18', 'Female', '0903000005', 'hoa@mail.com',      N'23 Hai Ba Trung, Q1',  0, 'ACTIVE'),  -- 5
-(13, N'Vo Gia Bao',     '2005-07-09', 'Male',   '0903000006', 'giabao@mail.com',   N'56 Vo Van Tan, Q3',    0, 'ACTIVE');  -- 6
+(8,  N'Pham Thi Cam',   '2003-05-12', 'Female', '0903000001', 'student01@gmail.com', N'12 Le Loi, Q1',        0, 'ACTIVE'),  -- 1
+(9,  N'Do Quoc Hung',   '2002-08-20', 'Male',   '0903000002', 'student02@gmail.com', N'45 Nguyen Trai, Q5',   0, 'ACTIVE'),  -- 2
+(10, N'Nguyen Mai Ly',  '2004-01-30', 'Female', '0903000003', 'student03@gmail.com', N'7 Tran Hung Dao, Q1',  0, 'ACTIVE'),  -- 3
+(11, N'Tran Minh Khoa', '2003-11-02', 'Male',   '0903000004', 'student04@gmail.com', N'89 Cach Mang, Q3',     0, 'ACTIVE'),  -- 4
+(12, N'Le Thi Hoa',     '2002-04-18', 'Female', '0903000005', 'student05@gmail.com', N'23 Hai Ba Trung, Q1',  0, 'ACTIVE'),  -- 5
+(13, N'Vo Gia Bao',     '2005-07-09', 'Male',   '0903000006', 'student06@gmail.com', N'56 Vo Van Tan, Q3',    0, 'ACTIVE');  -- 6
 GO
 
 -- ============================================================
@@ -426,5 +429,5 @@ WHERE  e.class_id IN (2, 3)
   AND  cgc.name IN (N'Attendance', N'Midterm');
 GO
 
-PRINT '==> Demo seed inserted. Sign in as admin@center.edu.vn / 123456';
+PRINT '==> Demo seed inserted. Sign in as admin@gmail.com / 123456';
 GO

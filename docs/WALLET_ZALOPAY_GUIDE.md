@@ -130,7 +130,7 @@ For a Visa/Mastercard test instead:
 
 ### Step 5 — Run the app and test
 1. `dotnet run` (or F5 in Visual Studio)
-2. Log in as `cam@mail.com` / `123456`
+2. Log in as `student01@gmail.com` / `123456`
 3. Menu -> My Info -> My Invoices
 4. Click **"Top Up Wallet"**, enter an amount (e.g. `50000`), submit
 5. A browser window opens to the ZaloPay order page
