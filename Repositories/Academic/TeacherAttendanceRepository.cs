@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+using BusinessObjects;
 using DataAccessObjects;
 
 namespace Repositories;
@@ -8,6 +8,9 @@ namespace Repositories;
 public class TeacherAttendanceRepository : ITeacherAttendanceRepository
 {
     public List<TeacherAttendance> GetAll() => TeacherAttendanceDAO.GetAll();
+
+    public List<int> GetTeacherIdsWithAttendance(int classId)
+        => TeacherAttendanceDAO.GetTeacherIdsWithAttendance(classId);
     public TeacherAttendance? GetById(int id) => TeacherAttendanceDAO.GetById(id);
     public void Save(TeacherAttendance entity) => TeacherAttendanceDAO.Save(entity);
     public void Update(TeacherAttendance entity) => TeacherAttendanceDAO.Update(entity);

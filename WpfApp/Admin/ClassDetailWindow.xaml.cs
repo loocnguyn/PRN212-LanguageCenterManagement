@@ -95,9 +95,11 @@ public partial class ClassDetailWindow : Window
         if (classEntity.Status == "ONGOING")
         {
             dpStartDate.IsEnabled = false;
+            dpEndDate.IsEnabled = false;
             cmbClassroom.IsEnabled = false;
-            tbStatusNote.Text = "class already running — start date and room are locked; "
-                              + "capacity cannot drop below the students already enrolled";
+            tbStatusNote.Text = "class already running — dates and room are locked; capacity "
+                              + "cannot drop below the students enrolled, and a teacher who has "
+                              + "taught it cannot be removed";
         }
 
         // The snapshot is immutable — show it, don't offer to change it.

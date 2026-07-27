@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+using BusinessObjects;
 
 namespace DataAccessObjects;
 
@@ -6,6 +6,21 @@ namespace DataAccessObjects;
 
 public class TeacherAttendanceDAO
 {
+    /// <summary>
+    /// The teachers who have a recorded attendance against any session of this class —
+    /// i.e. the ones who actually stood in front of it. Taking such a teacher off the
+    /// class would leave that history pointing at nobody.
+    /// </summary>
+    public static List<int> GetTeacherIdsWithAttendance(int classId)
+    {
+        using var context = new LanguageCenterContext();
+        return context.TeacherAttendances
+            .Where(ta => ta.Session.ClassId == classId)
+            .Select(ta => ta.TeacherId)
+            .Distinct()
+            .ToList();
+    }
+
     public static List<TeacherAttendance> GetAll()
     {
         using var context = new LanguageCenterContext();

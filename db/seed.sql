@@ -39,11 +39,15 @@ USE LanguageCenterDB;
 GO
 
 -- ============================================================
---  1. ACCOUNTS - Users.id 1..13
+--  1. ACCOUNTS - Users.id 1..27
 --
 --  One shared BCrypt hash of "123456": a real weakness in production, exactly
 --  what you want in a seed. must_change_password is 0 everywhere except Gia Bao,
 --  who exists to demo the forced-change screen.
+--
+--  The first thirteen accounts each play a part in the story above. Students
+--  07..20 that follow are the rest of the cohort - no story, just enough bodies
+--  in the rooms that the rosters and reports look like a real centre.
 -- ============================================================
 DECLARE @pw NVARCHAR(256) = '$2a$11$U7t7m.JhCoIZBzC.edRuMeKLroLVwOrI05B.WnVSrJPbQT3qrLPiK';
 
@@ -93,6 +97,32 @@ INSERT INTO Students (user_id, full_name, date_of_birth, gender, phone, email, a
 (11, N'Tran Minh Khoa', '2003-11-02', 'Male',   '0903000004', 'student04@gmail.com', N'89 Cach Mang, Q3',     0, 'ACTIVE'),  -- 4
 (12, N'Le Thi Hoa',     '2002-04-18', 'Female', '0903000005', 'student05@gmail.com', N'23 Hai Ba Trung, Q1',  0, 'ACTIVE'),  -- 5
 (13, N'Vo Gia Bao',     '2005-07-09', 'Male',   '0903000006', 'student06@gmail.com', N'56 Vo Van Tan, Q3',    0, 'ACTIVE');  -- 6
+GO
+
+-- The rest of the cohort - students 7..20, users 14..27. These carry no special
+-- story; they are here so the class rosters, the grade entry grid, the attendance
+-- sheets and the revenue report have a believable amount of data on screen.
+INSERT INTO Users (email, password_hash, role, is_active, must_change_password)
+SELECT CONCAT('student', RIGHT(CONCAT('0', n), 2), '@gmail.com'),
+       '$2a$11$U7t7m.JhCoIZBzC.edRuMeKLroLVwOrI05B.WnVSrJPbQT3qrLPiK', 'STUDENT', 1, 0
+FROM  (VALUES (7),(8),(9),(10),(11),(12),(13),(14),(15),(16),(17),(18),(19),(20)) AS v(n);
+GO
+
+INSERT INTO Students (user_id, full_name, date_of_birth, gender, phone, email, address, balance, status) VALUES
+(14, N'Nguyen Thi Ngoc Anh', '2003-03-11', 'Female', '0903000007', 'student07@gmail.com', N'12 Le Loi, Q1',          0, 'ACTIVE'),  -- 7
+(15, N'Tran Quang Huy',      '2002-07-19', 'Male',   '0903000008', 'student08@gmail.com', N'45 Nguyen Trai, Q5',     0, 'ACTIVE'),  -- 8
+(16, N'Le Thi Thu Ha',       '2004-11-05', 'Female', '0903000009', 'student09@gmail.com', N'7 Tran Hung Dao, Q1',    0, 'ACTIVE'),  -- 9
+(17, N'Pham Van Dat',        '2001-05-28', 'Male',   '0903000010', 'student10@gmail.com', N'89 Cach Mang, Q3',       0, 'ACTIVE'),  -- 10
+(18, N'Hoang Thi Lan Anh',   '2003-09-14', 'Female', '0903000011', 'student11@gmail.com', N'23 Hai Ba Trung, Q1',    0, 'ACTIVE'),  -- 11
+(19, N'Vu Minh Quan',        '2002-01-30', 'Male',   '0903000012', 'student12@gmail.com', N'56 Vo Van Tan, Q3',      0, 'ACTIVE'),  -- 12
+(20, N'Dinh Thi Kim Chi',    '2004-06-22', 'Female', '0903000013', 'student13@gmail.com', N'11 Pasteur, Q1',         0, 'ACTIVE'),  -- 13
+(21, N'Ngo Thanh Tung',      '2000-12-03', 'Male',   '0903000014', 'student14@gmail.com', N'78 Dien Bien Phu, BT',   0, 'ACTIVE'),  -- 14
+(22, N'Bui Thi Hong Nhung',  '2003-04-17', 'Female', '0903000015', 'student15@gmail.com', N'34 Nam Ky, Q3',          0, 'ACTIVE'),  -- 15
+(23, N'Duong Gia Han',       '2005-02-09', 'Female', '0903000016', 'student16@gmail.com', N'90 Ly Tu Trong, Q1',     0, 'ACTIVE'),  -- 16
+(24, N'Truong Minh Khang',   '2002-08-26', 'Male',   '0903000017', 'student17@gmail.com', N'15 Suong Nguyet, Q1',    0, 'ACTIVE'),  -- 17
+(25, N'Phan Thi Yen Nhi',    '2004-10-12', 'Female', '0903000018', 'student18@gmail.com', N'62 Vo Thi Sau, Q3',      0, 'ACTIVE'),  -- 18
+(26, N'Lam Quoc Thang',      '2001-03-07', 'Male',   '0903000019', 'student19@gmail.com', N'28 Nguyen Hue, Q1',      0, 'ACTIVE'),  -- 19
+(27, N'Cao Thi Thanh Truc',  '2003-12-19', 'Female', '0903000020', 'student20@gmail.com', N'41 Ton Duc Thang, Q1',   0, 'ACTIVE');  -- 20
 GO
 
 -- ============================================================
@@ -244,7 +274,7 @@ VALUES
 GO
 
 -- ============================================================
---  6. ENROLLMENTS - ACTIVE / COMPLETED / DROPPED
+--  6. ENROLLMENTS - 30 of them, ACTIVE / COMPLETED / DROPPED
 -- ============================================================
 INSERT INTO Enrollments (student_id, class_id, enrolled_date, status) VALUES
 (1, 1, '2026-01-08', 'COMPLETED'),   -- 1  Cam  finished A1
@@ -257,8 +287,31 @@ INSERT INTO Enrollments (student_id, class_id, enrolled_date, status) VALUES
 (6, 4, '2026-07-20', 'ACTIVE');      -- 8  Bao  in the upcoming class
 GO
 
+-- The rest of the cohort - enrollment_id 9..30. Several students appear in more
+-- than one class, which is what makes the per-student history screens worth
+-- opening, and what fills the class rosters up to a believable size:
+--   A1-SP26  10 of 20   B1-SU26  8 of 18   N5-SU26  7 of 15   K1-FA26  5 of 20
+INSERT INTO Enrollments (student_id, class_id, enrolled_date, status) VALUES
+-- class 1, A1-SP26 (finished) - these get full marks and a full attendance sheet
+( 7, 1, '2026-01-08', 'COMPLETED'), ( 8, 1, '2026-01-08', 'COMPLETED'),
+( 9, 1, '2026-01-09', 'COMPLETED'), (10, 1, '2026-01-09', 'COMPLETED'),
+(11, 1, '2026-01-10', 'COMPLETED'), (12, 1, '2026-01-10', 'COMPLETED'),
+(13, 1, '2026-01-12', 'COMPLETED'),
+-- class 2, B1-SU26 (running) - attendance + midterm only
+( 7, 2, '2026-06-02', 'ACTIVE'), ( 8, 2, '2026-06-03', 'ACTIVE'),
+(14, 2, '2026-06-03', 'ACTIVE'), (15, 2, '2026-06-04', 'ACTIVE'),
+(16, 2, '2026-06-05', 'ACTIVE'), (17, 2, '2026-06-08', 'ACTIVE'),
+-- class 3, N5-SU26 (running, co-taught)
+( 9, 3, '2026-06-02', 'ACTIVE'), (10, 3, '2026-06-03', 'ACTIVE'),
+(18, 3, '2026-06-04', 'ACTIVE'), (19, 3, '2026-06-05', 'ACTIVE'),
+(20, 3, '2026-06-09', 'ACTIVE'),
+-- class 4, K1-FA26 (upcoming) - enrolled early, nothing has happened yet
+(11, 4, '2026-07-21', 'ACTIVE'), (12, 4, '2026-07-22', 'ACTIVE'),
+(13, 4, '2026-07-23', 'ACTIVE'), (20, 4, '2026-07-24', 'ACTIVE');
+GO
+
 -- ============================================================
---  7. INVOICES - one per enrollment, one per payment situation
+--  7. INVOICES - one per enrollment; the first eight cover every payment state
 --
 --  The amount comes from the CLASS's frozen tuition, not the course's current
 --  price. Statuses are reconciled against Payments in section 8.
@@ -278,6 +331,28 @@ VALUES
 (6, 8, 3900000, NULL, 0,      3900000, 'UNPAID', '2026-09-30', 'NONE',   NULL, NULL);          -- 8 -> not due yet
 GO
 
+-- Invoices 9..30 for the rest of the cohort. Generated rather than typed out:
+-- the amount is the CLASS's frozen tuition and the due date is 30 days after the
+-- student enrolled, which is the same rule the app applies.
+INSERT INTO Invoices
+    (student_id, enrollment_id, original_amount, discount_id, discount_amount, amount,
+     status, due_date, discount_status, note)
+SELECT e.student_id, e.enrollment_id, c.snap_tuition_fee, NULL, 0, c.snap_tuition_fee,
+       'UNPAID', DATEADD(DAY, 30, e.enrolled_date), 'NONE', NULL
+FROM   Enrollments e
+JOIN   Classes c ON c.class_id = e.class_id
+WHERE  e.enrollment_id >= 9
+ORDER  BY e.enrollment_id;
+GO
+
+-- Two of them get the fixed 500,000 scholarship, so the discount columns are not
+-- uniformly empty and the Revenue Report has something to net off.
+UPDATE Invoices
+SET    discount_id = 2, discount_amount = 500000, amount = original_amount - 500000,
+       discount_status = 'ACTIVE', note = N'Ho tro hoc bong 500,000'
+WHERE  invoice_id IN (16, 22);
+GO
+
 -- ============================================================
 --  8. PAYMENTS - collected by the Finance staff member (staff_id 2)
 -- ============================================================
@@ -287,6 +362,21 @@ INSERT INTO Payments (invoice_id, staff_id, amount_paid, payment_method, paid_at
 (4, 2, 5000000, 'Transfer', '2026-06-08', 'RCP-2026-0003', NULL),
 (6, 2, 2000000, 'Cash',     '2026-06-20', 'RCP-2026-0004', N'Dot 1'),
 (7, 2, 4500000, 'Wallet',   '2026-07-05', 'RCP-2026-0005', N'Tru tu vi hoc vien');
+GO
+
+-- The rest of the cohort settles up, with three deliberate exceptions so the Debt
+-- List is not empty: invoices 25, 27 and 29 are never paid.
+INSERT INTO Payments (invoice_id, staff_id, amount_paid, payment_method, paid_at, receipt_code, note)
+SELECT i.invoice_id,
+       CASE WHEN i.invoice_id % 2 = 0 THEN 2 ELSE 1 END,        -- mostly Finance, some Academic
+       i.amount,
+       CASE i.invoice_id % 3 WHEN 0 THEN 'Cash' WHEN 1 THEN 'Transfer' ELSE 'Card' END,
+       DATEADD(DAY, 3, CAST(i.due_date AS DATETIME2)),
+       CONCAT('RCP-2026-', RIGHT(CONCAT('000', i.invoice_id + 100), 4)),
+       NULL
+FROM   Invoices i
+WHERE  i.invoice_id >= 9
+  AND  i.invoice_id NOT IN (25, 27, 29);
 GO
 
 -- Reconcile invoice status against what was actually collected, so the Debt List
