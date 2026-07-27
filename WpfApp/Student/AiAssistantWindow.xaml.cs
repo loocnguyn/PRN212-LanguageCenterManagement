@@ -46,7 +46,7 @@ public partial class AiAssistantWindow : Window
     {
         try
         {
-            _student = _studentService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id);
+            _student = _studentService.GetByUserId(_currentUser.Id);
             if (_student == null)
             {
                 tbStudentName.Text = "(no student profile)";

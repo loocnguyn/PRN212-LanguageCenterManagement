@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+using BusinessObjects;
 
 namespace DataAccessObjects;
 
@@ -16,6 +16,13 @@ public class AdminDAO
     {
         using var context = new LanguageCenterContext();
         return context.Admins.FirstOrDefault(x => x.AdminId == id);
+    }
+
+    /// <summary>The admin profile belonging to a user account, or null.</summary>
+    public static Admin? GetByUserId(int userId)
+    {
+        using var context = new LanguageCenterContext();
+        return context.Admins.FirstOrDefault(x => x.UserId == userId);
     }
 
     public static void Save(Admin entity)

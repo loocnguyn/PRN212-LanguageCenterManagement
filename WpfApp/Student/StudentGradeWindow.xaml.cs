@@ -66,7 +66,7 @@ public partial class StudentGradeWindow : Window
     {
         try
         {
-            var student = _studentService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id);
+            var student = _studentService.GetByUserId(_currentUser.Id);
             if (student == null)
             {
                 tbStudentInfo.Text = "No student profile linked to this account.";

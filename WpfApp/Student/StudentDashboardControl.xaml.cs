@@ -29,7 +29,7 @@ public partial class StudentDashboardControl : UserControl, IDashboardControl
 
         try
         {
-            var student = _studentService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id);
+            var student = _studentService.GetByUserId(_currentUser.Id);
             if (student == null)
             {
                 MessageBox.Show("No student profile linked to this account.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);

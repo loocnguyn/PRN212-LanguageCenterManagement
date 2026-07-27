@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+using BusinessObjects;
 
 namespace DataAccessObjects;
 
@@ -16,6 +16,13 @@ public class StudentDAO
     {
         using var context = new LanguageCenterContext();
         return context.Students.FirstOrDefault(x => x.StudentId == id);
+    }
+
+    /// <summary>The student profile belonging to a user account, or null.</summary>
+    public static Student? GetByUserId(int userId)
+    {
+        using var context = new LanguageCenterContext();
+        return context.Students.FirstOrDefault(x => x.UserId == userId);
     }
 
     public static void Save(Student entity)

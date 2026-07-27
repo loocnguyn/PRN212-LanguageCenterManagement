@@ -54,7 +54,7 @@ public partial class AccountViewWindow : Window
         switch (user.Role)
         {
             case "STUDENT":
-                var student = _studentService.GetAll().FirstOrDefault(x => x.UserId == user.Id);
+                var student = _studentService.GetByUserId(user.Id);
                 if (student == null) return ShowMissingProfile();
                 AddRow(profilePanel, "Full name", student.FullName);
                 AddRow(profilePanel, "Date of birth", student.DateOfBirth?.ToString("dd/MM/yyyy"));
@@ -80,7 +80,7 @@ public partial class AccountViewWindow : Window
                 return teacher.FullName;
 
             case "STAFF":
-                var staff = _staffService.GetAll().FirstOrDefault(x => x.UserId == user.Id);
+                var staff = _staffService.GetByUserId(user.Id);
                 if (staff == null) return ShowMissingProfile();
                 AddRow(profilePanel, "Full name", staff.FullName);
                 AddRow(profilePanel, "Date of birth", staff.DateOfBirth?.ToString("dd/MM/yyyy"));
@@ -91,7 +91,7 @@ public partial class AccountViewWindow : Window
                 return staff.FullName;
 
             case "ADMIN":
-                var admin = _adminService.GetAll().FirstOrDefault(x => x.UserId == user.Id);
+                var admin = _adminService.GetByUserId(user.Id);
                 if (admin == null) return ShowMissingProfile();
                 AddRow(profilePanel, "Full name", admin.FullName);
                 AddRow(profilePanel, "Phone", admin.Phone);

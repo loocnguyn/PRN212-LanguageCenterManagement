@@ -29,7 +29,7 @@ public partial class AdminDashboardControl : UserControl, IDashboardControl
     {
         try
         {
-            var fullName = _adminService.GetAll().FirstOrDefault(a => a.UserId == _currentUser.Id)?.FullName ?? _currentUser.Email;
+            var fullName = _adminService.GetByUserId(_currentUser.Id)?.FullName ?? _currentUser.Email;
             tbHeader.Text = $"Welcome back, {fullName}";
 
             var activeStudents = _studentService.GetAll().Count(s => s.Status == "ACTIVE");

@@ -1,7 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
 using BusinessObjects;
-using DataAccessObjects;
 using Services;
 
 namespace WpfApp;
@@ -27,6 +26,10 @@ public partial class AccountDetailWindow : Window
 {
     private readonly IUserService _service = new UserService();
     private readonly IDepartmentService _departmentService = new DepartmentService();
+    private readonly IStudentService _studentService = new StudentService();
+    private readonly ITeacherService _teacherService = new TeacherService();
+    private readonly IStaffService _staffService = new StaffService();
+    private readonly IAdminService _adminService = new AdminService();
     private readonly User? _editUser;
 
     public AccountDetailWindow(User? user = null, string? presetRole = null)
@@ -69,7 +72,7 @@ public partial class AccountDetailWindow : Window
         switch (user.Role)
         {
             case "STUDENT":
-                var s = StudentDAO.GetAll().FirstOrDefault(x => x.UserId == user.Id);
+                var s = _studentService.GetByUserId(user.Id);
                 if (s != null)
                 {
                     txtFullName.Text = s.FullName;
@@ -79,8 +82,9 @@ public partial class AccountDetailWindow : Window
                     SelectComboItem(cmbGender, s.Gender);
                 }
                 break;
+
             case "TEACHER":
-                var t = TeacherDAO.GetByUserId(user.Id);
+                var t = _teacherService.GetByUserId(user.Id);
                 if (t != null)
                 {
                     txtFullName.Text = t.FullName;
@@ -90,8 +94,9 @@ public partial class AccountDetailWindow : Window
                     SelectComboItem(cmbDegree, t.Degree);
                 }
                 break;
+
             case "STAFF":
-                var st = StaffDAO.GetAll().FirstOrDefault(x => x.UserId == user.Id);
+                var st = _staffService.GetByUserId(user.Id);
                 if (st != null)
                 {
                     txtFullName.Text = st.FullName;
@@ -99,8 +104,9 @@ public partial class AccountDetailWindow : Window
                     txtDept.SelectedItem = st.Department;
                 }
                 break;
+
             case "ADMIN":
-                var a = AdminDAO.GetAll().FirstOrDefault(x => x.UserId == user.Id);
+                var a = _adminService.GetByUserId(user.Id);
                 if (a != null)
                 {
                     txtFullName.Text = a.FullName;
@@ -268,58 +274,75 @@ public partial class AccountDetailWindow : Window
     }
 
     // ---- 5. Save the role-specific profile row -----------------
+    //
+    //  Each role writes to a different table but the shape is identical: take the
+    //  existing row (or a new one), copy the form onto it, then Save or Update.
+    //  Writing that out twice per role is what made this method four times longer
+    //  than it needed to be, and is how the create and edit paths drift apart.
     private void SaveProfile(int userId, string role, string fullName, string phone, string email, bool isNew)
     {
+        var gender = (cmbGender.SelectedItem as ComboBoxItem)?.Content.ToString();
+
         switch (role)
         {
             case "STUDENT":
-                DateOnly? dob = dpDob.SelectedDate.HasValue
-                    ? DateOnly.FromDateTime(dpDob.SelectedDate.Value) : null;
-                var gender = (cmbGender.SelectedItem as ComboBoxItem)?.Content.ToString();
-                if (isNew)
-                {
-                    StudentDAO.Save(new Student { UserId = userId, FullName = fullName, DateOfBirth = dob, Gender = gender, Phone = phone, Email = email, Status = "ACTIVE" });
-                }
-                else
-                {
-                    var s = StudentDAO.GetAll().FirstOrDefault(x => x.UserId == userId);
-                    if (s != null) { s.FullName = fullName; s.DateOfBirth = dob; s.Gender = gender; s.Phone = phone; s.Email = email; StudentDAO.Update(s); }
-                }
+                var student = isNew
+                    ? new Student { UserId = userId, Status = "ACTIVE" }
+                    : _studentService.GetByUserId(userId);
+                if (student == null) return;
+
+                student.FullName = fullName;
+                student.Phone = phone;
+                student.Email = email;
+                student.Gender = gender;
+                student.DateOfBirth = dpDob.SelectedDate.HasValue
+                    ? DateOnly.FromDateTime(dpDob.SelectedDate.Value)
+                    : null;
+
+                if (isNew) _studentService.Save(student); else _studentService.Update(student);
                 break;
+
             case "TEACHER":
-                var tGender = (cmbGender.SelectedItem as ComboBoxItem)?.Content.ToString();
-                var degree = (cmbDegree.SelectedItem as ComboBoxItem)?.Content.ToString();
-                if (isNew)
-                {
-                    TeacherDAO.Save(new Teacher { UserId = userId, FullName = fullName, Gender = tGender, Phone = phone, Email = email, Specialization = (txtSpec.SelectedItem as ComboBoxItem)?.Content.ToString(), Degree = degree, Status = "ACTIVE" });
-                }
-                else
-                {
-                    var t = TeacherDAO.GetByUserId(userId);
-                    if (t != null) { t.FullName = fullName; t.Gender = tGender; t.Phone = phone; t.Email = email; t.Specialization = (txtSpec.SelectedItem as ComboBoxItem)?.Content.ToString(); t.Degree = degree; TeacherDAO.Update(t); }
-                }
+                var teacher = isNew
+                    ? new Teacher { UserId = userId, Status = "ACTIVE" }
+                    : _teacherService.GetByUserId(userId);
+                if (teacher == null) return;
+
+                teacher.FullName = fullName;
+                teacher.Phone = phone;
+                teacher.Email = email;
+                teacher.Gender = gender;
+                teacher.Specialization = (txtSpec.SelectedItem as ComboBoxItem)?.Content.ToString();
+                teacher.Degree = (cmbDegree.SelectedItem as ComboBoxItem)?.Content.ToString();
+
+                if (isNew) _teacherService.Save(teacher); else _teacherService.Update(teacher);
                 break;
+
             case "STAFF":
-                if (isNew)
-                {
-                    StaffDAO.Save(new Staff { UserId = userId, FullName = fullName, Phone = phone, Email = email, Department = txtDept.SelectedItem as string });
-                }
-                else
-                {
-                    var st = StaffDAO.GetAll().FirstOrDefault(x => x.UserId == userId);
-                    if (st != null) { st.FullName = fullName; st.Phone = phone; st.Email = email; st.Department = txtDept.SelectedItem as string; StaffDAO.Update(st); }
-                }
+                var staff = isNew
+                    ? new Staff { UserId = userId }
+                    : _staffService.GetByUserId(userId);
+                if (staff == null) return;
+
+                staff.FullName = fullName;
+                staff.Phone = phone;
+                staff.Email = email;
+                staff.Department = txtDept.SelectedItem as string;
+
+                if (isNew) _staffService.Save(staff); else _staffService.Update(staff);
                 break;
+
             case "ADMIN":
-                if (isNew)
-                {
-                    AdminDAO.Save(new Admin { UserId = userId, FullName = fullName, Phone = phone, Email = email });
-                }
-                else
-                {
-                    var a = AdminDAO.GetAll().FirstOrDefault(x => x.UserId == userId);
-                    if (a != null) { a.FullName = fullName; a.Phone = phone; a.Email = email; AdminDAO.Update(a); }
-                }
+                var admin = isNew
+                    ? new Admin { UserId = userId }
+                    : _adminService.GetByUserId(userId);
+                if (admin == null) return;
+
+                admin.FullName = fullName;
+                admin.Phone = phone;
+                admin.Email = email;
+
+                if (isNew) _adminService.Save(admin); else _adminService.Update(admin);
                 break;
         }
     }

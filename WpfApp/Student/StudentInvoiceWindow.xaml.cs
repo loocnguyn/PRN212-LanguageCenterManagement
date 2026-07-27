@@ -32,7 +32,7 @@ public partial class StudentInvoiceWindow : Window
     {
         try
         {
-            var student = _studentService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id);
+            var student = _studentService.GetByUserId(_currentUser.Id);
             if (student == null)
             {
                 tbStudentName.Text = "No student profile linked to this account.";

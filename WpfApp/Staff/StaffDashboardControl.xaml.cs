@@ -33,7 +33,7 @@ public partial class StaffDashboardControl : UserControl, IDashboardControl
     {
         try
         {
-            var staff = _staffService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id);
+            var staff = _staffService.GetByUserId(_currentUser.Id);
             var department = staff?.Department;
             tbHeader.Text = $"Welcome back, {staff?.FullName ?? _currentUser.Email}";
 

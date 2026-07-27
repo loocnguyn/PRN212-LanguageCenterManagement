@@ -47,7 +47,7 @@ public partial class MyProfileWindow : Window
             switch (_currentUser.Role)
             {
                 case "STUDENT":
-                    _student = _studentService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id);
+                    _student = _studentService.GetByUserId(_currentUser.Id);
                     if (_student == null) { ShowNotFound(); return; }
                     txtFullName.Text = _student.FullName;
                     txtPhone.Text = _student.Phone ?? "";
@@ -70,7 +70,7 @@ public partial class MyProfileWindow : Window
                     break;
 
                 case "STAFF":
-                    _staff = _staffService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id);
+                    _staff = _staffService.GetByUserId(_currentUser.Id);
                     if (_staff == null) { ShowNotFound(); return; }
                     txtFullName.Text = _staff.FullName;
                     txtPhone.Text = _staff.Phone ?? "";
@@ -83,7 +83,7 @@ public partial class MyProfileWindow : Window
                     break;
 
                 case "ADMIN":
-                    _admin = _adminService.GetAll().FirstOrDefault(a => a.UserId == _currentUser.Id);
+                    _admin = _adminService.GetByUserId(_currentUser.Id);
                     if (_admin == null) { ShowNotFound(); return; }
                     txtFullName.Text = _admin.FullName;
                     txtPhone.Text = _admin.Phone ?? "";

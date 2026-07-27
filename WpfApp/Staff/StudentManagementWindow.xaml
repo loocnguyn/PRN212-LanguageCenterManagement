@@ -73,7 +73,7 @@
             <Grid Grid.Row="2" Margin="0,14,0,0">
                 <ctl:PagerBar x:Name="pager" HorizontalAlignment="Left" PageChanged="Pager_PageChanged"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="Import list" Style="{StaticResource PillButtonSubtle}" Width="110" Margin="0,0,8,0" Click="BtnImport_Click"/>
+                    <Button Content="Import list" Style="{StaticResource PillButtonAccent}" Width="110" Margin="0,0,8,0" Click="BtnImport_Click"/>
                     <Button Content="View"       Style="{StaticResource PillButtonInfo}"     Width="90"  Margin="0,0,8,0" Click="BtnView_Click"/>
                     <Button Content="Add"        Style="{StaticResource PillButton}"        Width="90"  Margin="0,0,8,0" Click="BtnAdd_Click"/>
                     <Button Content="Edit"       Style="{StaticResource PillButtonSuccess}" Width="90"  Margin="0,0,8,0" Click="BtnEdit_Click"/>

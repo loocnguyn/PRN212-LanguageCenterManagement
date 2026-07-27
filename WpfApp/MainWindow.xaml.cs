@@ -97,7 +97,7 @@ public partial class MainWindow : Window
     /// not the admin-only account tools.</summary>
     private void ApplyStaffDepartmentVisibility()
     {
-        var deptName = _staffService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id)?.Department;
+        var deptName = _staffService.GetByUserId(_currentUser.Id)?.Department;
 
         var isFinance = deptName != null
             && FinanceDepartments.Contains(deptName, StringComparer.OrdinalIgnoreCase);
