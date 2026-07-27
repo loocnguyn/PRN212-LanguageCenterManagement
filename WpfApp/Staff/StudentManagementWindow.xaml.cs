@@ -44,7 +44,7 @@ public partial class StudentManagementWindow : Window
             ? _all
             : _all.Where(r => r.FullName.ToLower().Contains(kw)
                               || (r.Phone ?? "").Contains(kw)
-                              || r.Username.ToLower().Contains(kw)).ToList();
+                              || r.Email.ToLower().Contains(kw)).ToList();
         dgStudents.ItemsSource = pager.Slice(filtered);
     }
 
@@ -66,6 +66,12 @@ public partial class StudentManagementWindow : Window
         new AccountViewWindow(r.User) { Owner = this }.ShowDialog();
     }
 
+    /// <summary>Bulk-create students from a class list (.csv / .xlsx).</summary>
+    private void BtnImport_Click(object sender, RoutedEventArgs e)
+    {
+        if (new StudentImportWindow { Owner = this }.ShowDialog() == true) LoadData();
+    }
+
     private void BtnAdd_Click(object sender, RoutedEventArgs e)
     {
         var dlg = new AccountDetailWindow(presetRole: "STUDENT") { Owner = this };
@@ -82,7 +88,7 @@ public partial class StudentManagementWindow : Window
     private void BtnDelete_Click(object sender, RoutedEventArgs e)
     {
         if (dgStudents.SelectedItem is not StudentRow r) { Warn("deactivate"); return; }
-        var confirm = MessageBox.Show($"Deactivate student account \"{r.Username}\"?",
+        var confirm = MessageBox.Show($"Deactivate student account \"{r.Email}\"?",
             "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (confirm == MessageBoxResult.Yes) { _userService.Delete(r.User.Id); LoadData(); }
     }
@@ -95,10 +101,12 @@ public partial class StudentManagementWindow : Window
     private record StudentRow(Student Student, User User)
     {
         public string FullName => Student.FullName;
-        public string Username => User.Username;
+
+        /// <summary>The login address — Users.email, not the profile copy.</summary>
+        public string Email => User.Email;
+
         public string? Gender => Student.Gender;
         public DateOnly? DateOfBirth => Student.DateOfBirth;
         public string? Phone => Student.Phone;
-        public string? Email => Student.Email;
     }
 }

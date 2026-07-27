@@ -1,0 +1,126 @@
+<Window x:Class="WpfApp.StudentImportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        Title="Import Students" Height="640" Width="960"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource BackgroundBrush}">
+
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Background="{StaticResource PrimaryBrush}" Padding="20,14">
+            <StackPanel Orientation="Horizontal">
+                <ui:SymbolIcon Symbol="ArrowUpload24" Foreground="White" FontSize="26" Margin="0,0,12,0"/>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Import Students" Foreground="White" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock Text="Create accounts in bulk from a class list"
+                               Foreground="#DCEBFF" FontSize="12"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Footer -->
+        <Border DockPanel.Dock="Bottom" Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource BorderBrush2}" BorderThickness="0,1,0,0" Padding="16,12">
+            <Grid>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Starting password:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBox x:Name="txtPassword" Text="123456" Width="140" Height="32"
+                             VerticalContentAlignment="Center" Padding="6,0"/>
+                    <TextBlock Text="Everyone imported must replace it at first login."
+                               VerticalAlignment="Center" Margin="10,0,0,0" FontSize="11"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="btnImport" Content="Import valid rows" Style="{StaticResource PillButton}"
+                            Width="150" Margin="0,0,8,0" IsEnabled="False" Click="BtnImport_Click"/>
+                    <Button Content="Close" Style="{StaticResource PillButtonSubtle}" Width="90" Click="BtnClose_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- File picker + expected format -->
+            <Border Grid.Row="0" Style="{StaticResource Card}" Padding="12" Margin="0,0,0,12">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Choose file…" Style="{StaticResource PillButton}" Width="120"
+                                Click="BtnBrowse_Click"/>
+                        <TextBlock x:Name="tbFile" Text="No file selected" VerticalAlignment="Center"
+                                   Margin="12,0,0,0" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                    <TextBlock Margin="0,10,0,0" FontSize="11" TextWrapping="Wrap"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Text="Accepted: .csv or .xlsx. First row is a header and is skipped. Columns in order: Full name, Date of birth (dd/MM/yyyy), Gender (Male/Female), Phone, Email, Address. Email is the student's login, so it is required and must not already be in use."/>
+                </StackPanel>
+            </Border>
+
+            <!-- Summary tiles -->
+            <StackPanel Grid.Row="1" x:Name="summaryPanel" Orientation="Horizontal"
+                        Margin="0,0,0,12" Visibility="Collapsed">
+                <Border Style="{StaticResource Card}" Padding="14,10" Margin="0,0,10,0" MinWidth="120">
+                    <StackPanel>
+                        <TextBlock x:Name="statTotal" Text="0" FontSize="22" FontWeight="Bold"
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock Text="rows read" FontSize="11"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Padding="14,10" Margin="0,0,10,0" MinWidth="120">
+                    <StackPanel>
+                        <TextBlock x:Name="statValid" Text="0" FontSize="22" FontWeight="Bold"
+                                   Foreground="{StaticResource SecondaryBrush}"/>
+                        <TextBlock Text="will be created" FontSize="11"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Padding="14,10" MinWidth="120">
+                    <StackPanel>
+                        <TextBlock x:Name="statSkipped" Text="0" FontSize="22" FontWeight="Bold"
+                                   Foreground="{StaticResource DangerBrush}"/>
+                        <TextBlock Text="skipped" FontSize="11"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Preview -->
+            <Border Grid.Row="2" Style="{StaticResource Card}" Padding="0">
+                <Grid>
+                    <DataGrid x:Name="dgRows" AutoGenerateColumns="False" IsReadOnly="True"
+                              SelectionMode="Single" RowHeight="36" BorderThickness="0"
+                              Background="Transparent">
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Style.Triggers>
+                                    <!-- A row that will be skipped is tinted, so a bad file is
+                                         obvious at a glance instead of needing to be read. -->
+                                    <DataTrigger Binding="{Binding IsValid}" Value="False">
+                                        <Setter Property="Background" Value="#FFF3F3"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Row"   Binding="{Binding RowNumber}" Width="55"/>
+                            <DataGridTextColumn Header="Full name" Binding="{Binding FullName}" Width="180"/>
+                            <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="200"/>
+                            <DataGridTextColumn Header="DOB"   Binding="{Binding DateOfBirth, StringFormat='{}{0:dd/MM/yyyy}'}" Width="95"/>
+                            <DataGridTextColumn Header="Phone" Binding="{Binding Phone}" Width="105"/>
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <TextBlock x:Name="emptyState" Text="Choose a file to preview it here."
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </DockPanel>
+</Window>

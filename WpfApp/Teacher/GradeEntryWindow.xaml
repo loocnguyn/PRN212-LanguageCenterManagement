@@ -1,34 +1,98 @@
 <Window x:Class="WpfApp.GradeEntryWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Grade Entry" Height="680" Width="1050"
-        WindowStartupLocation="CenterScreen">
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" x:Name="tbTeacherInfo" FontSize="14" FontWeight="Bold" Margin="0,0,0,6"/>
-        <!-- Filter Panel: Semester -> Course -> Class -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
-            <TextBlock Text="Semester:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-            <ComboBox x:Name="cboSemester" MinWidth="170" DisplayMemberPath="Name"
-                      SelectionChanged="CboSemester_SelectionChanged" VerticalContentAlignment="Center"/>
-            <TextBlock Text="Course:" VerticalAlignment="Center" Margin="16,0,6,0"/>
-            <ComboBox x:Name="cboCourse" MinWidth="200" DisplayMemberPath="Name"
-                      SelectionChanged="CboCourse_SelectionChanged" VerticalContentAlignment="Center"/>
-            <TextBlock Text="Class:" VerticalAlignment="Center" Margin="16,0,6,0"/>
-            <ComboBox x:Name="cboClass" MinWidth="200" DisplayMemberPath="Name" 
-                      SelectionChanged="CboClass_SelectionChanged" VerticalContentAlignment="Center"/>
-            <Button Content="Reset" Width="80" Height="28" Margin="6,0,0,0" Click="BtnReset_Click"/>
-        </StackPanel>
-        <DataGrid Grid.Row="2" x:Name="dgGrades"
-                  AutoGenerateColumns="False" IsReadOnly="False" SelectionMode="Single">
-        </DataGrid>
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
-            <Button Content="Save Grades" Width="130" Height="32" Click="BtnSave_Click"/>
-        </StackPanel>
-    </Grid>
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        Title="Grade Entry" Height="700" Width="1080"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}">
+
+    <DockPanel>
+        <!-- Header -->
+        <Border DockPanel.Dock="Top" Background="{StaticResource RoleTeacherBrush}" Padding="20,14">
+            <StackPanel Orientation="Horizontal">
+                <ui:SymbolIcon Symbol="ClipboardTask24" Foreground="White" FontSize="26" Margin="0,0,12,0"/>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Grade Entry" Foreground="White" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="tbTeacherInfo" Foreground="#DDF3DD" FontSize="12"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Footer -->
+        <Border DockPanel.Dock="Bottom" Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource BorderBrush2}" BorderThickness="0,1,0,0" Padding="16,12">
+            <Grid>
+                <TextBlock VerticalAlignment="Center" FontSize="11" TextWrapping="Wrap"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           Text="Scores are out of 10. Leave a cell empty to record nothing for that component — the total then says the marks are incomplete."/>
+                <Button Content="Save grades" Style="{StaticResource PillButton}" Width="130"
+                        HorizontalAlignment="Right" Click="BtnSave_Click"/>
+            </Grid>
+        </Border>
+
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Filters: semester -> course -> class -->
+            <Border Grid.Row="0" Style="{StaticResource Card}" Padding="12" Margin="0,0,0,12">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Semester" VerticalAlignment="Center" Margin="0,0,6,0"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <ComboBox x:Name="cboSemester" MinWidth="170" Height="34" DisplayMemberPath="Name"
+                              VerticalContentAlignment="Center"
+                              SelectionChanged="CboSemester_SelectionChanged"/>
+
+                    <TextBlock Text="Course" VerticalAlignment="Center" Margin="16,0,6,0"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <ComboBox x:Name="cboCourse" MinWidth="200" Height="34" DisplayMemberPath="Name"
+                              VerticalContentAlignment="Center"
+                              SelectionChanged="CboCourse_SelectionChanged"/>
+
+                    <TextBlock Text="Class" VerticalAlignment="Center" Margin="16,0,6,0"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <ComboBox x:Name="cboClass" MinWidth="200" Height="34" DisplayMemberPath="Name"
+                              VerticalContentAlignment="Center"
+                              SelectionChanged="CboClass_SelectionChanged"/>
+
+                    <Button Content="Reset" Style="{StaticResource PillButtonSubtle}" Width="84"
+                            Margin="12,0,0,0" Click="BtnReset_Click"/>
+                </StackPanel>
+            </Border>
+
+            <!-- The class being marked, and the weights its grades are computed against -->
+            <Border Grid.Row="1" x:Name="classCard" Style="{StaticResource Card}" Padding="14,10"
+                    Margin="0,0,0,12" Visibility="Collapsed">
+                <Grid>
+                    <StackPanel>
+                        <TextBlock x:Name="tbClassName" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock x:Name="tbWeights" FontSize="11" Margin="0,2,0,0"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                    <Border CornerRadius="12" Padding="12,4" HorizontalAlignment="Right"
+                            VerticalAlignment="Center" Background="{StaticResource SecondaryLightBrush}">
+                        <TextBlock x:Name="tbCount" FontSize="12" FontWeight="SemiBold"
+                                   Foreground="{StaticResource SecondaryBrush}"/>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Editable grid; the columns are built in code from the class's components -->
+            <Border Grid.Row="2" Style="{StaticResource Card}" Padding="0">
+                <Grid>
+                    <DataGrid x:Name="dgGrades" AutoGenerateColumns="False" IsReadOnly="False"
+                              SelectionMode="Single" RowHeight="40" BorderThickness="0"
+                              Background="Transparent" ColumnHeaderHeight="46"/>
+
+                    <TextBlock x:Name="emptyState" Text="Pick a class to start entering grades."
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </DockPanel>
 </Window>

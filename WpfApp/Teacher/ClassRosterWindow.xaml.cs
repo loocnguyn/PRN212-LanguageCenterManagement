@@ -46,7 +46,7 @@ public partial class ClassRosterWindow : Window
                 return;
             }
 
-            tbTeacherInfo.Text = $"Teacher: {_teacher.FullName}";
+            tbTeacherInfo.Text = _teacher.FullName;
 
             var semesters = _semesterService.GetAll()
                 .OrderByDescending(s => s.StartDate)
@@ -97,8 +97,9 @@ public partial class ClassRosterWindow : Window
 
             cboCourse.ItemsSource = courses;
 
-            if (!courses.Any())
-                tbTeacherInfo.Text = $"Teacher: {_teacher.FullName} — No classes in {semester.Name}";
+            tbTeacherInfo.Text = courses.Any()
+                ? _teacher.FullName
+                : $"{_teacher.FullName} — no classes in {semester.Name}";
         }
         catch (Exception ex)
         {
@@ -126,18 +127,17 @@ public partial class ClassRosterWindow : Window
     /// <summary>Step 4: Class selected -> load the roster grid.</summary>
     private void CboClass_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (cboClass.SelectedItem is not Class cls) return;
+        if (cboClass.SelectedItem is not Class cls) { classCard.Visibility = Visibility.Collapsed; return; }
 
         try
         {
+            // Class summary card — what is on screen, and how full the class is.
+            classCard.Visibility = Visibility.Visible;
+            tbClassName.Text = cls.Name;
+            tbClassDetail.Text = $"{cls.SnapCourseCode} — {cls.SnapCourseName} · "
+                               + $"{cls.StartDate:dd/MM/yyyy} – {cls.EndDate:dd/MM/yyyy} · {cls.Status}";
+
             var enrollments = _enrollmentService.GetByClassId(cls.ClassId);
-            if (!enrollments.Any())
-            {
-                MessageBox.Show($"No active enrollments for class '{cls.Name}'.", "Info",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-                SetRoster(new List<RosterRow>());
-                return;
-            }
 
             var students = enrollments
                 .Where(en => en.Student != null)
@@ -151,6 +151,7 @@ public partial class ClassRosterWindow : Window
                 })
                 .ToList();
 
+            tbCount.Text = $"{students.Count} / {cls.MaxStudents} enrolled";
             SetRoster(students);
         }
         catch (Exception ex)
@@ -163,6 +164,7 @@ public partial class ClassRosterWindow : Window
     private void BtnReset_Click(object sender, RoutedEventArgs e)
     {
         cboClass.SelectedIndex = -1;
+        classCard.Visibility = Visibility.Collapsed;
         SetRoster(new List<RosterRow>());
     }
 
@@ -174,7 +176,15 @@ public partial class ClassRosterWindow : Window
         BindPage();
     }
 
-    private void BindPage() => dgRoster.ItemsSource = pager.Slice(_roster);
+    private void BindPage()
+    {
+        dgRoster.ItemsSource = pager.Slice(_roster);
+
+        emptyState.Visibility = _roster.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        emptyState.Text = cboClass.SelectedItem == null
+            ? "Pick a class to see its students."
+            : "Nobody is enrolled in this class yet.";
+    }
 
     private void Pager_PageChanged(object sender, EventArgs e) => BindPage();
 }

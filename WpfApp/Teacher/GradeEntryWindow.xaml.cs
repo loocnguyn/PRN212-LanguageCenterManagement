@@ -52,7 +52,7 @@ public partial class GradeEntryWindow : Window
                 return;
             }
 
-            tbTeacherInfo.Text = $"Teacher: {_teacher.FullName}";
+            tbTeacherInfo.Text = _teacher.FullName;
 
             var semesters = _semesterService.GetAll()
                 .OrderByDescending(s => s.StartDate)
@@ -104,8 +104,9 @@ public partial class GradeEntryWindow : Window
 
             cboCourse.ItemsSource = courses;
 
-            if (!courses.Any())
-                tbTeacherInfo.Text = $"Teacher: {_teacher.FullName} — No classes in {semester.Name}";
+            tbTeacherInfo.Text = courses.Any()
+                ? _teacher.FullName
+                : $"{_teacher.FullName} — no classes in {semester.Name}";
         }
         catch (Exception ex)
         {
@@ -137,7 +138,7 @@ public partial class GradeEntryWindow : Window
         dgGrades.Columns.Clear();
         dgGrades.ItemsSource = null;
 
-        if (cboClass.SelectedItem is not Class cls) return;
+        if (cboClass.SelectedItem is not Class cls) { ShowEmpty("Pick a class to start entering grades."); return; }
 
         try
         {
@@ -162,18 +163,14 @@ public partial class GradeEntryWindow : Window
         _components = _classService.GetGradeComponents(cls.ClassId);
         if (!_components.Any())
         {
-            MessageBox.Show($"No grading structure recorded for class '{cls.Name}'.", "Info",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-            dgGrades.ItemsSource = null;
+            ShowEmpty($"'{cls.Name}' has no grading structure, so there is nothing to mark.");
             return;
         }
 
         _enrollments = _enrollmentService.GetByClassId(cls.ClassId);
         if (!_enrollments.Any())
         {
-            MessageBox.Show($"No active enrollments for class '{cls.Name}'.", "Info",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-            dgGrades.ItemsSource = null;
+            ShowEmpty($"Nobody is enrolled in '{cls.Name}' yet.");
             return;
         }
 
@@ -292,6 +289,23 @@ public partial class GradeEntryWindow : Window
         dt.ColumnChanged += DataTable_ColumnChanged;
 
         dgGrades.ItemsSource = dt.DefaultView;
+
+        // Summary card: which class, what the marks are weighted by, how many students.
+        classCard.Visibility = Visibility.Visible;
+        tbClassName.Text = cls.Name;
+        tbWeights.Text = string.Join(" · ", _components.Select(c => $"{c.Name} {c.WeightPercent}%"));
+        tbCount.Text = $"{_enrollments.Count} student(s)";
+        emptyState.Visibility = Visibility.Collapsed;
+    }
+
+    /// <summary>Clears the grid and says why it is empty, instead of a popup to dismiss.</summary>
+    private void ShowEmpty(string message)
+    {
+        dgGrades.Columns.Clear();
+        dgGrades.ItemsSource = null;
+        classCard.Visibility = Visibility.Collapsed;
+        emptyState.Text = message;
+        emptyState.Visibility = Visibility.Visible;
     }
 
     private void BtnReset_Click(object sender, RoutedEventArgs e)
@@ -299,9 +313,8 @@ public partial class GradeEntryWindow : Window
         cboSemester.SelectedIndex = -1;
         cboCourse.ItemsSource = null;
         cboClass.ItemsSource = null;
-        dgGrades.Columns.Clear();
-        dgGrades.ItemsSource = null;
         _enrollments.Clear();
+        ShowEmpty("Pick a class to start entering grades.");
     }
 
     private void BtnSave_Click(object sender, RoutedEventArgs e)

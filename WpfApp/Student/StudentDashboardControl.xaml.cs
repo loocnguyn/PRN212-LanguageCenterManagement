@@ -6,7 +6,7 @@ using Services;
 
 namespace WpfApp;
 
-// StudentDashboardControl — student home: hero + wallet/invoice/grade/class tiles + upcoming sessions (RefreshData).
+// StudentDashboardControl — student home: hero + wallet/invoice/class tiles + upcoming sessions (RefreshData).
 public partial class StudentDashboardControl : UserControl, IDashboardControl
 {
     private readonly User _currentUser;
@@ -15,7 +15,6 @@ public partial class StudentDashboardControl : UserControl, IDashboardControl
     private readonly ISessionService _sessionService = new SessionService();
     private readonly IWalletService _walletService = new WalletService();
     private readonly IInvoiceService _invoiceService = new InvoiceService();
-    private readonly IGradeService _gradeService = new GradeService();
 
     public StudentDashboardControl(User currentUser)
     {
@@ -30,7 +29,7 @@ public partial class StudentDashboardControl : UserControl, IDashboardControl
 
         try
         {
-            var student = _studentService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id);
+            var student = _studentService.GetByUserId(_currentUser.Id);
             if (student == null)
             {
                 MessageBox.Show("No student profile linked to this account.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -54,28 +53,12 @@ public partial class StudentDashboardControl : UserControl, IDashboardControl
             var unpaidInvoices = invoices.Where(i => i.Status != "PAID").ToList();
             var totalOwed = unpaidInvoices.Sum(i => Math.Max(0, i.Amount - _invoiceService.GetPaidAmount(i.InvoiceId)));
 
-            var grades = _gradeService.GetByStudentId(student.StudentId);
-            decimal totalWeightedScore = 0, totalWeight = 0;
-            foreach (var grade in grades)
-            {
-                if (grade.MaxScore > 0)
-                {
-                    var normalizedScore = (grade.Score / grade.MaxScore) * 10;
-                    var weight = grade.Component.WeightPercent;
-                    totalWeightedScore += normalizedScore * weight;
-                    totalWeight += weight;
-                }
-            }
-            var avgGradeText = totalWeight > 0 ? Math.Round(totalWeightedScore / totalWeight, 2).ToString("F2") : "N/A";
-
             panelTiles.Children.Clear();
             panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
                 "Wallet Balance", balance.ToString("N0") + " đ", "Wallet24", FindBrush("PrimaryBrush")));
             panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
                 "Unpaid Invoices", unpaidInvoices.Count.ToString(), "MoneyDismiss24", FindBrush("DangerBrush"),
                 unpaidInvoices.Count > 0 ? $"Total owed: {totalOwed:N0} đ" : null));
-            panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
-                "Weighted Average Grade", avgGradeText, "BookStar24", FindBrush("SecondaryBrush")));
             panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
                 "Enrolled Classes", enrollments.Count.ToString(), "Book24", FindBrush("PrimaryBrush")));
 

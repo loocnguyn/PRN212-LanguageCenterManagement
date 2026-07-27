@@ -16,14 +16,14 @@
             <StackPanel Orientation="Horizontal">
                 <Border Width="60" Height="60" CornerRadius="30" Background="White" Margin="0,0,16,0">
                     <TextBlock x:Name="txtAvatar" Foreground="{StaticResource PrimaryBrush}"
-                               Text="{Binding Text, ElementName=txtUsername, Converter={StaticResource Initials}}"
+                               Text="{Binding Text, ElementName=txtFullName, Converter={StaticResource Initials}}"
                                FontSize="22" FontWeight="Bold"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding Text, ElementName=txtFullName}" Foreground="White"
                                FontSize="19" FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding Text, ElementName=txtUsername, StringFormat='@{0}'}"
+                    <TextBlock Text="{Binding Text, ElementName=txtEmail}"
                                Foreground="#EAF3FF" FontSize="13" Margin="0,2,0,0"/>
                     <Border CornerRadius="10" Padding="10,2" Background="#33FFFFFF"
                             HorizontalAlignment="Left" Margin="0,6,0,0">
@@ -61,9 +61,10 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Username (always visible, read-only) -->
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Username" VerticalAlignment="Center" Margin="0,0,0,10"/>
-                        <TextBox   Grid.Row="0" Grid.Column="1" x:Name="txtUsername" Height="34"
+                        <!-- Email = the login. Read-only here: changing it changes how you
+                             sign in, so it is an Admin action (Account Management). -->
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Email (login)" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                        <TextBox   Grid.Row="0" Grid.Column="1" x:Name="txtEmail" Height="34"
                                    VerticalContentAlignment="Center" Padding="6,0" Margin="0,0,0,10" IsReadOnly="True"/>
 
                         <!-- FullName (always visible, read-only) -->
@@ -74,11 +75,6 @@
                         <!-- Phone (editable) -->
                         <TextBlock Grid.Row="2" Grid.Column="0" Text="Phone" VerticalAlignment="Center" Margin="0,0,0,10"/>
                         <TextBox   Grid.Row="2" Grid.Column="1" x:Name="txtPhone" Height="34"
-                                   VerticalContentAlignment="Center" Padding="6,0" Margin="0,0,0,10"/>
-
-                        <!-- Email (editable) -->
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Email" VerticalAlignment="Center" Margin="0,0,0,10"/>
-                        <TextBox   Grid.Row="3" Grid.Column="1" x:Name="txtEmail" Height="34"
                                    VerticalContentAlignment="Center" Padding="6,0" Margin="0,0,0,10"/>
 
                         <!-- Student: Address -->

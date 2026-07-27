@@ -48,7 +48,7 @@ public partial class DeactivatedAccountsWindow : Window
             return;
         }
 
-        var confirm = MessageBox.Show($"Activate account \"{u.Username}\"?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        var confirm = MessageBox.Show($"Activate account \"{u.Email}\"?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (confirm == MessageBoxResult.Yes)
         {
             u.IsActive = true;

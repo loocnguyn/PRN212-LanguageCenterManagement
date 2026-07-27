@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -96,7 +97,7 @@ public partial class MainWindow : Window
     /// not the admin-only account tools.</summary>
     private void ApplyStaffDepartmentVisibility()
     {
-        var deptName = _staffService.GetAll().FirstOrDefault(s => s.UserId == _currentUser.Id)?.Department;
+        var deptName = _staffService.GetByUserId(_currentUser.Id)?.Department;
 
         var isFinance = deptName != null
             && FinanceDepartments.Contains(deptName, StringComparer.OrdinalIgnoreCase);
@@ -109,8 +110,6 @@ public partial class MainWindow : Window
             menuAccounts.Visibility = Visibility.Visible;
             // Only Student Management is relevant to academic staff; hide admin-only account tools.
             menuMiAccountManagement.Visibility = Visibility.Collapsed;
-            menuMiTeacherManagement.Visibility = Visibility.Collapsed;
-            menuMiStaffManagement.Visibility = Visibility.Collapsed;
             menuMiDepartments.Visibility = Visibility.Collapsed;
             menuAccountsSep.Visibility = Visibility.Collapsed;
             menuMiDeactivated.Visibility = Visibility.Collapsed;
@@ -132,7 +131,6 @@ public partial class MainWindow : Window
             if (active == null)
             {
                 txtStatus.Text = "No active semester";
-                txtWelcome.Text = $"Welcome, {_currentUser.Username} ({_currentUser.Role})";
                 return;
             }
 
@@ -140,12 +138,10 @@ public partial class MainWindow : Window
             try { phase = semesterService.GetPhase(active); } catch { }
 
             var phaseText = phase.HasValue ? $" [{phase.Value}]" : "";
-            txtWelcome.Text = $"Welcome, {_currentUser.Username} ({_currentUser.Role}) — {active.Name}{phaseText}";
             txtStatus.Text = $"Active Semester: {active.Name} | Phase: {phase}";
         }
         catch
         {
-            txtWelcome.Text = $"Welcome, {_currentUser.Username} ({_currentUser.Role})";
             txtStatus.Text = "Ready";
         }
     }
@@ -155,14 +151,12 @@ public partial class MainWindow : Window
         => new ClassScheduleManagementWindow().Show();
     private void MenuSlotSetting_Click(object sender, RoutedEventArgs e)
         => new SlotSettingWindow().Show();
+    private void MenuSessionRoom_Click(object sender, RoutedEventArgs e)
+        => new SessionRoomWindow().Show();
     private void MenuAccountManagement_Click(object sender, RoutedEventArgs e)
         => new AccountManagementWindow(_currentUser).Show();
     private void MenuDeactivatedAccounts_Click(object sender, RoutedEventArgs e)
         => new DeactivatedAccountsWindow().Show();
-    private void MenuStaffManagement_Click(object sender, RoutedEventArgs e)
-        => new StaffManagementWindow().Show();
-    private void MenuTeacherManagement_Click(object sender, RoutedEventArgs e)
-        => new TeacherManagementWindow().Show();
     private void MenuDepartments_Click(object sender, RoutedEventArgs e)
         => new DepartmentManagementWindow().Show();
     private void MenuSemesters_Click(object sender, RoutedEventArgs e)
@@ -222,6 +216,14 @@ public partial class MainWindow : Window
 
     private void MenuLogout_Click(object sender, RoutedEventArgs e)
     {
+        // Every screen the user opened (Payment, Grade Entry, ...) is a standalone window
+        // with no Owner, so closing MainWindow alone would leave them all open — the next
+        // person to log in on this machine could still see or edit the previous user's
+        // data through them. ToList() first: Close() mutates Application.Current.Windows,
+        // so iterating the live collection directly would skip entries.
+        foreach (var window in Application.Current.Windows.Cast<Window>().ToList())
+            if (window != this) window.Close();
+
         new LoginWindow().Show();
         this.Close();
     }

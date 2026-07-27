@@ -9,6 +9,7 @@ namespace DataAccessObjects;
 //    1. CRUD       — GetAll/GetById/Save/Update/Delete
 //    2. BulkSave   — insert many generated sessions in one call
 //    3. Queries    — by class / by classes / with details; CountByClassId
+//    4. Room change — per-session room override + conflict lookup
 // ============================================================
 public class SessionDAO
 {
@@ -80,6 +81,7 @@ public class SessionDAO
             .Include(s => s.Class)
                 .ThenInclude(c => c.Classroom)
             .Include(s => s.Schedule)
+            .Include(s => s.Room)
             .Include(s => s.Attendances)
             .Include(s => s.TeacherAttendances)
             .OrderBy(s => s.SessionDate)
@@ -98,7 +100,48 @@ public class SessionDAO
             .Include(s => s.Class)
                 .ThenInclude(c => c.Classroom)
             .Include(s => s.Schedule)
+            .Include(s => s.Room)
             .OrderBy(s => s.SessionDate)
             .ToList();
+    }
+
+    // ---- 4. Room change ----------------------------------------
+    /// <summary>A class's sessions with everything the room-change screen shows:
+    /// the class's default room, any override room, and the schedule (day/time).</summary>
+    public static List<Session> GetForRoomEditing(int classId)
+    {
+        using var context = new LanguageCenterContext();
+        return context.Sessions
+            .Where(s => s.ClassId == classId)
+            .Include(s => s.Class).ThenInclude(c => c.Classroom)
+            .Include(s => s.Room)
+            .Include(s => s.Schedule)
+            .OrderBy(s => s.SessionDate)
+            .ToList();
+    }
+
+    /// <summary>Sessions whose EFFECTIVE room (override, else class default) is
+    /// <paramref name="roomId"/> on <paramref name="date"/>, excluding one session.
+    /// Schedule is included so the caller can compare times for an overlap.</summary>
+    public static List<Session> GetSessionsInRoomOnDate(int roomId, DateOnly date, int excludeSessionId)
+    {
+        using var context = new LanguageCenterContext();
+        return context.Sessions
+            .Where(s => s.SessionDate == date && s.SessionId != excludeSessionId
+                        && (s.RoomId == roomId || (s.RoomId == null && s.Class.ClassroomId == roomId)))
+            .Include(s => s.Schedule)
+            .Include(s => s.Class)
+            .ToList();
+    }
+
+    /// <summary>Sets (or clears, when roomId is null) this session's room override + note.</summary>
+    public static void ChangeRoom(int sessionId, int? roomId, string? note)
+    {
+        using var context = new LanguageCenterContext();
+        var existing = context.Sessions.Find(sessionId);
+        if (existing == null) return;
+        existing.RoomId = roomId;
+        existing.RoomChangeNote = note;
+        context.SaveChanges();
     }
 }
