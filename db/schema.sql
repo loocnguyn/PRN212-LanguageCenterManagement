@@ -369,21 +369,6 @@ CREATE TABLE TuitionDiscounts (
 );
 GO
 
--- Scholarships granted for high performance in a course. Each row links to the
--- generated discount voucher; the unique constraint stops a student being rewarded
--- twice for the same course in the same semester. Managed via the Scholarship screen.
-CREATE TABLE StudentRewards (
-    reward_id     INT          IDENTITY(1,1) PRIMARY KEY,
-    student_id    INT          NOT NULL REFERENCES Students(student_id),
-    semester_id   INT          NOT NULL REFERENCES Semesters(semester_id),
-    course_id     INT          NOT NULL REFERENCES Courses(course_id),
-    average_score DECIMAL(4,2) NOT NULL,
-    discount_id   INT          NOT NULL REFERENCES TuitionDiscounts(discount_id),
-    awarded_at    DATETIME     NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT uq_student_reward UNIQUE (student_id, semester_id, course_id)
-);
-GO
-
 CREATE TABLE Invoices (
     invoice_id        INT           IDENTITY(1,1) PRIMARY KEY,
     student_id        INT           NOT NULL REFERENCES Students(student_id),

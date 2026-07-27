@@ -19,7 +19,7 @@
 --    · 16 classes spanning completed / ongoing / upcoming / cancelled
 --    · 43 enrollments with invoices, payments, grades
 --    · Sessions + attendance for PAST classes only (see section 12)
---    · Wallet transactions and scholarship awards
+--    · Wallet transactions
 --
 --  Password for every new account: 123456
 -- ============================================================
@@ -144,7 +144,7 @@ GO
 --  3. STUDENTS — student_id 4 .. 33, users 21 .. 50
 --
 --  balance starts at 0 for everyone and is recomputed from the wallet ledger
---  at the end of section 14. Typing balances in by hand here would let them
+--  at the end of section 13. Typing balances in by hand here would let them
 --  drift out of step with WalletTransactions, which is exactly the kind of
 --  inconsistency the wallet screens would then display.
 -- ============================================================
@@ -556,7 +556,7 @@ WHERE  i.invoice_id BETWEEN 5 AND 47;
 GO
 
 -- The two dropped enrollments: invoice cancelled, money returned to wallet
--- (the wallet rows are in section 14).
+-- (the wallet rows are in section 13).
 UPDATE Invoices
 SET    status = 'CANCELLED', note = N'Học viên đã rút khỏi lớp, hoàn tiền vào ví'
 WHERE  invoice_id IN (9, 25);
@@ -567,8 +567,7 @@ GO
 --
 --  Scores are derived from the row ids rather than hand-typed: deterministic,
 --  so re-running on a fresh database gives the same numbers, and spread
---  across 6.0–9.9 so the weighted average and scholarship screens have a
---  believable distribution to rank.
+--  across 6.0–9.9 so the weighted average has a believable distribution.
 -- ============================================================
 INSERT INTO Grades (enrollment_id, component_id, score, max_score)
 SELECT
@@ -684,23 +683,7 @@ WHERE  s.class_id BETWEEN 4 AND 11;
 GO
 
 -- ============================================================
---  13. SCHOLARSHIP AWARDS
---
---  Top performers from the completed semesters, each granted the fixed
---  1,000,000 voucher (discount_id 7). One row per student/semester/course.
--- ============================================================
-INSERT INTO StudentRewards (student_id, semester_id, course_id, average_score, discount_id, awarded_at) VALUES
-(4,  4, 1, 9.10, 7, '2025-05-28'),
-(6,  4, 1, 8.75, 7, '2025-05-28'),
-(9,  4, 3, 8.90, 7, '2025-05-28'),
-(12, 5, 2, 9.25, 7, '2025-12-30'),
-(15, 5, 8, 8.80, 7, '2025-12-30'),
-(5,  6, 11, 9.05, 7, '2026-05-26'),
-(23, 6, 10, 8.85, 7, '2026-05-26');
-GO
-
--- ============================================================
---  14. WALLET
+--  13. WALLET
 --
 --  The ledger comes first, then Students.balance is recomputed from it, so
 --  the two can never disagree. provider_order_id is unique and is only set
