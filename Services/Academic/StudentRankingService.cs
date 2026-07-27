@@ -25,12 +25,13 @@ public class StudentRankingService : IStudentRankingService
     private readonly IGradeService _gradeService = new GradeService();
 
     // ---- 1. Ranking --------------------------------------------
-    public List<StudentRanking> GetRanking(int semesterId, int courseId, decimal threshold)
+    public List<StudentRanking> GetRanking(int semesterId, decimal threshold)
     {
-        // A course usually runs as one class per semester, but nothing stops it running
-        // as two — so gather them all and rank across the lot.
-        var classes = _classService.GetAll()
-            .Where(c => c.SemesterId == semesterId && c.CourseId == courseId)
+        // Every class in the semester. Filtering by course as well was one dropdown too
+        // many: what you actually want to ask is "who is doing well this term", and the
+        // Class column already tells you where each result came from.
+        var classes = _classService.GetClassesWithDetails(semesterId)
+            .Where(c => !c.IsCancelled)
             .ToList();
 
         var rows = new List<StudentRanking>();
@@ -58,6 +59,7 @@ public class StudentRankingService : IStudentRankingService
                     StudentName = e.Student?.FullName ?? $"Student #{e.StudentId}",
                     StudentEmail = e.Student?.Email ?? "",
                     ClassName = cls.Name,
+                    CourseName = cls.SnapCourseName,
                     AverageScore = average,
                     WeightCovered = weightCovered,
                     MeetsThreshold = average.HasValue && average.Value >= threshold

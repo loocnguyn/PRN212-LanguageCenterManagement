@@ -50,7 +50,7 @@
                 <ui:SymbolIcon Symbol="BookStar24" Foreground="White" FontSize="26" Margin="0,0,12,0"/>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="Top Students" Foreground="White" FontSize="18" FontWeight="SemiBold"/>
-                    <TextBlock Text="Rank a course's students by weighted average and see who clears a mark"
+                    <TextBlock Text="Rank a semester's students by weighted average and see who clears a mark"
                                Foreground="#DCEBFF" FontSize="12"/>
                 </StackPanel>
             </StackPanel>
@@ -72,19 +72,19 @@
                     <ComboBox x:Name="cboSemester" MinWidth="170" Height="34" DisplayMemberPath="Name"
                               SelectedValuePath="SemesterId" VerticalContentAlignment="Center"/>
 
-                    <TextBlock Text="Course" VerticalAlignment="Center" Margin="16,0,6,0"
-                               Foreground="{StaticResource TextSecondaryBrush}"/>
-                    <ComboBox x:Name="cboCourse" MinWidth="210" Height="34" DisplayMemberPath="Name"
-                              SelectedValuePath="CourseId" VerticalContentAlignment="Center"/>
-
                     <TextBlock Text="Average at least" VerticalAlignment="Center" Margin="16,0,6,0"
                                Foreground="{StaticResource TextSecondaryBrush}"/>
                     <TextBox x:Name="txtThreshold" Width="56" Height="34" Text="8.0"
                              VerticalContentAlignment="Center" Padding="6,0"/>
 
+                    <!-- Neither box does anything until Show is pressed: the screen only
+                         ever reflects the filters you actually asked for. -->
                     <CheckBox x:Name="chkOnlyAbove" Content="Only those who clear it"
-                              VerticalAlignment="Center" Margin="16,0,0,0" IsChecked="True"
-                              Checked="Filter_Changed" Unchecked="Filter_Changed"/>
+                              VerticalAlignment="Center" Margin="16,0,0,0" IsChecked="True"/>
+
+                    <CheckBox x:Name="chkOnlyComplete" Content="Only fully marked"
+                              VerticalAlignment="Center" Margin="12,0,0,0" IsChecked="True"
+                              ToolTip="Hide students who are still missing a component, since a partial average is not comparable"/>
 
                     <Button Content="Show" Style="{StaticResource PillButton}" Width="90"
                             Margin="16,0,0,0" Click="BtnShow_Click"/>
@@ -130,14 +130,15 @@
                             <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="50"/>
                             <DataGridTemplateColumn Header="Student" Width="*"
                                                     CellTemplate="{StaticResource StudentCellTemplate}"/>
-                            <DataGridTextColumn Header="Class" Binding="{Binding ClassName}" Width="140"/>
+                            <DataGridTextColumn Header="Class"  Binding="{Binding ClassName}"  Width="130"/>
+                            <DataGridTextColumn Header="Course" Binding="{Binding CourseName}" Width="200"/>
                             <DataGridTemplateColumn Header="Weighted average" Width="160"
                                                     CellTemplate="{StaticResource AverageCellTemplate}"/>
                         </DataGrid.Columns>
                     </DataGrid>
 
                     <TextBlock x:Name="emptyState" TextAlignment="Center"
-                               Text="Pick a semester and a course, then press Show."
+                               Text="Pick a semester, then press Show."
                                Foreground="{StaticResource TextSecondaryBrush}" FontSize="13"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Grid>
