@@ -85,12 +85,14 @@
                             <ComboBoxItem Content="Card"/>
                             <ComboBoxItem Content="Wallet"/>
                         </ComboBox>
-                        <Button Content="Generate" Style="{StaticResource PillButton}" Width="100"
+                        <Button Content="Search" Style="{StaticResource PillButton}" Width="100"
                                 Margin="14,0,0,0" Click="BtnGenerate_Click"/>
                         <Button Content="Advanced" Style="{StaticResource PillButtonInfo}" Width="100"
                                 Margin="8,0,0,0" Click="BtnAdvanced_Click"/>
                         <Button Content="Clear" Style="{StaticResource PillButtonSubtle}" Width="84"
                                 Margin="8,0,0,0" Click="BtnClear_Click"/>
+                        <Button Content="Export Excel" Style="{StaticResource PillButtonSuccess}" Width="120"
+                                Margin="8,0,0,0" Click="BtnExport_Click"/>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
