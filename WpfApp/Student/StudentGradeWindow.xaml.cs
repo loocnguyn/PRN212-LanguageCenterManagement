@@ -1,6 +1,5 @@
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using BusinessObjects;
@@ -38,18 +37,19 @@ public class GradeDetailDisplayItem
 }
 
 // ============================================================
-//  StudentGradeWindow — the student's grades, with CSV export.
+//  StudentGradeWindow — the student's grades, with Excel export.
 //  CONTENTS:
 //    1. Construction & LoadGrades — pull the student's grades
 //    2. Semester/course filters   — cascading combos -> class list
-//    3. Row actions & export      — class detail, CSV export
-//    4. Helpers                   — CSV escaping, weighted average
+//    3. Row actions & export      — class detail, .xlsx export
+//    4. Helpers                   — weighted average
 // ============================================================
 public partial class StudentGradeWindow : Window
 {
     private readonly User _currentUser;
     private readonly IStudentService _studentService = new StudentService();
     private readonly IGradeService _gradeService = new GradeService();
+    private readonly IExcelExportService _excelExportService = new ExcelExportService();
 
     private int _studentId;
     private string _studentName = "";
@@ -238,7 +238,7 @@ public partial class StudentGradeWindow : Window
     }
 
     /// <summary>Exports the student's grade transcript (respecting the current Semester/Course
-    /// filter) to a .csv file: one row per grade component, plus each class's weighted average.</summary>
+    /// filter) to an .xlsx file: one row per grade component, plus each class's weighted average.</summary>
     private void BtnExportCsv_Click(object sender, RoutedEventArgs e)
     {
         if (!_allGrades.Any())
@@ -266,54 +266,60 @@ public partial class StudentGradeWindow : Window
 
         var dialog = new SaveFileDialog
         {
-            Filter = "CSV files (*.csv)|*.csv",
-            FileName = $"BangDiem_{safeName}_{DateTime.Now:yyyyMMdd}.csv"
+            Title = "Lưu bảng điểm",
+            Filter = "Excel Workbook (*.xlsx)|*.xlsx",
+            FileName = $"BangDiem_{safeName}_{DateTime.Now:yyyyMMdd}.xlsx",
+            AddExtension = true,
+            DefaultExt = ".xlsx",
+            OverwritePrompt = true
         };
 
         if (dialog.ShowDialog() != true) return;
 
         try
         {
-            var sb = new StringBuilder();
-            sb.AppendLine("Semester,Course,Class,GradeType,Weight (%),Score,MaxScore,GradedAt,ClassWeightedAverage");
+            var headers = new[]
+            {
+                "Semester", "Course", "Class", "GradeType", "Weight (%)",
+                "Score", "MaxScore", "GradedAt", "ClassWeightedAverage"
+            };
 
             var classGroups = gradeList
                 .GroupBy(g => g.Enrollment.Class)
                 .OrderByDescending(g => g.Key.Semester.StartDate)
                 .ThenBy(g => g.Key.Name);
 
+            var rows = new List<object?[]>();
             foreach (var classGroup in classGroups)
             {
                 var classGrades = classGroup.OrderBy(g => g.Component.Name).ToList();
                 var weightedAverage = ComputeWeightedAverageDisplay(classGrades);
                 var cls = classGroup.Key;
 
-                foreach (var grade in classGrades)
+                // The class average repeats on every row of the class so the sheet
+                // stays flat — one row per component, ready to pivot.
+                rows.AddRange(classGrades.Select(grade => new object?[]
                 {
-                    sb.AppendLine(string.Join(",", new[]
-                    {
-                        CsvEscape(cls.Semester?.Name ?? "N/A"),
-                        CsvEscape(cls.Course?.Name ?? "N/A"),
-                        CsvEscape(cls.Name),
-                        CsvEscape(grade.Component.Name),
-                        CsvEscape(grade.Component.WeightPercent.ToString()),
-                        CsvEscape(grade.Score.ToString()),
-                        CsvEscape(grade.MaxScore.ToString()),
-                        CsvEscape(grade.GradedAt.ToString("dd/MM/yyyy")),
-                        CsvEscape(weightedAverage)
-                    }));
-                }
+                    cls.Semester?.Name ?? "N/A",
+                    cls.Course?.Name ?? "N/A",
+                    cls.Name,
+                    grade.Component.Name,
+                    grade.Component.WeightPercent,
+                    grade.Score,
+                    grade.MaxScore,
+                    grade.GradedAt.ToString("dd/MM/yyyy"),
+                    weightedAverage
+                }));
             }
 
-            // UTF-8 with BOM so Excel displays Vietnamese diacritics correctly.
-            File.WriteAllText(dialog.FileName, sb.ToString(), new UTF8Encoding(true));
+            _excelExportService.ExportToExcel(dialog.FileName, "Bang diem", headers, rows);
 
             MessageBox.Show($"Exported {gradeList.Count} grade record(s) to:\n{dialog.FileName}", "Export Successful",
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Error exporting CSV: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"Error exporting Excel: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -339,14 +345,6 @@ public partial class StudentGradeWindow : Window
     /// <summary>True once every weight in the class has a mark against it.</summary>
     private static bool IsFullyMarked(List<Grade> grades)
         => grades.Where(g => g.MaxScore > 0).Sum(g => g.Component.WeightPercent) >= 100;
-
-    private static string CsvEscape(string value)
-    {
-        if (string.IsNullOrEmpty(value)) return "";
-        return value.Contains(',') || value.Contains('"') || value.Contains('\n')
-            ? "\"" + value.Replace("\"", "\"\"") + "\""
-            : value;
-    }
 
     // Shared weighted-average calculation, reused by both the class-list summary
     // and ClassGradeDetailWindow so the two never disagree on the numbers.

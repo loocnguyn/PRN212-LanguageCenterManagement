@@ -77,17 +77,13 @@
                     <TextBox x:Name="txtThreshold" Width="56" Height="34" Text="8.0"
                              VerticalContentAlignment="Center" Padding="6,0"/>
 
-                    <!-- Neither box does anything until Show is pressed: the screen only
-                         ever reflects the filters you actually asked for. -->
-                    <CheckBox x:Name="chkOnlyAbove" Content="Only those who clear it"
-                              VerticalAlignment="Center" Margin="16,0,0,0" IsChecked="True"/>
-
-                    <CheckBox x:Name="chkOnlyComplete" Content="Only fully marked"
-                              VerticalAlignment="Center" Margin="12,0,0,0" IsChecked="True"
-                              ToolTip="Hide students who are still missing a component, since a partial average is not comparable"/>
-
                     <Button Content="Show" Style="{StaticResource PillButton}" Width="90"
                             Margin="16,0,0,0" Click="BtnShow_Click"/>
+
+                    <TextBlock VerticalAlignment="Center" Margin="16,0,0,0" FontSize="11"
+                               TextWrapping="Wrap" MaxWidth="260"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Text="Students still missing a component are left out — a partial average is not comparable with a finished one."/>
                 </StackPanel>
             </Border>
 

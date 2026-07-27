@@ -6,9 +6,10 @@
 --  worth opening. If you delete a row, some feature loses its demo.
 --
 --  THE STORY
---    Spring 2026 has finished  -> a completed class with full marks and a
---                                 transcript, plus one student who dropped out
---                                 and got refunded.
+--    Spring 2026 has finished  -> THREE completed classes, every student fully
+--                                 marked, so transcripts and the Top Students
+--                                 ranking have a real cohort. One student
+--                                 dropped out and was refunded.
 --    Summer 2026 is running    -> two ongoing classes; sessions are NOT seeded,
 --                                 the app generates them on startup. This is
 --                                 where attendance, grade entry, the edit lock
@@ -27,6 +28,7 @@
 --    teacher02@gmail.com   TEACHER   Japanese - primary on the co-taught class
 --    teacher03@gmail.com   TEACHER   Korean   - co-teacher, and the upcoming class
 --    teacher04@gmail.com   TEACHER   DEACTIVATED - for the Deactivated Accounts screen
+--    teacher05@gmail.com   TEACHER   Japanese - co-teaches both Japanese classes
 --    student01@gmail.com   STUDENT   Pham Thi Cam   - finished A1, now in B1, all paid
 --    student02@gmail.com   STUDENT   Do Quoc Hung   - part-paid, appears on the Debt List
 --    student03@gmail.com   STUDENT   Nguyen Mai Ly  - discounted invoice, OVERDUE
@@ -39,7 +41,7 @@ USE LanguageCenterDB;
 GO
 
 -- ============================================================
---  1. ACCOUNTS - Users.id 1..27
+--  1. ACCOUNTS - Users.id 1..28
 --
 --  One shared BCrypt hash of "123456": a real weakness in production, exactly
 --  what you want in a seed. must_change_password is 0 everywhere except Gia Bao,
@@ -125,6 +127,19 @@ INSERT INTO Students (user_id, full_name, date_of_birth, gender, phone, email, a
 (27, N'Cao Thi Thanh Truc',  '2003-12-19', 'Female', '0903000020', 'student20@gmail.com', N'41 Ton Duc Thang, Q1',   0, 'ACTIVE');  -- 20
 GO
 
+-- A second Japanese teacher - user 28, teacher_id 5. Added here, after the
+-- students, so every id above stays put. The two Japanese classes are co-taught,
+-- and a co-teacher has to teach the same language as the class: pairing the
+-- Korean teacher with a Japanese class is the kind of detail nobody notices until
+-- a report groups teachers by specialisation.
+INSERT INTO Users (email, password_hash, role, is_active, must_change_password) VALUES
+('teacher05@gmail.com', '$2a$11$U7t7m.JhCoIZBzC.edRuMeKLroLVwOrI05B.WnVSrJPbQT3qrLPiK', 'TEACHER', 1, 0);
+GO
+
+INSERT INTO Teachers (user_id, full_name, date_of_birth, gender, phone, email, specialization, degree, status) VALUES
+(28, N'Sato Yuki', '1991-06-08', 'Female', '0902000005', 'teacher05@gmail.com', N'Japanese', N'Master', 'ACTIVE');  -- 5
+GO
+
 -- ============================================================
 --  2. CATALOGUE - three languages, each with a real level ladder
 --
@@ -198,7 +213,7 @@ INSERT INTO Semesters (name, start_date, setup_end_date, end_date) VALUES
 GO
 
 -- ============================================================
---  4. CLASSES - one of every status
+--  4. CLASSES - seven of them, covering every status
 --
 --  snap_* is the frozen copy of the course at creation time. Written literally
 --  because the seed does not run through ClassService. Change a course's fee
@@ -225,7 +240,14 @@ VALUES
  'KOR-T1', N'Korean TOPIK 1',          N'Korean',   'TOPIK 1', 24, 3900000),
 -- 5  CANCELLED - kept, not deleted, so the finance history stays auditable
 (3, 5, 2, 'B2-FA26', 15, '2026-09-21', '2026-12-25', 1,
- 'ENG-B2', N'English Upper-Int. B2',   N'English',  'B2',      32, 5800000);
+ 'ENG-B2', N'English Upper-Int. B2',   N'English',  'B2',      32, 5800000),
+-- 6, 7  COMPLETED alongside class 1. Spring 2026 runs THREE classes so the
+--       Top Students screen ranks a real cohort across several courses rather
+--       than one class of nine. Same dates as class 1: they share the semester.
+(1, 3, 3, 'N5-SP26', 15, '2026-01-19', '2026-05-29', 0,
+ 'JPN-N5', N'Japanese N5',             N'Japanese', 'N5',      30, 4500000),
+(1, 4, 2, 'K1-SP26', 20, '2026-01-19', '2026-05-29', 0,
+ 'KOR-T1', N'Korean TOPIK 1',          N'Korean',   'TOPIK 1', 24, 3900000);
 GO
 
 -- Exactly one primary teacher per class (a filtered unique index enforces it).
@@ -233,9 +255,13 @@ GO
 INSERT INTO ClassTeachers (class_id, teacher_id, is_primary) VALUES
 (1, 1, 1),
 (2, 1, 1),
-(3, 2, 1), (3, 3, 0),
+(3, 2, 1), (3, 5, 0),
 (4, 3, 1),
-(5, 1, 1);
+(5, 1, 1),
+-- The Spring classes go to the teacher who teaches that language: Japanese to
+-- Le Minh Khoa, Korean to Kim Ji Woo. Class 6 is co-taught, like its Summer twin.
+(6, 2, 1), (6, 5, 0),
+(7, 3, 1);
 GO
 
 -- day_of_week: 1=Mon .. 7=Sun. Times match the Slots above so the weekly grid lines up.
@@ -244,7 +270,11 @@ INSERT INTO ClassSchedules (class_id, day_of_week, start_time, end_time) VALUES
 (2, 2, '17:30', '19:45'), (2, 4, '17:30', '19:45'),   -- Tue + Thu, slot 5
 (3, 1, '09:30', '11:45'), (3, 5, '09:30', '11:45'),   -- Mon + Fri, slot 2
 (4, 6, '15:00', '17:15'),                             -- Sat, slot 4
-(5, 2, '12:30', '14:45');                             -- Tue, slot 3
+(5, 2, '12:30', '14:45'),                             -- Tue, slot 3
+-- Spring's other two classes. Class 1 already holds Room 1 on Mon+Wed slot 1, so
+-- these take different rooms and different slots - no room is double-booked.
+(6, 2, '09:30', '11:45'), (6, 4, '09:30', '11:45'),   -- Tue + Thu, slot 2, Room 301
+(7, 6, '15:00', '17:15');                             -- Sat, slot 4, Room 201
 GO
 
 -- The frozen per-class copy of the grading structure, copied from the course
@@ -274,7 +304,7 @@ VALUES
 GO
 
 -- ============================================================
---  6. ENROLLMENTS - 30 of them, ACTIVE / COMPLETED / DROPPED
+--  6. ENROLLMENTS - 45 of them, ACTIVE / COMPLETED / DROPPED
 -- ============================================================
 INSERT INTO Enrollments (student_id, class_id, enrolled_date, status) VALUES
 (1, 1, '2026-01-08', 'COMPLETED'),   -- 1  Cam  finished A1
@@ -290,7 +320,8 @@ GO
 -- The rest of the cohort - enrollment_id 9..30. Several students appear in more
 -- than one class, which is what makes the per-student history screens worth
 -- opening, and what fills the class rosters up to a believable size:
---   A1-SP26  10 of 20   B1-SU26  8 of 18   N5-SU26  7 of 15   K1-FA26  5 of 20
+--   A1-SP26 10/20   N5-SP26 7/15   K1-SP26 8/20
+--   B1-SU26  8/18   N5-SU26 7/15   K1-FA26 5/20
 INSERT INTO Enrollments (student_id, class_id, enrolled_date, status) VALUES
 -- class 1, A1-SP26 (finished) - these get full marks and a full attendance sheet
 ( 7, 1, '2026-01-08', 'COMPLETED'), ( 8, 1, '2026-01-08', 'COMPLETED'),
@@ -307,7 +338,17 @@ INSERT INTO Enrollments (student_id, class_id, enrolled_date, status) VALUES
 (20, 3, '2026-06-09', 'ACTIVE'),
 -- class 4, K1-FA26 (upcoming) - enrolled early, nothing has happened yet
 (11, 4, '2026-07-21', 'ACTIVE'), (12, 4, '2026-07-22', 'ACTIVE'),
-(13, 4, '2026-07-23', 'ACTIVE'), (20, 4, '2026-07-24', 'ACTIVE');
+(13, 4, '2026-07-23', 'ACTIVE'), (20, 4, '2026-07-24', 'ACTIVE'),
+-- class 6, N5-SP26 (finished) - 7 students, every one of them fully marked
+(14, 6, '2026-01-08', 'COMPLETED'), (15, 6, '2026-01-08', 'COMPLETED'),
+(16, 6, '2026-01-09', 'COMPLETED'), (17, 6, '2026-01-09', 'COMPLETED'),
+( 1, 6, '2026-01-12', 'COMPLETED'), ( 3, 6, '2026-01-12', 'COMPLETED'),
+( 4, 6, '2026-01-13', 'COMPLETED'),
+-- class 7, K1-SP26 (finished) - 8 students
+(18, 7, '2026-01-08', 'COMPLETED'), (19, 7, '2026-01-08', 'COMPLETED'),
+(20, 7, '2026-01-09', 'COMPLETED'), ( 7, 7, '2026-01-09', 'COMPLETED'),
+( 8, 7, '2026-01-10', 'COMPLETED'), ( 9, 7, '2026-01-10', 'COMPLETED'),
+(10, 7, '2026-01-12', 'COMPLETED'), ( 2, 7, '2026-01-13', 'COMPLETED');
 GO
 
 -- ============================================================
@@ -424,7 +465,7 @@ JOIN  (SELECT student_id,
 GO
 
 -- ============================================================
---  10. SESSIONS - the FINISHED class only (class 1)
+--  10. SESSIONS - the FINISHED classes only (1, 6, 7)
 --
 --  Deliberately NOT seeded for the running semester: the app generates those on
 --  startup (App.xaml.cs -> EnsureSessionsForSemester), and GenerateSessionsForClass
@@ -453,7 +494,7 @@ planned AS (
     JOIN   Classes   c ON c.class_id    = cs.class_id
     JOIN   Semesters s ON s.semester_id = c.semester_id
     CROSS JOIN nums n
-    WHERE  cs.class_id = 1
+    WHERE  cs.class_id IN (1, 6, 7)
 ),
 capped AS (
     SELECT *, ROW_NUMBER() OVER (PARTITION BY class_id ORDER BY session_date, schedule_id) AS rn
@@ -496,14 +537,16 @@ GO
 --  Scores are derived from the ids, so they are believable and reproducible.
 -- ============================================================
 
--- Finished class: all three components for both students who completed it.
+-- Finished classes: all three components for everyone who completed one. Joining
+-- on the CLASS's own components is what keeps each grade pointing at the frozen
+-- structure of the class it was earned in, not at the course template.
 INSERT INTO Grades (enrollment_id, component_id, score, max_score, graded_at)
 SELECT e.enrollment_id, cgc.component_id,
        6.5 + (ABS(CHECKSUM(e.enrollment_id * 31 + cgc.component_id * 17)) % 35) / 10.0,
        10, '2026-05-25'
 FROM   Enrollments e
 JOIN   ClassGradeComponents cgc ON cgc.class_id = e.class_id
-WHERE  e.class_id = 1 AND e.status = 'COMPLETED';
+WHERE  e.status = 'COMPLETED';
 GO
 
 -- Running classes: attendance and midterm are in, finals have not been sat.
