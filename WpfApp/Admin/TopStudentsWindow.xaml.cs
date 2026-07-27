@@ -17,9 +17,13 @@ namespace WpfApp;
 //  invoices. Listing who qualifies is the useful half, and it is safe to press
 //  as many times as you like.
 //
-//  Nothing recalculates as you tick boxes — the grid only ever shows the result
-//  of the last Show, so what is on screen always matches the filter bar you
-//  pressed it with.
+//  Two rules are built in rather than offered as options, because both answers
+//  are the wrong one often enough to be a trap:
+//    · only students who clear the threshold are listed — that IS the question;
+//    · only students whose marks are ALL in are listed, since an average over
+//      40% of the weights cannot be ranked against a finished one.
+//  The counters above the grid still report the totals both rules excluded, so
+//  nothing disappears silently.
 // ============================================================
 public partial class TopStudentsWindow : Window
 {
@@ -59,29 +63,19 @@ public partial class TopStudentsWindow : Window
             return;
         }
 
-        var onlyAbove = chkOnlyAbove.IsChecked == true;
-        var onlyComplete = chkOnlyComplete.IsChecked == true;
-
         try
         {
             var all = _rankingService.GetRanking(semesterId, threshold);
 
-            // Default on: a student still missing a component has an average over part
-            // of the weights, which cannot be compared with a finished one. Untick the
-            // box to see them anyway — the "40% marked" note says which is which.
-            var filtered = all.AsEnumerable();
-            if (onlyComplete) filtered = filtered.Where(r => r.IsFullyMarked);
-            if (onlyAbove) filtered = filtered.Where(r => r.MeetsThreshold);
-
-            _shown = filtered.ToList();
+            _shown = all.Where(r => r.IsFullyMarked && r.MeetsThreshold).ToList();
 
             statTotal.Text = all.Count.ToString();
-            statAbove.Text = all.Count(r => r.MeetsThreshold && r.IsFullyMarked).ToString();
-            statAboveLabel.Text = $"fully marked, {threshold:0.#}+";
+            statAbove.Text = _shown.Count.ToString();
+            statAboveLabel.Text = $"reach {threshold:0.#} or above";
             statPending.Text = all.Count(r => !r.IsFullyMarked).ToString();
             summaryPanel.Visibility = Visibility.Visible;
 
-            SetEmptyMessage(all.Count, onlyAbove, onlyComplete, threshold);
+            SetEmptyMessage(all.Count, onlyAbove: true, onlyComplete: true, threshold);
 
             pager.Reset();
             BindPage();
