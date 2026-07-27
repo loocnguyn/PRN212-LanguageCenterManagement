@@ -12,7 +12,12 @@ public class StudentRanking
     public int StudentId { get; set; }
     public string StudentName { get; set; } = "";
     public string StudentEmail { get; set; } = "";
+
+    /// <summary>Which class they sat in — the ranking spans a whole semester now, so
+    /// every row has to say what it is a result for.</summary>
     public string ClassName { get; set; } = "";
+
+    public string CourseName { get; set; } = "";
 
     /// <summary>Weighted average (0–10), or null when the student has no gradable score yet.</summary>
     public decimal? AverageScore { get; set; }
