@@ -33,7 +33,7 @@ the **Status** column of the preview:
 - an email that is not a valid address
 - an email that repeats an earlier row **in the same file**
 - a student whose name **and** date of birth already exist in the system
-- an email that **already has an account** (`cam@mail.com`, from the seed)
+- an email that **already has an account** (`student01@gmail.com`, from the seed)
 - a date of birth that is not `dd/MM/yyyy`
 - a phone that is not 10 digits starting with `0`
 - a gender that is neither `Male` nor `Female`
