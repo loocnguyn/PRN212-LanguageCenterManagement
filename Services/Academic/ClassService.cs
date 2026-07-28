@@ -21,6 +21,7 @@ public class ClassService : IClassService
     private readonly IEnrollmentRepository _enrollmentRepo = new EnrollmentRepository();
     private readonly ITeacherAttendanceRepository _teacherAttendanceRepo = new TeacherAttendanceRepository();
     private readonly ITeacherRepository _teacherRepo = new TeacherRepository();
+    private readonly ICourseRepository _courseRepo = new CourseRepository();
 
     public List<Class> GetAll() => _repo.GetAll();
     public Class? GetById(int id) => _repo.GetById(id);
@@ -35,6 +36,11 @@ public class ClassService : IClassService
     {
         if (teacherIds == null || teacherIds.Count == 0)
             throw new InvalidOperationException("Assign at least one teacher to the class.");
+
+        var course = _courseRepo.GetById(courseId)
+            ?? throw new InvalidOperationException($"Course {courseId} not found.");
+
+        EnsureTeachersTeachTheLanguage(course.LanguageName, teacherIds);
 
         var semester = _semesterRepo.GetById(entity.SemesterId)
             ?? throw new InvalidOperationException($"Semester {entity.SemesterId} not found.");
@@ -165,6 +171,10 @@ public class ClassService : IClassService
             throw new InvalidOperationException(
                 $"'{cls.Name}' finished on {cls.EndDate:dd/MM/yyyy} — its teaching team is part of the record now.");
 
+        // The class carries the language it was frozen with, so a replacement teacher
+        // is held to the same bar as the original.
+        if (cls != null) EnsureTeachersTeachTheLanguage(cls.SnapLanguage, teacherIds);
+
         var taught = _teacherAttendanceRepo.GetTeacherIdsWithAttendance(classId);
         var removed = taught.Except(teacherIds).ToList();
 
@@ -179,6 +189,47 @@ public class ClassService : IClassService
         }
 
         _repo.SetTeachers(classId, teacherIds, primaryTeacherId);
+    }
+
+    /// <summary>
+    /// A teacher may only take a class in the language they are qualified for:
+    /// Teacher.Specialization names one language, the class carries the course's.
+    ///
+    /// Enforced here rather than in the window because both Create and SetTeachers
+    /// assign teachers — a Japanese teacher on an English class is wrong whichever
+    /// screen produced it. A teacher with no specialization on file is refused too:
+    /// the point of the check is to confirm someone is qualified, and a blank field
+    /// confirms nothing. The message says which profile to go and fill in.
+    /// </summary>
+    private void EnsureTeachersTeachTheLanguage(string language, IList<int> teacherIds)
+    {
+        // Nothing to hold anyone to — an unlanguaged course cannot judge a teacher.
+        if (string.IsNullOrWhiteSpace(language)) return;
+
+        var mismatched = new List<string>();
+        var unrecorded = new List<string>();
+
+        foreach (var id in teacherIds)
+        {
+            var teacher = _teacherRepo.GetById(id);
+            if (teacher == null) continue;
+
+            if (string.IsNullOrWhiteSpace(teacher.Specialization))
+                unrecorded.Add(teacher.FullName);
+            else if (!string.Equals(teacher.Specialization.Trim(), language.Trim(),
+                                    StringComparison.OrdinalIgnoreCase))
+                mismatched.Add($"{teacher.FullName} teaches {teacher.Specialization}");
+        }
+
+        if (mismatched.Count > 0)
+            throw new InvalidOperationException(
+                $"This is a {language} class, but {string.Join("; ", mismatched)}. " +
+                $"Assign a {language} teacher instead.");
+
+        if (unrecorded.Count > 0)
+            throw new InvalidOperationException(
+                $"{string.Join(", ", unrecorded)} has no specialization on file, so there is no way to " +
+                "tell whether they can teach this class. Set it on the teacher's profile first.");
     }
 
     /// <summary>The class's frozen grading structure — read-only by design.</summary>
