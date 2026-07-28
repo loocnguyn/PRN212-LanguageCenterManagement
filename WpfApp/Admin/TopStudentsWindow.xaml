@@ -143,11 +143,23 @@
                             <!-- The only editable column. A row already paid has its box
                                  disabled rather than hidden, so it still reads as a row
                                  that was eligible. -->
-                            <DataGridTemplateColumn Header="" Width="40">
+                            <DataGridTemplateColumn Header="" Width="48">
+                                <!-- The app-wide DataGridCell style pads 10px each side.
+                                     On a column this narrow that leaves too little room
+                                     and the box gets clipped, so this one cell opts out. -->
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+                                        <Setter Property="Padding" Value="0"/>
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
+                                        <!-- MinWidth/Padding zeroed: the WPF-UI theme sizes a
+                                             CheckBox for a label as well as the box, and that
+                                             extra width pushed the box itself out of the cell. -->
                                         <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                   IsEnabled="{Binding CanBeAwarded}"
+                                                  MinWidth="0" Padding="0" Margin="0"
                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
