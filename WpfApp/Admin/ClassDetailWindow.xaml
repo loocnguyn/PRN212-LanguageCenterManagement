@@ -99,8 +99,11 @@
                             </ListBox.ItemTemplate>
                         </ListBox>
                     </Border>
-                    <TextBlock FontSize="11" Margin="0,4,0,0" Foreground="{StaticResource TextSecondaryBrush}"
+                    <TextBlock x:Name="tbTeacherHint" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap"
+                               Foreground="{StaticResource TextSecondaryBrush}"
                                Text="Tick each teacher, then mark exactly one as primary."/>
+                    <TextBlock x:Name="tbNoTeacher" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap"
+                               Foreground="{StaticResource DangerBrush}" Visibility="Collapsed"/>
                 </StackPanel>
 
                 <TextBlock Grid.Row="3" Grid.Column="0" Text="Classroom" VerticalAlignment="Center" Margin="0,0,0,10"/>

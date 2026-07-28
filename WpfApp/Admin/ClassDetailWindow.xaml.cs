@@ -152,11 +152,39 @@ public partial class ClassDetailWindow : Window
         cmbCourse.ItemsSource = _courseService.GetAll().Where(c => c.IsActive).ToList();
         cmbClassroom.ItemsSource = _classroomService.GetAll();
 
-        _teacherPicks = _teacherService.GetAll()
-            .OrderBy(t => t.FullName)
-            .Select(t => new TeacherPick(t))
-            .ToList();
+        LoadTeachersFor(null);
+    }
+
+    /// <summary>
+    /// Rebuilds the teacher list, optionally narrowed to those qualified in
+    /// <paramref name="language"/>. ClassService refuses a mismatch anyway; this just
+    /// keeps the wrong names off the list while a class is being created.
+    ///
+    /// Only ever narrowed in create mode. While EDITING, the full list is shown on
+    /// purpose: a class assigned before this rule existed may hold a teacher whose
+    /// specialization does not match, and filtering them out of the list would drop
+    /// them from the class the next time it is saved.
+    /// </summary>
+    private void LoadTeachersFor(string? language)
+    {
+        var teachers = _teacherService.GetAll().OrderBy(t => t.FullName).AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(language))
+            teachers = teachers.Where(t => string.Equals(
+                t.Specialization?.Trim(), language.Trim(), StringComparison.OrdinalIgnoreCase));
+
+        _teacherPicks = teachers.Select(t => new TeacherPick(t)).ToList();
         lstTeachers.ItemsSource = _teacherPicks;
+
+        var filtered = !string.IsNullOrWhiteSpace(language);
+
+        tbTeacherHint.Text = filtered
+            ? $"Tick each teacher, then mark exactly one as primary. Only {language} teachers are listed."
+            : "Tick each teacher, then mark exactly one as primary.";
+
+        tbNoTeacher.Text = $"No {language} teacher is on file. Add one before creating this class.";
+        tbNoTeacher.Visibility = filtered && _teacherPicks.Count == 0
+            ? Visibility.Visible : Visibility.Collapsed;
     }
 
     // ---- 2. Course preview -------------------------------------
@@ -175,6 +203,10 @@ public partial class ClassDetailWindow : Window
             $"{course.TuitionFee:N0} đ · {course.DurationSessions} sessions · "
             + $"{course.LanguageName}{(string.IsNullOrEmpty(course.LevelName) ? "" : " " + course.LevelName)}"
             + "\nLater edits to the course will not affect this class.");
+
+        // Switching language rebuilds the list, which also clears ticks — a teacher
+        // picked for the previous course must not carry over to this one.
+        LoadTeachersFor(course.LanguageName);
 
         if (string.IsNullOrWhiteSpace(txtName.Text))
             txtName.Text = course.Code + "-";

@@ -86,17 +86,9 @@ public partial class AttendanceWindow : Window
 
         try
         {
-            _teacherClassesInSemester = _classService.GetClassesWithDetails(semester.SemesterId)
-                .Where(c => c.ClassTeachers.Any(ct => ct.TeacherId == _teacher.TeacherId))
-                .ToList();
+            _teacherClassesInSemester = _classService.GetClassesForTeacher(_teacher.TeacherId, semester.SemesterId);
 
-            var courses = _teacherClassesInSemester
-                .Where(c => c.Course != null)
-                .Select(c => c.Course)
-                .GroupBy(c => c.CourseId)
-                .Select(g => g.First())
-                .OrderBy(c => c.Name)
-                .ToList();
+            var courses = _classService.GetCoursesForTeacher(_teacher.TeacherId, semester.SemesterId);
 
             cboCourse.ItemsSource = courses;
 
@@ -240,9 +232,10 @@ public partial class AttendanceWindow : Window
 
         try
         {
+            var attendanceList = new List<Attendance>();
             foreach (var row in rows)
             {
-                var attendance = new Attendance
+                attendanceList.Add(new Attendance
                 {
                     AttendanceId = row.AttendanceId ?? 0,
                     SessionId = item.Session.SessionId,
@@ -250,9 +243,11 @@ public partial class AttendanceWindow : Window
                     Status = row.Status,
                     Note = row.Note,
                     RecordedAt = DateTime.Now
-                };
-                _attendanceService.Upsert(attendance);
+                });
             }
+
+            _attendanceService.BulkUpsert(attendanceList);
+
             MessageBox.Show($"Attendance saved for {rows.Count} student(s).", "Success",
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }

@@ -307,6 +307,44 @@ public class ClassDAO
         }
     }
 
+    public static List<Class> GetClassesForTeacher(int teacherId, int semesterId)
+    {
+        try
+        {
+            using var context = new LanguageCenterContext();
+            return context.Classes
+                .Where(c => c.SemesterId == semesterId && c.ClassTeachers.Any(ct => ct.TeacherId == teacherId))
+                .Include(c => c.Course)
+                .Include(c => c.Classroom)
+                .Include(c => c.ClassSchedules)
+                .Include(c => c.ClassTeachers).ThenInclude(ct => ct.Teacher)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error retrieving classes for teacher {teacherId} in semester {semesterId}: {ex.Message}", ex);
+        }
+    }
+
+    public static List<Course> GetCoursesForTeacher(int teacherId, int semesterId)
+    {
+        try
+        {
+            using var context = new LanguageCenterContext();
+            return context.Classes
+                .Where(c => c.SemesterId == semesterId && c.ClassTeachers.Any(ct => ct.TeacherId == teacherId))
+                .Select(c => c.Course)
+                .Where(c => c != null)
+                .Distinct()
+                .OrderBy(c => c!.Name)
+                .ToList()!;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error retrieving courses for teacher {teacherId} in semester {semesterId}: {ex.Message}", ex);
+        }
+    }
+
     private static void Validate(Class entity)
     {
         if (string.IsNullOrWhiteSpace(entity.Name))

@@ -15,4 +15,5 @@ public interface IGradeService
     List<Grade> GetByEnrollmentIds(List<int> enrollmentIds);
     void Upsert(Grade entity);
     List<Grade> GetByStudentId(int studentId);
+    void BulkUpsert(List<Grade> entities);
 }

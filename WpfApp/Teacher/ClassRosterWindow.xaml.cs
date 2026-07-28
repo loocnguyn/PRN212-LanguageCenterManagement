@@ -83,17 +83,9 @@ public partial class ClassRosterWindow : Window
 
         try
         {
-            _teacherClassesInSemester = _classService.GetClassesWithDetails(semester.SemesterId)
-                .Where(c => c.ClassTeachers.Any(ct => ct.TeacherId == _teacher.TeacherId))
-                .ToList();
+            _teacherClassesInSemester = _classService.GetClassesForTeacher(_teacher.TeacherId, semester.SemesterId);
 
-            var courses = _teacherClassesInSemester
-                .Where(c => c.Course != null)
-                .Select(c => c.Course)
-                .GroupBy(c => c.CourseId)
-                .Select(g => g.First())
-                .OrderBy(c => c.Name)
-                .ToList();
+            var courses = _classService.GetCoursesForTeacher(_teacher.TeacherId, semester.SemesterId);
 
             cboCourse.ItemsSource = courses;
 

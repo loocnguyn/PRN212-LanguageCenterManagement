@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+using BusinessObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
@@ -91,6 +91,40 @@ public class GradeDAO
             context.Grades.Add(entity);
         }
         context.SaveChanges();
+    }
+
+    public static void BulkUpsert(List<Grade> entities)
+    {
+        if (entities == null || !entities.Any()) return;
+
+        using var context = new LanguageCenterContext();
+        using var transaction = context.Database.BeginTransaction();
+        try
+        {
+            foreach (var entity in entities)
+            {
+                var existing = context.Grades
+                    .FirstOrDefault(g => g.EnrollmentId == entity.EnrollmentId && g.ComponentId == entity.ComponentId);
+                if (existing != null)
+                {
+                    existing.Score = entity.Score;
+                    existing.MaxScore = entity.MaxScore;
+                    existing.Note = entity.Note;
+                    existing.GradedAt = entity.GradedAt;
+                }
+                else
+                {
+                    context.Grades.Add(entity);
+                }
+            }
+            context.SaveChanges();
+            transaction.Commit();
+        }
+        catch (Exception ex)
+        {
+            transaction.Rollback();
+            throw new Exception($"Error during bulk saving grades: {ex.Message}", ex);
+        }
     }
 
     public static List<Grade> GetByStudentId(int studentId)
