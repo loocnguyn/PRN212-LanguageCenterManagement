@@ -9,6 +9,11 @@ namespace WpfApp;
 /// card layout/markup is written once instead of repeated in every Window.</summary>
 public static class DashboardTileBuilder
 {
+    /// <summary>Looks up a named brush from App.xaml — the accent colour a tile is
+    /// built with. Lives here because all four dashboards need it and none of them
+    /// needs its own copy.</summary>
+    public static Brush FindBrush(string key) => (Brush)Application.Current.Resources[key];
+
     public static Border BuildTile(string title, string value, string symbolName, Brush accentBrush, string? subtitle = null)
     {
         var symbol = Enum.TryParse<SymbolRegular>(symbolName, out var parsed) ? parsed : SymbolRegular.Circle24;

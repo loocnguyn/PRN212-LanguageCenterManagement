@@ -55,12 +55,12 @@ public partial class StudentDashboardControl : UserControl, IDashboardControl
 
             panelTiles.Children.Clear();
             panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
-                "Wallet Balance", balance.ToString("N0") + " đ", "Wallet24", FindBrush("PrimaryBrush")));
+                "Wallet Balance", balance.ToString("N0") + " đ", "Wallet24", DashboardTileBuilder.FindBrush("PrimaryBrush")));
             panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
-                "Unpaid Invoices", unpaidInvoices.Count.ToString(), "MoneyDismiss24", FindBrush("DangerBrush"),
+                "Unpaid Invoices", unpaidInvoices.Count.ToString(), "MoneyDismiss24", DashboardTileBuilder.FindBrush("DangerBrush"),
                 unpaidInvoices.Count > 0 ? $"Total owed: {totalOwed:N0} đ" : null));
             panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
-                "Enrolled Classes", enrollments.Count.ToString(), "Book24", FindBrush("PrimaryBrush")));
+                "Enrolled Classes", enrollments.Count.ToString(), "Book24", DashboardTileBuilder.FindBrush("PrimaryBrush")));
 
             lstUpcoming.ItemsSource = upcomingSessions.Count > 0
                 ? upcomingSessions.Select(s => $"{s.SessionDate:dd/MM/yyyy} — {s.Class.Name} ({s.Topic ?? "No topic"})").ToList()
@@ -72,5 +72,4 @@ public partial class StudentDashboardControl : UserControl, IDashboardControl
         }
     }
 
-    private static Brush FindBrush(string key) => (Brush)Application.Current.Resources[key];
 }

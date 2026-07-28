@@ -64,15 +64,15 @@ public partial class AdminDashboardControl : UserControl, IDashboardControl
 
             panelTiles.Children.Clear();
             panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
-                "Active Students", activeStudents.ToString(), "PeopleTeam24", FindBrush("PrimaryBrush")));
+                "Active Students", activeStudents.ToString(), "PeopleTeam24", DashboardTileBuilder.FindBrush("PrimaryBrush")));
             panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
-                "Active Teachers", activeTeachers.ToString(), "PersonAccounts24", FindBrush("PrimaryBrush")));
+                "Active Teachers", activeTeachers.ToString(), "PersonAccounts24", DashboardTileBuilder.FindBrush("PrimaryBrush")));
             panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
-                "Ongoing Classes", ongoingClasses.ToString(), "ClipboardTask24", FindBrush("SecondaryBrush")));
+                "Ongoing Classes", ongoingClasses.ToString(), "ClipboardTask24", DashboardTileBuilder.FindBrush("SecondaryBrush")));
             panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
-                "Revenue This Month", monthlyRevenue.ToString("N0") + " đ", "ReceiptMoney24", FindBrush("SecondaryBrush")));
+                "Revenue This Month", monthlyRevenue.ToString("N0") + " đ", "ReceiptMoney24", DashboardTileBuilder.FindBrush("SecondaryBrush")));
             panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
-                "Open Invoices", openInvoices.ToString(), "DocumentBulletList24", FindBrush("DangerBrush"),
+                "Open Invoices", openInvoices.ToString(), "DocumentBulletList24", DashboardTileBuilder.FindBrush("DangerBrush"),
                 openInvoices > 0 ? "Unpaid or partially paid" : null));
         }
         catch (Exception ex)
@@ -81,5 +81,4 @@ public partial class AdminDashboardControl : UserControl, IDashboardControl
         }
     }
 
-    private static Brush FindBrush(string key) => (Brush)Application.Current.Resources[key];
 }

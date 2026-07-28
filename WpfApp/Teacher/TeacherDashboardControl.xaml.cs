@@ -49,9 +49,9 @@ public partial class TeacherDashboardControl : UserControl, IDashboardControl
 
             panelTiles.Children.Clear();
             panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
-                "Classes This Semester", myClasses.Count.ToString(), "ClipboardTask24", FindBrush("PrimaryBrush")));
+                "Classes This Semester", myClasses.Count.ToString(), "ClipboardTask24", DashboardTileBuilder.FindBrush("PrimaryBrush")));
             panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
-                "Upcoming Sessions (7d)", upcomingSessions.ToString(), "CalendarLtr24", FindBrush("SecondaryBrush")));
+                "Upcoming Sessions (7d)", upcomingSessions.ToString(), "CalendarLtr24", DashboardTileBuilder.FindBrush("SecondaryBrush")));
         }
         catch (Exception ex)
         {
@@ -59,5 +59,4 @@ public partial class TeacherDashboardControl : UserControl, IDashboardControl
         }
     }
 
-    private static Brush FindBrush(string key) => (Brush)Application.Current.Resources[key];
 }

@@ -46,10 +46,27 @@ public partial class CourseManagementWindow : Window
         var dialog = new CourseDetailWindow(c) { Owner = this };
         if (dialog.ShowDialog() == true) LoadData();
     }
+    // Wrapped because a course that classes were opened from cannot be removed:
+    // the delete comes back as a foreign-key violation, and an unhandled exception
+    // in a click handler closes the application (App.xaml.cs installs no global handler).
     private void BtnDelete_Click(object sender, RoutedEventArgs e)
     {
-        if (dgCourses.SelectedItem is not Course c) { MessageBox.Show("Please select a course."); return; }
-        var confirm = MessageBox.Show($"Delete {c.Name}?", "Confirm", MessageBoxButton.YesNo);
-        if (confirm == MessageBoxResult.Yes) { _service.Delete(c.CourseId); LoadData(); }
+        if (dgCourses.SelectedItem is not Course c)
+        { MessageBox.Show("Please select a course."); return; }
+
+        var confirm = MessageBox.Show($"Delete {c.Name}?", "Confirm",
+            MessageBoxButton.YesNo, MessageBoxImage.Warning);
+        if (confirm != MessageBoxResult.Yes) return;
+
+        try
+        {
+            _service.Delete(c.CourseId);
+            LoadData();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Could not delete this course. Classes may already have been opened from it.\n\n{ex.Message}",
+                "Delete failed", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 }

@@ -78,12 +78,12 @@ public partial class StaffDashboardControl : UserControl, IDashboardControl
             .Sum(p => p.AmountPaid);
 
         panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
-            "Overdue Invoices", overdue.Count.ToString(), "MoneyDismiss24", FindBrush("DangerBrush"),
+            "Overdue Invoices", overdue.Count.ToString(), "MoneyDismiss24", DashboardTileBuilder.FindBrush("DangerBrush"),
             overdue.Count > 0 ? "Past due date, not fully paid" : null));
         panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
-            "Collected This Month", collectedThisMonth.ToString("N0") + " đ", "ReceiptMoney24", FindBrush("SecondaryBrush")));
+            "Collected This Month", collectedThisMonth.ToString("N0") + " đ", "ReceiptMoney24", DashboardTileBuilder.FindBrush("SecondaryBrush")));
         panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
-            "Still Owed (All)", stillOwed.ToString("N0") + " đ", "Wallet24", FindBrush("DangerBrush")));
+            "Still Owed (All)", stillOwed.ToString("N0") + " đ", "Wallet24", DashboardTileBuilder.FindBrush("DangerBrush")));
     }
 
     private void LoadAcademicTiles()
@@ -100,8 +100,7 @@ public partial class StaffDashboardControl : UserControl, IDashboardControl
         }
 
         panelTiles.Children.Add(DashboardTileBuilder.BuildTile(
-            "Ongoing Classes", ongoingClasses.ToString(), "ClipboardTask24", FindBrush("SecondaryBrush"), semesterText));
+            "Ongoing Classes", ongoingClasses.ToString(), "ClipboardTask24", DashboardTileBuilder.FindBrush("SecondaryBrush"), semesterText));
     }
 
-    private static Brush FindBrush(string key) => (Brush)Application.Current.Resources[key];
 }
