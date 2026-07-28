@@ -71,6 +71,7 @@ public partial class ClassRosterWindow : Window
     }
 
     /// <summary>Step 2: Semester selected -> populate the Course dropdown with this
+    /// teacher's courses in that semester.</summary>
     private void CboSemester_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         cboCourse.ItemsSource = null;
