@@ -31,6 +31,28 @@ public class StudentRanking
 
     public bool MeetsThreshold { get; set; }
 
+    /// <summary>
+    /// True once this student has been paid for this semester. Answered from the
+    /// StudentAwards table, not from the grades — so the screen shows it before
+    /// the button is pressed instead of after the database refuses.
+    /// </summary>
+    public bool IsAwarded { get; set; }
+
+    /// <summary>How much they were paid, when <see cref="IsAwarded"/>.</summary>
+    public decimal? AwardedAmount { get; set; }
+
+    public string AwardDisplay => IsAwarded ? $"{AwardedAmount:N0} đ" : "—";
+
+    /// <summary>
+    /// Ticked in the award column. Plain settable bool with no change notification
+    /// on purpose: the checkbox writes to it, and the only thing that ever writes
+    /// back is a rebind of the whole grid, which redraws anyway.
+    /// </summary>
+    public bool IsSelected { get; set; }
+
+    /// <summary>A row already paid cannot be ticked — the tickbox binds to this.</summary>
+    public bool CanBeAwarded => !IsAwarded;
+
     public bool IsFullyMarked => WeightCovered >= 100;
 
     public string AverageDisplay => AverageScore.HasValue ? AverageScore.Value.ToString("0.00") : "—";

@@ -1,4 +1,5 @@
 using BusinessObjects;
+using Repositories;
 
 namespace Services;
 
@@ -23,6 +24,10 @@ public class StudentRankingService : IStudentRankingService
     private readonly IClassService _classService = new ClassService();
     private readonly IEnrollmentService _enrollmentService = new EnrollmentService();
     private readonly IGradeService _gradeService = new GradeService();
+
+    // The repository, not AwardService: AwardService re-reads the ranking before it
+    // pays, so depending on it here would make the two construct each other forever.
+    private readonly IStudentAwardRepository _awardRepo = new StudentAwardRepository();
 
     // ---- 1. Ranking --------------------------------------------
     public List<StudentRanking> GetRanking(int semesterId, decimal threshold)
@@ -65,6 +70,16 @@ public class StudentRankingService : IStudentRankingService
                     MeetsThreshold = average.HasValue && average.Value >= threshold
                 });
             }
+        }
+
+        // One read for the whole semester, then stamp the rows. A student enrolled in
+        // two classes has two rows here but only ever one award, so both rows show it.
+        var awarded = _awardRepo.GetAwardedAmountsBySemester(semesterId);
+        foreach (var r in rows)
+        {
+            if (!awarded.TryGetValue(r.StudentId, out var amount)) continue;
+            r.IsAwarded = true;
+            r.AwardedAmount = amount;
         }
 
         // Best first; the ungraded (null) sink to the bottom instead of ranking as zero.
