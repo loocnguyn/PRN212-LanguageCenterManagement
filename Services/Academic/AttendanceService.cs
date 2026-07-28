@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+using BusinessObjects;
 using Repositories;
 
 namespace Services;
@@ -17,4 +17,5 @@ public class AttendanceService : IAttendanceService
     public List<Attendance> GetBySessionId(int sessionId) => _repo.GetBySessionId(sessionId);
     public void Upsert(Attendance entity) => _repo.Upsert(entity);
     public List<Attendance> GetByStudentId(int studentId) => _repo.GetByStudentId(studentId);
+    public void BulkUpsert(List<Attendance> entities) => _repo.BulkUpsert(entities);
 }

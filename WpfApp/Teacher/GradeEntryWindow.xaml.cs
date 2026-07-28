@@ -76,6 +76,8 @@ public partial class GradeEntryWindow : Window
         }
     }
 
+
+
     /// <summary>Step 2: Semester selected -> populate the Course dropdown with this
     /// teacher's courses in that semester.</summary>
     private void CboSemester_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -90,17 +92,9 @@ public partial class GradeEntryWindow : Window
 
         try
         {
-            _teacherClassesInSemester = _classService.GetClassesWithDetails(semester.SemesterId)
-                .Where(c => c.ClassTeachers.Any(ct => ct.TeacherId == _teacher.TeacherId))
-                .ToList();
+            _teacherClassesInSemester = _classService.GetClassesForTeacher(_teacher.TeacherId, semester.SemesterId);
 
-            var courses = _teacherClassesInSemester
-                .Where(c => c.Course != null)
-                .Select(c => c.Course)
-                .GroupBy(c => c.CourseId)
-                .Select(g => g.First())
-                .OrderBy(c => c.Name)
-                .ToList();
+            var courses = _classService.GetCoursesForTeacher(_teacher.TeacherId, semester.SemesterId);
 
             cboCourse.ItemsSource = courses;
 
@@ -190,7 +184,7 @@ public partial class GradeEntryWindow : Window
             Header = "Student ID",
             Binding = new Binding("StudentId"),
             IsReadOnly = true,
-            Width = DataGridLength.Auto
+            Width = 90
         });
 
         // 2. Static Student Name column (Read-Only)
@@ -199,7 +193,8 @@ public partial class GradeEntryWindow : Window
             Header = "Student Name",
             Binding = new Binding("StudentName"),
             IsReadOnly = true,
-            Width = new DataGridLength(1.5, DataGridLengthUnitType.Star)
+            Width = new DataGridLength(1.5, DataGridLengthUnitType.Star),
+            MinWidth = 160
         });
 
         // 3. Dynamic columns for each grade component
@@ -213,7 +208,7 @@ public partial class GradeEntryWindow : Window
                     Mode = BindingMode.TwoWay,
                     UpdateSourceTrigger = UpdateSourceTrigger.LostFocus
                 },
-                Width = DataGridLength.Auto
+                Width = 130
             });
 
             dgGrades.Columns.Add(new DataGridTextColumn
@@ -224,7 +219,8 @@ public partial class GradeEntryWindow : Window
                     Mode = BindingMode.TwoWay,
                     UpdateSourceTrigger = UpdateSourceTrigger.LostFocus
                 },
-                Width = new DataGridLength(1, DataGridLengthUnitType.Star)
+                Width = new DataGridLength(1, DataGridLengthUnitType.Star),
+                MinWidth = 140
             });
         }
 
@@ -234,7 +230,7 @@ public partial class GradeEntryWindow : Window
             Header = "Total Score",
             Binding = new Binding("TotalScore"),
             IsReadOnly = true,
-            Width = DataGridLength.Auto,
+            Width = 100,
             FontWeight = FontWeights.Bold
         });
 
@@ -331,7 +327,7 @@ public partial class GradeEntryWindow : Window
         if (dt == null) return;
         try
         {
-            var savedCount = 0;
+            var gradeList = new List<Grade>();
             var errors = new List<string>();
 
             foreach (DataRow row in dt.Rows)
@@ -365,7 +361,7 @@ public partial class GradeEntryWindow : Window
 
                     var note = noteObj?.ToString() ?? "";
 
-                    var grade = new Grade
+                    gradeList.Add(new Grade
                     {
                         EnrollmentId = enrollmentId,
                         ComponentId = comp.ComponentId,
@@ -373,18 +369,21 @@ public partial class GradeEntryWindow : Window
                         MaxScore = maxScore,
                         Note = note,
                         GradedAt = DateTime.Now
-                    };
-                    _gradeService.Upsert(grade);
-                    savedCount++;
+                    });
                 }
             }
 
-            var msg = $"Saved grades for {savedCount} score(s).";
             if (errors.Any())
-                msg += $"\n\nValidation errors ({errors.Count}):\n" + string.Join("\n", errors.Take(10));
+            {
+                var errorMsg = $"Validation errors ({errors.Count}):\n" + string.Join("\n", errors.Take(10));
+                MessageBox.Show(errorMsg, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
-            MessageBox.Show(msg, "Result",
-                MessageBoxButton.OK, errors.Any() ? MessageBoxImage.Warning : MessageBoxImage.Information);
+            _gradeService.BulkUpsert(gradeList);
+
+            MessageBox.Show($"Saved grades for {gradeList.Count} score(s).", "Result",
+                MessageBoxButton.OK, MessageBoxImage.Information);
 
             // Reload grades table to refresh data state
             if (cboClass.SelectedItem is Class cls)

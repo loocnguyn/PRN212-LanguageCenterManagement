@@ -55,9 +55,7 @@ public partial class TeacherScheduleWindow : Window
             if (phase == Phase.LEARNING)
                 _sessionService.EnsureSessionsForSemester(semester.SemesterId);
 
-            var classes = _classService.GetBySemesterId(semester.SemesterId)
-                .Where(c => c.ClassTeachers.Any(ct => ct.TeacherId == _teacherId))
-                .ToList();
+            var classes = _classService.GetClassesForTeacher(_teacherId, semester.SemesterId);
 
             if (!classes.Any())
             {

@@ -234,4 +234,8 @@ public class ClassService : IClassService
 
     /// <summary>The class's frozen grading structure — read-only by design.</summary>
     public List<ClassGradeComponent> GetGradeComponents(int classId) => _repo.GetGradeComponents(classId);
+
+    public List<Class> GetClassesForTeacher(int teacherId, int semesterId) => _repo.GetClassesForTeacher(teacherId, semesterId);
+
+    public List<Course> GetCoursesForTeacher(int teacherId, int semesterId) => _repo.GetCoursesForTeacher(teacherId, semesterId);
 }
