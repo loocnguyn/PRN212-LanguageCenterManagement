@@ -42,6 +42,23 @@
                 </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
+
+        <!-- Already paid, and how much. A dash rather than a blank so the column
+             reads as answered rather than as missing. -->
+        <DataTemplate x:Key="AwardCellTemplate">
+            <Border x:Name="tag" CornerRadius="10" Padding="9,3" HorizontalAlignment="Left"
+                    Background="Transparent" VerticalAlignment="Center">
+                <TextBlock x:Name="txt" Text="{Binding AwardDisplay}" FontSize="12"
+                           Foreground="{StaticResource TextSecondaryBrush}"/>
+            </Border>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsAwarded}" Value="True">
+                    <Setter TargetName="tag" Property="Background" Value="{StaticResource SecondaryLightBrush}"/>
+                    <Setter TargetName="txt" Property="Foreground" Value="{StaticResource SecondaryBrush}"/>
+                    <Setter TargetName="txt" Property="FontWeight" Value="SemiBold"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
     </Window.Resources>
 
     <DockPanel>
@@ -123,13 +140,27 @@
                               SelectionMode="Single" RowHeight="50" BorderThickness="0"
                               Background="Transparent">
                         <DataGrid.Columns>
+                            <!-- The only editable column. A row already paid has its box
+                                 disabled rather than hidden, so it still reads as a row
+                                 that was eligible. -->
+                            <DataGridTemplateColumn Header="" Width="40">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                  IsEnabled="{Binding CanBeAwarded}"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="50"/>
                             <DataGridTemplateColumn Header="Student" Width="*"
                                                     CellTemplate="{StaticResource StudentCellTemplate}"/>
                             <DataGridTextColumn Header="Class"  Binding="{Binding ClassName}"  Width="130"/>
-                            <DataGridTextColumn Header="Course" Binding="{Binding CourseName}" Width="200"/>
-                            <DataGridTemplateColumn Header="Weighted average" Width="160"
+                            <DataGridTextColumn Header="Course" Binding="{Binding CourseName}" Width="170"/>
+                            <DataGridTemplateColumn Header="Weighted average" Width="150"
                                                     CellTemplate="{StaticResource AverageCellTemplate}"/>
+                            <DataGridTemplateColumn Header="Awarded" Width="110"
+                                                    CellTemplate="{StaticResource AwardCellTemplate}"/>
                         </DataGrid.Columns>
                     </DataGrid>
 
@@ -140,8 +171,47 @@
                 </Grid>
             </Border>
 
-            <ctl:PagerBar Grid.Row="3" x:Name="pager" HorizontalAlignment="Left"
-                          Margin="0,12,0,0" PageChanged="Pager_PageChanged"/>
+            <!-- Awarding. Deliberately below the grid and behind a confirmation:
+                 it is the one thing on this screen that cannot be undone. -->
+            <Border Grid.Row="3" x:Name="awardBar" Style="{StaticResource Card}" Padding="12"
+                    Margin="0,12,0,0" Visibility="Collapsed">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <ctl:PagerBar x:Name="pager" VerticalAlignment="Center"
+                                      PageChanged="Pager_PageChanged"/>
+
+                        <Button Content="Tick all shown" Style="{StaticResource PillButtonSubtle}" Width="120"
+                                Margin="16,0,0,0" Click="BtnTickAll_Click"/>
+                        <Button Content="Clear ticks" Style="{StaticResource PillButtonSubtle}" Width="100"
+                                Margin="8,0,0,0" Click="BtnClearTicks_Click"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,12,0,0">
+                        <TextBlock Text="Award each" VerticalAlignment="Center" Margin="0,0,6,0"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <TextBox x:Name="txtAmount" Width="110" Height="34" Text="500000"
+                                 VerticalContentAlignment="Center" Padding="6,0"/>
+                        <TextBlock Text="đ" VerticalAlignment="Center" Margin="6,0,0,0"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+
+                        <TextBlock Text="Reason" VerticalAlignment="Center" Margin="16,0,6,0"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <TextBox x:Name="txtNote" Width="240" Height="34"
+                                 VerticalContentAlignment="Center" Padding="6,0"/>
+
+                        <TextBlock x:Name="tbTicked" VerticalAlignment="Center" Margin="16,0,0,0"
+                                   FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+
+                        <Button Content="Award selected" Style="{StaticResource PillButton}" Width="150"
+                                Margin="16,0,0,0" Click="BtnAward_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
         </Grid>
     </DockPanel>
 </Window>

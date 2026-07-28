@@ -84,6 +84,8 @@ public partial class LanguageCenterContext : DbContext
 
     public virtual DbSet<WalletTransaction> WalletTransactions { get; set; }
 
+    public virtual DbSet<StudentAward> StudentAwards { get; set; }
+
     // ---- 3. OnConfiguring (which database to talk to) ----------
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer(GetConnectionString());
@@ -919,6 +921,62 @@ public partial class LanguageCenterContext : DbContext
                 .HasForeignKey(d => d.StudentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__WalletTra__stude__WalletStudent");
+        });
+
+        modelBuilder.Entity<StudentAward>(entity =>
+        {
+            entity.HasKey(e => e.AwardId).HasName("PK__StudentAwards__AwardId");
+
+            // The reason this table exists. Awarding is not idempotent the way
+            // reading a ranking is: press twice and a student is paid twice, so
+            // the second press is refused here rather than by a screen.
+            entity.HasIndex(e => new { e.StudentId, e.SemesterId }, "uq_award_per_student_semester")
+                .IsUnique();
+
+            // uq_award_per_student_semester leads on student_id, so it cannot serve
+            // "everyone awarded this term" — which is what the ranking screen asks.
+            entity.HasIndex(e => e.SemesterId, "idx_awards_semester");
+
+            entity.Property(e => e.AwardId).HasColumnName("award_id");
+            entity.Property(e => e.StudentId).HasColumnName("student_id");
+            entity.Property(e => e.SemesterId).HasColumnName("semester_id");
+            entity.Property(e => e.Amount)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("amount");
+            entity.Property(e => e.AverageScore)
+                .HasColumnType("decimal(4, 2)")
+                .HasColumnName("average_score");
+            entity.Property(e => e.Threshold)
+                .HasColumnType("decimal(4, 2)")
+                .HasColumnName("threshold");
+            entity.Property(e => e.TransactionId).HasColumnName("transaction_id");
+            entity.Property(e => e.AwardedBy).HasColumnName("awarded_by");
+            entity.Property(e => e.AwardedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnName("awarded_at");
+            entity.Property(e => e.Note)
+                .HasMaxLength(255)
+                .HasColumnName("note");
+
+            // Computed for display only — nothing behind them in the table.
+            entity.Ignore(e => e.StudentName);
+            entity.Ignore(e => e.SemesterName);
+            entity.Ignore(e => e.AmountDisplay);
+
+            entity.HasOne(d => d.Student).WithMany()
+                .HasForeignKey(d => d.StudentId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK__StudentAw__stude__AwardStudent");
+
+            entity.HasOne(d => d.Semester).WithMany()
+                .HasForeignKey(d => d.SemesterId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK__StudentAw__semes__AwardSemester");
+
+            entity.HasOne(d => d.Transaction).WithMany()
+                .HasForeignKey(d => d.TransactionId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK__StudentAw__trans__AwardTransaction");
         });
 
         OnModelCreatingPartial(modelBuilder);
