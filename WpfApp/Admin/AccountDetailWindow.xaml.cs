@@ -79,7 +79,7 @@ public partial class AccountDetailWindow : Window
                     txtPhone.Text = s.Phone ?? "";
                     if (s.DateOfBirth.HasValue)
                         dpDob.SelectedDate = s.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue);
-                    SelectComboItem(cmbGender, s.Gender);
+                    ComboBoxHelper.Select(cmbGender, s.Gender);
                 }
                 break;
 
@@ -89,9 +89,9 @@ public partial class AccountDetailWindow : Window
                 {
                     txtFullName.Text = t.FullName;
                     txtPhone.Text = t.Phone ?? "";
-                    SelectComboItem(cmbGender, t.Gender);
-                    SelectComboItem(txtSpec, t.Specialization);
-                    SelectComboItem(cmbDegree, t.Degree);
+                    ComboBoxHelper.Select(cmbGender, t.Gender);
+                    ComboBoxHelper.Select(txtSpec, t.Specialization);
+                    ComboBoxHelper.Select(cmbDegree, t.Degree);
                 }
                 break;
 
@@ -114,12 +114,6 @@ public partial class AccountDetailWindow : Window
                 }
                 break;
         }
-    }
-
-    private void SelectComboItem(ComboBox cmb, string? value)
-    {
-        if (value == null) return;
-        cmb.SelectedItem = cmb.Items.Cast<ComboBoxItem>().FirstOrDefault(i => i.Content.ToString() == value);
     }
 
     private void CmbRole_SelectionChanged(object sender, SelectionChangedEventArgs e)

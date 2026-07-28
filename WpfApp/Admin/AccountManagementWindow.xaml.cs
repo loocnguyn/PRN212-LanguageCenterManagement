@@ -81,12 +81,6 @@ public partial class AccountManagementWindow : Window
         ApplyFilter();
     }
 
-    private void BtnShowDeactivated_Click(object sender, RoutedEventArgs e)
-    {
-        new DeactivatedAccountsWindow() { Owner = this }.ShowDialog();
-        LoadData();
-    }
-
     private void DgUsers_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
         if (dgUsers.SelectedItem is AccountRow) ShowSelectedAccount();
@@ -154,7 +148,6 @@ public partial class AccountManagementWindow : Window
     /// </summary>
     private sealed record AccountRow(User User, string FullName)
     {
-        public int Id => User.Id;
         public string Email => User.Email;
         public string Role => User.Role;
         public DateTime CreatedAt => User.CreatedAt;

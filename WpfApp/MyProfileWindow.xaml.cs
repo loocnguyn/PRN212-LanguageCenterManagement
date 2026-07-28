@@ -54,7 +54,7 @@ public partial class MyProfileWindow : Window
                     ShowField(lblAddress, txtAddress);
                     txtAddress.Text = _student.Address ?? "";
                     ShowField(lblGender, cmbGender);
-                    SelectComboItem(cmbGender, _student.Gender);
+                    ComboBoxHelper.Select(cmbGender, _student.Gender);
                     break;
 
                 case "TEACHER":
@@ -63,9 +63,9 @@ public partial class MyProfileWindow : Window
                     txtFullName.Text = _teacher.FullName;
                     txtPhone.Text = _teacher.Phone ?? "";
                     ShowField(lblGender, cmbGender);
-                    SelectComboItem(cmbGender, _teacher.Gender);
+                    ComboBoxHelper.Select(cmbGender, _teacher.Gender);
                     ShowField(lblSpec, cmbSpec);
-                    SelectComboItem(cmbSpec, _teacher.Specialization);
+                    ComboBoxHelper.Select(cmbSpec, _teacher.Specialization);
                     cmbSpec.IsEnabled = false;
                     break;
 
@@ -75,7 +75,7 @@ public partial class MyProfileWindow : Window
                     txtFullName.Text = _staff.FullName;
                     txtPhone.Text = _staff.Phone ?? "";
                     ShowField(lblGender, cmbGender);
-                    SelectComboItem(cmbGender, _staff.Gender);
+                    ComboBoxHelper.Select(cmbGender, _staff.Gender);
                     ShowField(lblDept, cmbDept);
                     cmbDept.ItemsSource = _departmentService.GetAll().Select(d => d.Name).ToList();
                     cmbDept.SelectedItem = _staff.Department;
@@ -107,12 +107,6 @@ public partial class MyProfileWindow : Window
     {
         label.Visibility = Visibility.Visible;
         input.Visibility = Visibility.Visible;
-    }
-
-    private static void SelectComboItem(ComboBox cmb, string? value)
-    {
-        if (value == null) return;
-        cmb.SelectedItem = cmb.Items.Cast<ComboBoxItem>().FirstOrDefault(i => i.Content.ToString() == value);
     }
 
     private void BtnSave_Click(object sender, RoutedEventArgs e)

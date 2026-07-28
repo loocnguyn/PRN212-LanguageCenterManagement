@@ -63,6 +63,13 @@ public partial class CatalogueWindow : Window
         if (lstLanguages.SelectedItem is LanguageRow) EditLanguage();
     }
 
+    /// <summary>
+    /// The language on the left, or null. Says nothing when there is none — used
+    /// where an empty selection is a normal state, such as reloading the list.
+    ///
+    /// Naming rule in this file: <c>Selected*</c> is silent, <c>Require*</c> tells
+    /// the user to pick something first. Reach for Require in a button handler.
+    /// </summary>
     private Language? SelectedLanguage() => (lstLanguages?.SelectedItem as LanguageRow)?.Language;
 
     private void BtnAddLanguage_Click(object sender, RoutedEventArgs e)
@@ -161,7 +168,7 @@ public partial class CatalogueWindow : Window
 
     private void EditLevel()
     {
-        if (SelectedLevel() is not LevelRow row) return;
+        if (RequireLevel() is not LevelRow row) return;
         if (SelectedLanguage() is not Language language) return;
 
         if (new LevelDialog(language, row.Level) { Owner = this }.ShowDialog() == true) LoadLevels();
@@ -169,7 +176,7 @@ public partial class CatalogueWindow : Window
 
     private void BtnDeleteLevel_Click(object sender, RoutedEventArgs e)
     {
-        if (SelectedLevel() is not LevelRow row) return;
+        if (RequireLevel() is not LevelRow row) return;
 
         var confirm = MessageBox.Show($"Delete level \"{row.Name}\"?", "Confirm",
             MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -192,7 +199,7 @@ public partial class CatalogueWindow : Window
         }
     }
 
-    private LevelRow? SelectedLevel()
+    private LevelRow? RequireLevel()
     {
         if (dgLevels.SelectedItem is LevelRow row) return row;
         MessageBox.Show("Please select a level.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -206,9 +213,15 @@ public partial class CatalogueWindow : Window
         public string Name => Language.Name;
 
         /// <summary>"6 level(s) · 2 course(s)" — also the reason Delete would be refused.</summary>
-        public string Summary =>
-            $"{(LevelCount == 0 ? "no levels" : $"{LevelCount} level(s)")} · "
-            + $"{(CourseCount == 0 ? "no courses" : $"{CourseCount} course(s)")}";
+        public string Summary
+        {
+            get
+            {
+                var levels = LevelCount == 0 ? "no levels" : $"{LevelCount} level(s)";
+                var courses = CourseCount == 0 ? "no courses" : $"{CourseCount} course(s)";
+                return $"{levels} · {courses}";
+            }
+        }
     }
 
     private sealed record LevelRow(Level Level, int CourseCount)
