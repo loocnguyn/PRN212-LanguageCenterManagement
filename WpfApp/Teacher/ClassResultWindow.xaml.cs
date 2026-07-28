@@ -31,6 +31,8 @@ public partial class ClassResultWindow : Window
     private Teacher? _teacher;
     private List<Class> _teacherClasses = new();
     private List<ExpandoObject> _rows = new();
+    private List<ClassGradeComponent> _components = new();
+    private string _activeSemesterName = "N/A";
 
     public ClassResultWindow(User currentUser)
     {
@@ -58,6 +60,7 @@ public partial class ClassResultWindow : Window
                 tbTeacherInfo.Text += " — No active semester";
                 return;
             }
+            _activeSemesterName = semester.Name;
 
             _teacherClasses = _classService.GetBySemesterId(semester.SemesterId)
                 .Where(c => c.ClassTeachers.Any(ct => ct.TeacherId == _teacher.TeacherId))
@@ -84,8 +87,8 @@ public partial class ClassResultWindow : Window
         {
             // The class's OWN frozen structure — not the course template, which may
             // have been edited since this class opened.
-            var components = _classService.GetGradeComponents(cls.ClassId);
-            if (components.Count == 0)
+            _components = _classService.GetGradeComponents(cls.ClassId);
+            if (_components.Count == 0)
             {
                 MessageBox.Show($"No grading structure recorded for class '{cls.Name}'.", "Warning",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -123,7 +126,7 @@ public partial class ClassResultWindow : Window
                     : new List<Grade>();
 
                 decimal finalScore = 0m;
-                foreach (var comp in components)
+                foreach (var comp in _components)
                 {
                     var grade = enrollmentGrades.FirstOrDefault(g => g.ComponentId == comp.ComponentId);
                     if (grade != null && grade.MaxScore > 0)
@@ -158,7 +161,7 @@ public partial class ClassResultWindow : Window
                 Width = 180
             });
 
-            foreach (var comp in components)
+            foreach (var comp in _components)
             {
                 dgResults.Columns.Add(new DataGridTextColumn
                 {
@@ -239,14 +242,13 @@ public partial class ClassResultWindow : Window
             string fileName = $"{safeClassName}_Grades_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
             string filePath = Path.Combine(exportFolder, fileName);
 
-            // Fetch dynamic components and metadata
-            var components = _classService.GetGradeComponents(cls.ClassId);
+            // Reuse cached components and metadata
+            var components = _components;
             string teacherName = _teacher?.FullName ?? "N/A";
             string className = cls.Name;
             string courseName = $"{cls.SnapCourseCode} — {cls.SnapCourseName}";
             string languageAndLevel = $"{cls.SnapLanguage} {cls.SnapLevel}";
-            var semester = _semesterService.GetById(cls.SemesterId);
-            string semesterName = semester?.Name ?? "N/A";
+            string semesterName = _activeSemesterName;
             string exportDate = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
 
             // Perform Excel export

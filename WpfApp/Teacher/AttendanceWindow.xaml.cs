@@ -88,7 +88,12 @@ public partial class AttendanceWindow : Window
         {
             _teacherClassesInSemester = _classService.GetClassesForTeacher(_teacher.TeacherId, semester.SemesterId);
 
-            var courses = _classService.GetCoursesForTeacher(_teacher.TeacherId, semester.SemesterId);
+            var courses = _teacherClassesInSemester
+                .Select(c => c.Course)
+                .Where(c => c != null)
+                .DistinctBy(c => c.CourseId)
+                .OrderBy(c => c.Name)
+                .ToList();
 
             cboCourse.ItemsSource = courses;
 

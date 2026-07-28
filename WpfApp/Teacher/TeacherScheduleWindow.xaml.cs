@@ -25,6 +25,7 @@ public partial class TeacherScheduleWindow : Window
     private int _teacherId;
     private List<Session> _allSessions = new();
     private DateOnly _weekStart;
+    private List<Slot> _slots = new();
 
     public TeacherScheduleWindow(User currentUser)
     {
@@ -69,6 +70,9 @@ public partial class TeacherScheduleWindow : Window
                 tbSummary.Text = $"{_allSessions.Count} session(s) across {classes.Count} class(es)";
             }
 
+            // Cache slots configuration once on load
+            _slots = _slotService.GetAll() ?? new List<Slot>();
+
             _weekStart = ScheduleGridBuilder.GetWeekStart(DateOnly.FromDateTime(DateTime.Today));
             RenderGrid();
         }
@@ -95,7 +99,7 @@ public partial class TeacherScheduleWindow : Window
         var weekEnd = _weekStart.AddDays(6);
         tbWeekRange.Text = $"{_weekStart:dd/MM} to {weekEnd:dd/MM/yyyy}";
 
-        var slots = _slotService.GetAll();
+        var slots = _slots;
         var rows = ScheduleGridBuilder.Build(
             _allSessions,
             _weekStart,
