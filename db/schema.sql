@@ -20,6 +20,17 @@ GO
 USE LanguageCenterDB;
 GO
 
+-- Must be ON before the first FILTERED index in this file (uq_class_one_primary
+-- in section 2, UQ__WalletTr__ProviderOrderId in section 6). sqlcmd connects with
+-- it OFF, and SQL Server then refuses to build a filtered index — failing with
+-- Msg 1934 while every other statement succeeds, so the script still prints
+-- "created successfully" and the database quietly ends up without the rule that
+-- stops a class having two primary teachers, or a ZaloPay order being credited
+-- twice. SSMS turns this on for you, which is why the same file behaves
+-- differently depending on how it is run.
+SET QUOTED_IDENTIFIER ON;
+GO
+
 -- ============================================================
 -- 1. AUTH & USER MANAGEMENT
 -- ============================================================

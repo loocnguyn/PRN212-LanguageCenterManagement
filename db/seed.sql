@@ -40,6 +40,15 @@
 USE LanguageCenterDB;
 GO
 
+-- ClassTeachers and WalletTransactions each carry a FILTERED index, and SQL
+-- Server refuses to write to such a table while QUOTED_IDENTIFIER is OFF —
+-- which is how sqlcmd connects. Without this line those two INSERTs fail with
+-- Msg 1934 and everything else succeeds, so the script still prints "seed
+-- inserted" over a database where no class has a teacher and no wallet has a
+-- transaction. SSMS turns it on for you; sqlcmd does not.
+SET QUOTED_IDENTIFIER ON;
+GO
+
 -- ============================================================
 --  1. ACCOUNTS - Users.id 1..28
 --
@@ -290,7 +299,16 @@ CROSS JOIN (VALUES
 GO
 
 -- ============================================================
---  5. DISCOUNTS - one percentage, one fixed, one expired
+--  5. DISCOUNTS - one of every shape the finance screens have to cope with
+--
+--  Rows 1-3 are the ones invoices actually use. Rows 4-6 are unused on purpose:
+--  the discount screen has to list, filter and apply vouchers that nobody has
+--  claimed yet, and with only used rows there is nothing to try that on.
+--
+--  Between them they cover every branch the discount logic can take:
+--    PERCENT vs FIXED · with and without a date window · with and without a
+--    payment deadline · active vs expired · EARLY_PAYMENT vs NONE.
+--  Deleting one takes a case away from the finance screens.
 -- ============================================================
 INSERT INTO TuitionDiscounts
     (code, name, discount_type, discount_value, start_date, end_date, is_active, note, payment_deadline_days, condition_type)
@@ -300,7 +318,21 @@ VALUES
 ('REWARD500K', N'Scholarship 500,000', 'FIXED',   500000, NULL,         NULL,         1,
  N'Ho tro co dinh cho hoc vien xuat sac', NULL, 'NONE'),                                      -- 2
 ('OLDPROMO', N'Expired 2025 promo',    'PERCENT', 12,     '2025-01-01', '2025-03-31', 0,
- N'Da ket thuc - giu lai de kiem thu bo loc', NULL, 'NONE');                                  -- 3
+ N'Da ket thuc - giu lai de kiem thu bo loc', NULL, 'NONE'),                                  -- 3
+
+-- A plain percentage with no conditions at all — the simplest thing the
+-- discount form can produce, and the baseline the others are read against.
+('LOYAL10',  N'Returning student 10%', 'PERCENT', 10,     NULL,         NULL,         1,
+ N'Giam 10% cho hoc vien da hoc it nhat mot khoa', NULL, 'NONE'),                             -- 4
+
+('SIBLING7', N'Sibling discount 7%',   'PERCENT', 7,      NULL,         NULL,         1,
+ N'Giam 7% khi co anh chi em cung theo hoc', NULL, 'NONE'),                                   -- 5
+
+-- The only row carrying a date window AND a payment deadline at once. It is
+-- what proves the two rules are checked independently: in date but paid late
+-- must be refused for a different reason than out of date but paid at once.
+('SUMMER15', N'Summer promotion 15%',  'PERCENT', 15,     '2026-05-01', '2026-07-31', 1,
+ N'Khuyen mai he, ap dung trong thoi gian gioi han', 10, 'EARLY_PAYMENT');                    -- 6
 GO
 
 -- ============================================================
