@@ -421,7 +421,7 @@ CREATE TABLE WalletTransactions (
     student_id       INT           NOT NULL REFERENCES Students(student_id),
     amount            DECIMAL(18,2) NOT NULL CHECK (amount > 0),
     transaction_type NVARCHAR(20)  NOT NULL
-                                   CHECK (transaction_type IN ('TOP_UP', 'PAYMENT', 'REFUND')),
+                                   CHECK (transaction_type IN ('TOP_UP', 'PAYMENT', 'REFUND', 'REWARD')),
     -- Only ZaloPay top-ups carry an order id; wallet spends and refunds leave it
     -- NULL. A plain UNIQUE constraint counts two NULLs as duplicates, so the
     -- uniqueness is a filtered index further down instead.
@@ -430,6 +430,42 @@ CREATE TABLE WalletTransactions (
     status           NVARCHAR(20)  NOT NULL DEFAULT 'PENDING'
                                    CHECK (status IN ('PENDING', 'COMPLETED', 'FAILED')),
     created_at       DATETIME2     NOT NULL DEFAULT GETDATE()
+);
+GO
+
+-- StudentAwards - who was rewarded for doing well, and once only.
+--
+-- Separate from WalletTransactions on purpose: the wallet records that money
+-- MOVED, this records that somebody DECIDED to move it. Merging the two would
+-- leave semester_id sitting NULL on every top-up and every tuition payment.
+--
+-- The UNIQUE below is the whole point of the table. Awarding is not idempotent
+-- the way reading a ranking is: press twice and a student is paid twice, so the
+-- second press has to be refused by the database rather than by a screen
+-- remembering to check. That is the mistake the old scholarship feature made.
+CREATE TABLE StudentAwards (
+    award_id       INT           IDENTITY(1,1) PRIMARY KEY,
+    student_id     INT           NOT NULL REFERENCES Students(student_id),
+    semester_id    INT           NOT NULL REFERENCES Semesters(semester_id),
+    amount         DECIMAL(18,2) NOT NULL CHECK (amount > 0),
+
+    -- Why they qualified, frozen at the moment of the award. Marks keep changing
+    -- afterwards - a teacher corrects one component and the average moves - but
+    -- the reason money was paid must not move with it. Same principle as the
+    -- snap_* columns on Classes.
+    average_score  DECIMAL(4,2)  NULL,
+    threshold      DECIMAL(4,2)  NULL,
+
+    -- The matching wallet row. NOT NULL: a decision with no money behind it is
+    -- not an award. Both rows are written in one transaction, so a duplicate
+    -- caught by the constraint below rolls the payment back with it.
+    transaction_id INT           NOT NULL REFERENCES WalletTransactions(transaction_id),
+
+    awarded_by     INT           NULL REFERENCES Users(id),   -- money needs a name against it
+    awarded_at     DATETIME2     NOT NULL DEFAULT GETDATE(),
+    note           NVARCHAR(255) NULL,
+
+    CONSTRAINT uq_award_per_student_semester UNIQUE (student_id, semester_id)
 );
 GO
 
@@ -465,6 +501,11 @@ CREATE INDEX idx_wallet_status      ON WalletTransactions(status);
 -- One row per ZaloPay order, but any number of rows with no order at all.
 CREATE UNIQUE INDEX UQ__WalletTr__ProviderOrderId
     ON WalletTransactions(provider_order_id) WHERE provider_order_id IS NOT NULL;
+
+-- uq_award_per_student_semester already indexes (student_id, semester_id), but
+-- semester_id is its SECOND column, so it cannot serve "everyone awarded this
+-- term" - which is the one question the ranking screen asks on every load.
+CREATE INDEX idx_awards_semester    ON StudentAwards(semester_id);
 GO
 
 PRINT '==> LanguageCenterDB schema created successfully. Now run seed.sql.';
