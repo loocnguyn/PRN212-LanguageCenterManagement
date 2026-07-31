@@ -289,7 +289,7 @@ public class EnrollmentDAO
     {
         using var context = new LanguageCenterContext();
         return context.Enrollments
-            .Where(e => e.ClassId == classId && e.Status == "ACTIVE")
+            .Where(e => e.ClassId == classId && e.Status != "DROPPED")   
             .Include(e => e.Student)
             .Include(e => e.Class)
             .ToList();
