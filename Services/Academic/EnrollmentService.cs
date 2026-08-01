@@ -51,7 +51,7 @@ public class EnrollmentService : IEnrollmentService
 
     public List<Enrollment> GetByClassId(int classId) => _enrollmentRepo.GetByClassId(classId);
     public List<Enrollment> GetByStudentId(int studentId) => _enrollmentRepo.GetByStudentId(studentId);
-
+    public List<Enrollment> GetAllByStudentId(int studentId) => _enrollmentRepo.GetAllByStudentId(studentId);   
     public void Enroll(int studentId, int classId) => EnrollInternal(studentId, classId, null, useDiscountPricing: false);
 
     public void Enroll(int studentId, int classId, int? discountId) => EnrollInternal(studentId, classId, discountId, useDiscountPricing: true);

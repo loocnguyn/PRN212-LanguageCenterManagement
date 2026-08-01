@@ -312,6 +312,24 @@ public class EnrollmentDAO
             .ToList();
     }
 
+    public static List<Enrollment> GetAllByStudentId(int studentId)
+    {
+        using var context = new LanguageCenterContext();
+        return context.Enrollments
+            .Where(e => e.StudentId == studentId)   // không lọc status — lấy mọi trạng thái
+            .Include(e => e.Student)
+            .Include(e => e.Class)
+            .ThenInclude(c => c.Course)
+            .Include(e => e.Class)
+            .ThenInclude(c => c.Semester)
+            .Include(e => e.Class)
+            .ThenInclude(c => c.Classroom)
+            .Include(e => e.Class)
+            .ThenInclude(c => c.ClassTeachers)
+            .ThenInclude(ct => ct.Teacher)
+            .ToList();
+    }
+
     public static Enrollment? GetByStudentAndClass(int studentId, int classId)
     {
         using var context = new LanguageCenterContext();

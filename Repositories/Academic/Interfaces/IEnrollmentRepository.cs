@@ -15,6 +15,7 @@ public interface IEnrollmentRepository
     void Delete(int id);
     List<Enrollment> GetByClassId(int classId);
     List<Enrollment> GetByStudentId(int studentId);
+    List<Enrollment> GetAllByStudentId(int studentId);  
     Enrollment? GetByStudentAndClass(int studentId, int classId);
     void TransferClass(int oldEnrollmentId, int newClassId, decimal newTuitionFee, DateOnly dueDate, string note);
     void LockEnrollmentsByClass(int classId);
