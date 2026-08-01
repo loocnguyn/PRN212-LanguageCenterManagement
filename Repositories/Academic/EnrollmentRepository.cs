@@ -18,6 +18,7 @@ public class EnrollmentRepository : IEnrollmentRepository
     public void Delete(int id) => EnrollmentDAO.Delete(id);
     public List<Enrollment> GetByClassId(int classId) => EnrollmentDAO.GetByClassId(classId);
     public List<Enrollment> GetByStudentId(int studentId) => EnrollmentDAO.GetByStudentId(studentId);
+    public List<Enrollment> GetAllByStudentId(int studentId) => EnrollmentDAO.GetAllByStudentId(studentId);   
     public Enrollment? GetByStudentAndClass(int studentId, int classId) => EnrollmentDAO.GetByStudentAndClass(studentId, classId);
     public void TransferClass(int oldEnrollmentId, int newClassId, decimal newTuitionFee, DateOnly dueDate, string note)
         => EnrollmentDAO.TransferClass(oldEnrollmentId, newClassId, newTuitionFee, dueDate, note);

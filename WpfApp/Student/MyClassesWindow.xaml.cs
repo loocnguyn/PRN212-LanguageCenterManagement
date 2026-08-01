@@ -66,7 +66,7 @@ public partial class MyClassesWindow : Window
             tbStudentInfo.Text = student.FullName;
 
             // Load all enrollments for this student
-            _allEnrollments = _enrollmentService.GetByStudentId(_studentId);
+            _allEnrollments = _enrollmentService.GetAllByStudentId(_studentId);
 
             if (!_allEnrollments.Any())
             {
